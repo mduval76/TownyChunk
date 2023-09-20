@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2012
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mcclone", "mcclone\mcclone.vcxproj", "{A21FD938-1FEA-4687-AB86-0EABAC30877B}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TownyChunk", "townychunk\townychunk.vcxproj", "{A21FD938-1FEA-4687-AB86-0EABAC30877B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
