@@ -2,6 +2,7 @@
 #define TEXTURE_H__
 
 #include "define.h"
+
 #include <IL/il.h>
 #include <string>
 

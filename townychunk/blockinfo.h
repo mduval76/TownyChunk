@@ -2,6 +2,7 @@
 #define BLOCKINFO_H__
 
 #include <string>
+
 #include "define.h"
 
 class BlockInfo

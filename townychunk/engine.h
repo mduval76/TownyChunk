@@ -1,7 +1,9 @@
 #ifndef ENGINE_H__
 #define ENGINE_H__
+
 #include "define.h"
 #include "openglcontext.h"
+#include "player.h"
 #include "texture.h"
 
 class Engine : public OpenglContext
@@ -24,9 +26,11 @@ private:
     bool LoadTexture(Texture& texture, const std::string& filename, bool stopOnError = true);
 
 private:
-    bool m_wireframe = false;
+    Player m_player = Player(Vector3f(0, 0, 0));
 
     Texture m_textureFloor;
+
+    bool m_wireframe = false;
 
     bool m_keyW = false;
     bool m_keyA = false;

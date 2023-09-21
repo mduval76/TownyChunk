@@ -1,5 +1,6 @@
 #ifndef CHUNK_H__
 #define CHUNK_H__
+
 #include "blockarray3d.h"
 
 class Chunk : public BlockArray3d
