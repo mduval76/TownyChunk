@@ -27,10 +27,10 @@ void Player::TurnTopBottom(float value) {
 void Player::Move(bool front, bool back, bool left, bool right, float elapsedTime) {
 	float yrotrad, xrotrad;
 	yrotrad = (m_rotY / 180 * 3.141592654f);
-	xrotrad = (m_rotX / 180 * 3.141592654f);
+	//xrotrad = (m_rotX / 180 * 3.141592654f);
 	float speed = 0.25f;
 
-	if (front && left || front && right || back && left || back && right) {
+	if ((front && left) || (front && right) || (back && left) || (back && right)) {
 		speed /= 1.5;
 	}
 

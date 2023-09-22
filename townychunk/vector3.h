@@ -10,6 +10,7 @@ class Vector3
 public:
 	Vector3();
 	Vector3(const T& x, const T& y, const T& z);
+	Vector3(const Vector3<T>& other) : x(other.x), y(other.y), z(other.z) {}
 	~Vector3();
 
 	T Length() const;
@@ -155,6 +156,9 @@ Vector3<T> Vector3<T>::operator*(const T& v) const
 template <class T>
 Vector3<T>& Vector3<T>::operator=(const Vector3<T>& v)
 {
+	if (this == &v) {
+		return *this;
+	}
 	x = v.x;
 	y = v.y;
 	z = v.z;
