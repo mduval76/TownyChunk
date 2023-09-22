@@ -43,13 +43,13 @@ void Engine::DeInit() {
 
 void Engine::LoadResource() {
 	LoadTexture(m_textureFloor, TEXTURE_PATH "checker.png");
+	LoadTexture(m_textureBlock, TEXTURE_PATH "block.jpg");
 }
 
 void Engine::UnloadResource() {
 }
 
 void Engine::Render(float elapsedTime) {
-	m_player.Move(m_keyW, m_keyS, m_keyA, m_keyD, elapsedTime);
 
 	static float gameTime = elapsedTime;
 	gameTime += elapsedTime;
@@ -60,29 +60,32 @@ void Engine::Render(float elapsedTime) {
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
+	// Camera
 	Transformation t;
-	Vector3f pos = m_player.GetPosition();
 	m_player.ApplyTransformation(t);
-
-	t.Push();
-	t.ApplyTranslation(pos.x, pos.y, pos.z);
+	Vector3f playerPos = m_player.GetPosition();
 	t.Use();
 
+	m_player.Move(m_keyW, m_keyS, m_keyA, m_keyD, elapsedTime);
+	glTranslatef(0.0f, CHUNK_SIZE_Y, 0.0f);
+
+	// Block
+	glPushMatrix();
+	static float angle = 0.0f;
+	angle += (elapsedTime * 100);
+	glRotatef(angle, 1.0, 1.0, 0.0);
+	DrawBlock();
+	glPopMatrix();
+
 	// Plancher
-	// Les vertex doivent etre affiches dans le sens anti-horaire (CCW)
 	m_textureFloor.Bind();
 	float nbRep = 50.f;
-
 	glBegin(GL_QUADS);
-		glNormal3f(0, 1, 0); // Normal vector
-		glTexCoord2f(0, 0);
-		glVertex3f(-100.f, -2.f, 100.f);
-		glTexCoord2f(nbRep, 0);
-		glVertex3f(100.f, -2.f, 100.f);
-		glTexCoord2f(nbRep, nbRep);
-		glVertex3f(100.f, -2.f, -100.f);
-		glTexCoord2f(0, nbRep);
-		glVertex3f(-100.f, -2.f, -100.f);
+	glNormal3f(0, 1, 0); // Normal vector
+		glTexCoord2f(0, 0);			glVertex3f(-100.f, - 2.0f, 100.f);
+		glTexCoord2f(nbRep, 0);		glVertex3f(100.f, - 2.0f, 100.f);
+		glTexCoord2f(nbRep, nbRep); glVertex3f(100.f, - 2.0f, -100.f);
+		glTexCoord2f(0, nbRep);		glVertex3f(-100.f, - 2.0f, -100.f);
 	glEnd();
 }
 
@@ -90,19 +93,15 @@ void Engine::KeyPressEvent(unsigned char key) {
 	switch (key) {
 	case 0: // ( GAUCHE ) A
 		m_keyA = true;
-		m_keyS = false;
 		break;
 	case 3: // ( ARRIÈRE ) D
 		m_keyD = true;
-		m_keyW = false;
 		break;
 	case 18: // ( DROITE ) S
 		m_keyS = true;
-		m_keyA = false;
 		break;
 	case 22: // ( AVANT ) W
 		m_keyW = true;
-		m_keyD = false;
 		break;
 	case 36: // ESC
 		Stop();
@@ -118,16 +117,16 @@ void Engine::KeyPressEvent(unsigned char key) {
 void Engine::KeyReleaseEvent(unsigned char key) {
 	switch (key) {
 	case 0: // ( GAUCHE ) A
-		m_keyA = true;
+		m_keyA = false;
 		break;
 	case 3: // ( ARRIÈRE ) D
-		m_keyD = true;
+		m_keyD = false;
 		break;
 	case 18: // ( DROITE ) S
-		m_keyS = true;
+		m_keyS = false;
 		break;
 	case 22: // ( AVANT ) W
-		m_keyW = true;
+		m_keyW = false;
 		break;
 	case 24: // Y
 		m_wireframe = !m_wireframe;
@@ -173,4 +172,55 @@ bool Engine::LoadTexture(Texture& texture, const std::string& filename, bool sto
 	}
 
 	return true;
+}
+
+void Engine::DrawBlock() {
+	m_textureBlock.Bind();
+	glBegin(GL_QUADS);		// FRONT
+	glNormal3f(0, 0, 1);	// Normal Z-
+		glTexCoord2f(0, 0);	glVertex3f(-0.5, -0.5, 0.5);
+		glTexCoord2f(1, 0);	glVertex3f(0.5, -0.5, 0.5);
+		glTexCoord2f(1, 1);	glVertex3f(0.5, 0.5, 0.5);
+		glTexCoord2f(0, 1);	glVertex3f(-0.5, 0.5, 0.5);
+	glEnd();
+
+	glBegin(GL_QUADS);		// BACK
+	glNormal3f(0, 0, -1);	// Normal Z+
+		glTexCoord2f(0, 0); glVertex3f(0.5, -0.5, -0.5);
+		glTexCoord2f(1, 0); glVertex3f(-0.5, -0.5, -0.5);
+		glTexCoord2f(1, 1); glVertex3f(-0.5, 0.5, -0.5);
+		glTexCoord2f(0, 1); glVertex3f(0.5, 0.5, -0.5);
+	glEnd();
+
+	glBegin(GL_QUADS);		// TOP	
+	glNormal3f(0, 1, 0);	// Normal Y+
+		glTexCoord2f(0, 0);	glVertex3f(-0.5, 0.5, -0.5);
+		glTexCoord2f(1, 0);	glVertex3f(0.5, 0.5, -0.5);
+		glTexCoord2f(1, 1);	glVertex3f(0.5, 0.5, 0.5);
+		glTexCoord2f(0, 1);	glVertex3f(-0.5, 0.5, 0.5);
+	glEnd();
+
+	glBegin(GL_QUADS);		// BOTTOM
+	glNormal3f(0, -1, 0);	// Normal Y-
+		glTexCoord2f(0, 0);	glVertex3f(-0.5, -0.5, -0.5);
+		glTexCoord2f(1, 0);	glVertex3f(0.5, -0.5, -0.5);
+		glTexCoord2f(1, 1);	glVertex3f(0.5, -0.5, 0.5);
+		glTexCoord2f(0, 1);	glVertex3f(-0.5, -0.5, 0.5);
+	glEnd();
+
+	glBegin(GL_QUADS);		// LEFT
+	glNormal3f(-1, 0, 0);	// Normal X-
+		glTexCoord2f(0, 0);	glVertex3f(-0.5, -0.5, -0.5);
+		glTexCoord2f(1, 0);	glVertex3f(-0.5, -0.5, 0.5);
+		glTexCoord2f(1, 1);	glVertex3f(-0.5, 0.5, 0.5);
+		glTexCoord2f(0, 1);	glVertex3f(-0.5, 0.5, -0.5);
+	glEnd();
+
+	glBegin(GL_QUADS);		// RIGHT
+	glNormal3f(1, 0, 0);	// Normal X+
+		glTexCoord2f(0, 0);	glVertex3f(0.5, -0.5, 0.5);
+		glTexCoord2f(1, 0);	glVertex3f(0.5, -0.5, -0.5);
+		glTexCoord2f(1, 1);	glVertex3f(0.5, 0.5, -0.5);
+		glTexCoord2f(0, 1);	glVertex3f(0.5, 0.5, 0.5);
+	glEnd();
 }

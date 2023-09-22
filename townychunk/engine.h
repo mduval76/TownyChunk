@@ -25,10 +25,13 @@ public:
 private:
     bool LoadTexture(Texture& texture, const std::string& filename, bool stopOnError = true);
 
+    void DrawBlock();
+
 private:
-    Player m_player = Player(Vector3f(0, 0, 0));
+    Player m_player = Player(Vector3f(0.0f, CHUNK_SIZE_Y + 1.7f, 5.0f));
 
     Texture m_textureFloor;
+    Texture m_textureBlock;
 
     bool m_wireframe = false;
 
@@ -36,6 +39,8 @@ private:
     bool m_keyA = false;
     bool m_keyS = false;
     bool m_keyD = false;
+
+    bool m_fun = false;
 };
 
 #endif // ENGINE_H__

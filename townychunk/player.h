@@ -6,7 +6,6 @@
 
 class Player {
 public:
-	Player();
 	Player(const Vector3f& position, float rotX = 0, float rotY = 0);
 
 	Vector3f GetPosition() const;
@@ -19,11 +18,10 @@ public:
 	void ApplyTransformation(Transformation& transformation) const;
 
 private:
-	Vector3f m_position;
+	Vector3f m_position = Vector3f(0.0f, 0.0f, 0.0f);
 
 	float m_rotX;
 	float m_rotY;
-
 };
 
 #endif // PLAYER_H__
