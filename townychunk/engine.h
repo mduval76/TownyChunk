@@ -32,6 +32,8 @@ private:
 
     Texture m_textureFloor;
     Texture m_textureBlock;
+    Texture m_textureSide1;
+    Texture m_textureSide2;
 
     bool m_wireframe = false;
 

@@ -43,7 +43,9 @@ void Engine::DeInit() {
 
 void Engine::LoadResource() {
 	LoadTexture(m_textureFloor, TEXTURE_PATH "checker.png");
-	LoadTexture(m_textureBlock, TEXTURE_PATH "block.jpg");
+	LoadTexture(m_textureBlock, TEXTURE_PATH "block_top.png");
+	LoadTexture(m_textureSide1, TEXTURE_PATH "block_side01.png");
+	LoadTexture(m_textureSide2, TEXTURE_PATH "block_side02.png");
 }
 
 void Engine::UnloadResource() {
@@ -51,16 +53,16 @@ void Engine::UnloadResource() {
 
 void Engine::Render(float elapsedTime) {
 
-	static float gameTime = elapsedTime;
+	static float gameTime = elapsedTime; // Valeur conservée entre les appels car static
 	gameTime += elapsedTime;
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Efface le tampon de couleur et de profondeur
 
 	// Transformations initiales
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+	glMatrixMode(GL_MODELVIEW); // rotation, translation, scale
+	glLoadIdentity(); // Réinitialise la matrice de transformation
 
-	// Camera
+	// Camera (Player)
 	Transformation t;
 	m_player.ApplyTransformation(t);
 	Vector3f playerPos = m_player.GetPosition();
@@ -79,7 +81,7 @@ void Engine::Render(float elapsedTime) {
 
 	// Plancher
 	m_textureFloor.Bind();
-	float nbRep = 50.f;
+	float nbRep = 64.0f;
 	glBegin(GL_QUADS);
 	glNormal3f(0, 1, 0); // Normal vector
 		glTexCoord2f(0, 0);			glVertex3f(-100.f, - 2.0f, 100.f);
@@ -176,24 +178,8 @@ bool Engine::LoadTexture(Texture& texture, const std::string& filename, bool sto
 
 void Engine::DrawBlock() {
 	m_textureBlock.Bind();
-	glBegin(GL_QUADS);		// FRONT
-	glNormal3f(0, 0, 1);	// Normal Z-
-		glTexCoord2f(0, 0);	glVertex3f(-0.5, -0.5, 0.5);
-		glTexCoord2f(1, 0);	glVertex3f(0.5, -0.5, 0.5);
-		glTexCoord2f(1, 1);	glVertex3f(0.5, 0.5, 0.5);
-		glTexCoord2f(0, 1);	glVertex3f(-0.5, 0.5, 0.5);
-	glEnd();
-
-	glBegin(GL_QUADS);		// BACK
-	glNormal3f(0, 0, -1);	// Normal Z+
-		glTexCoord2f(0, 0); glVertex3f(0.5, -0.5, -0.5);
-		glTexCoord2f(1, 0); glVertex3f(-0.5, -0.5, -0.5);
-		glTexCoord2f(1, 1); glVertex3f(-0.5, 0.5, -0.5);
-		glTexCoord2f(0, 1); glVertex3f(0.5, 0.5, -0.5);
-	glEnd();
-
 	glBegin(GL_QUADS);		// TOP	
-	glNormal3f(0, 1, 0);	// Normal Y+
+		glNormal3f(0, 1, 0);	// Normal Y+
 		glTexCoord2f(0, 0);	glVertex3f(-0.5, 0.5, -0.5);
 		glTexCoord2f(1, 0);	glVertex3f(0.5, 0.5, -0.5);
 		glTexCoord2f(1, 1);	glVertex3f(0.5, 0.5, 0.5);
@@ -201,15 +187,34 @@ void Engine::DrawBlock() {
 	glEnd();
 
 	glBegin(GL_QUADS);		// BOTTOM
-	glNormal3f(0, -1, 0);	// Normal Y-
+		glNormal3f(0, -1, 0);	// Normal Y-
 		glTexCoord2f(0, 0);	glVertex3f(-0.5, -0.5, -0.5);
 		glTexCoord2f(1, 0);	glVertex3f(0.5, -0.5, -0.5);
 		glTexCoord2f(1, 1);	glVertex3f(0.5, -0.5, 0.5);
 		glTexCoord2f(0, 1);	glVertex3f(-0.5, -0.5, 0.5);
 	glEnd();
 
+	m_textureSide1.Bind();
+	glBegin(GL_QUADS);		// FRONT
+		glNormal3f(0, 0, 1);	// Normal Z-
+		glTexCoord2f(0, 0);	glVertex3f(-0.5, -0.5, 0.5);
+		glTexCoord2f(1, 0);	glVertex3f(0.5, -0.5, 0.5);
+		glTexCoord2f(1, 1);	glVertex3f(0.5, 0.5, 0.5);
+		glTexCoord2f(0, 1);	glVertex3f(-0.5, 0.5, 0.5);
+	glEnd();
+
+	glBegin(GL_QUADS);		// BACK
+		glNormal3f(0, 0, -1);	// Normal Z+
+		glTexCoord2f(0, 0); glVertex3f(0.5, -0.5, -0.5);
+		glTexCoord2f(1, 0); glVertex3f(-0.5, -0.5, -0.5);
+		glTexCoord2f(1, 1); glVertex3f(-0.5, 0.5, -0.5);
+		glTexCoord2f(0, 1); glVertex3f(0.5, 0.5, -0.5);
+	glEnd();
+
+
+	m_textureSide2.Bind();
 	glBegin(GL_QUADS);		// LEFT
-	glNormal3f(-1, 0, 0);	// Normal X-
+		glNormal3f(-1, 0, 0);	// Normal X-
 		glTexCoord2f(0, 0);	glVertex3f(-0.5, -0.5, -0.5);
 		glTexCoord2f(1, 0);	glVertex3f(-0.5, -0.5, 0.5);
 		glTexCoord2f(1, 1);	glVertex3f(-0.5, 0.5, 0.5);
@@ -217,7 +222,7 @@ void Engine::DrawBlock() {
 	glEnd();
 
 	glBegin(GL_QUADS);		// RIGHT
-	glNormal3f(1, 0, 0);	// Normal X+
+		glNormal3f(1, 0, 0);	// Normal X+
 		glTexCoord2f(0, 0);	glVertex3f(0.5, -0.5, 0.5);
 		glTexCoord2f(1, 0);	glVertex3f(0.5, -0.5, -0.5);
 		glTexCoord2f(1, 1);	glVertex3f(0.5, 0.5, -0.5);
