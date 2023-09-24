@@ -42,10 +42,12 @@ void Engine::DeInit() {
 }
 
 void Engine::LoadResource() {
-	LoadTexture(m_textureFloor, TEXTURE_PATH "checker.png");
+	LoadTexture(m_textureFloor, TEXTURE_PATH "floor.jpg");
 	LoadTexture(m_textureBlock, TEXTURE_PATH "block_top.png");
 	LoadTexture(m_textureSide1, TEXTURE_PATH "block_side01.png");
 	LoadTexture(m_textureSide2, TEXTURE_PATH "block_side02.png");
+	LoadTexture(m_textureMonster, TEXTURE_PATH "monster.jpg");
+	LoadTexture(m_textureDark, TEXTURE_PATH "darkness.jpg");
 }
 
 void Engine::UnloadResource() {
@@ -59,36 +61,42 @@ void Engine::Render(float elapsedTime) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Efface le tampon de couleur et de profondeur
 
 	// Transformations initiales
-	glMatrixMode(GL_MODELVIEW); // rotation, translation, scale
-	glLoadIdentity(); // Réinitialise la matrice de transformation
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
 
 	// Camera (Player)
+	m_player.Move(m_keyW, m_keyS, m_keyA, m_keyD, elapsedTime);
+
 	Transformation t;
 	m_player.ApplyTransformation(t);
-	Vector3f playerPos = m_player.GetPosition();
+	t.ApplyTranslation(0.0f, 0.0f, -5.0f);
 	t.Use();
-
-	m_player.Move(m_keyW, m_keyS, m_keyA, m_keyD, elapsedTime);
-	glTranslatef(0.0f, CHUNK_SIZE_Y, 0.0f);
-
-	// Block
-	glPushMatrix();
-	static float angle = 0.0f;
-	angle += (elapsedTime * 100);
-	glRotatef(angle, 1.0, 1.0, 0.0);
-	DrawBlock();
-	glPopMatrix();
 
 	// Plancher
 	m_textureFloor.Bind();
-	float nbRep = 64.0f;
+	float nbRep = 25.0f;
 	glBegin(GL_QUADS);
-	glNormal3f(0, 1, 0); // Normal vector
-		glTexCoord2f(0, 0);			glVertex3f(-100.f, - 2.0f, 100.f);
-		glTexCoord2f(nbRep, 0);		glVertex3f(100.f, - 2.0f, 100.f);
-		glTexCoord2f(nbRep, nbRep); glVertex3f(100.f, - 2.0f, -100.f);
-		glTexCoord2f(0, nbRep);		glVertex3f(-100.f, - 2.0f, -100.f);
+		glNormal3f(0, 1, 0);
+		glTexCoord2f(0, 0);			glVertex3f(-100.f, -2.0f, 100.f);
+		glTexCoord2f(nbRep, 0);		glVertex3f(100.f, -2.0f, 100.f);
+		glTexCoord2f(nbRep, nbRep); glVertex3f(100.f, -2.0f, -100.f);
+		glTexCoord2f(0, nbRep);		glVertex3f(-100.f, -2.0f, -100.f);
 	glEnd();
+
+	// Block
+	t.ApplyRotation(gameTime * 100, 1.0f, 0.0f, 0.0f);
+	t.ApplyRotation(gameTime * 100, 0.0f, 1.0f, 0.0f);
+	t.Use();
+
+	DrawBlock();
+	std::array<float, 2> rot = m_player.GetRotation();
+
+	t.SetIdentity();
+	t.ApplyRotation(-rot[0], 1.0f, 0, 0);
+	t.ApplyRotation(-rot[1], 0, 1.0f, 0);
+	t.Use();
+
+	DrawSkybox();
 }
 
 void Engine::KeyPressEvent(unsigned char key) {
@@ -174,6 +182,59 @@ bool Engine::LoadTexture(Texture& texture, const std::string& filename, bool sto
 	}
 
 	return true;
+}
+
+void Engine::DrawSkybox() {
+	// Render the front quad
+	m_textureMonster.Bind();
+	glBegin(GL_QUADS); 
+		glNormal3f(0, 0, 1);
+		glTexCoord2f(0, 0); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+		glTexCoord2f(1, 0); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+		glTexCoord2f(1, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+		glTexCoord2f(0, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+	glEnd();
+
+	// Render the left quad
+	m_textureDark.Bind();
+	glBegin(GL_QUADS);
+		glTexCoord2f(0, 0); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+		glTexCoord2f(1, 0); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+		glTexCoord2f(1, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+		glTexCoord2f(0, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+	glEnd();
+
+	// Render the back quad
+	glBegin(GL_QUADS);
+		glTexCoord2f(0, 0); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+		glTexCoord2f(1, 0); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+		glTexCoord2f(1, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+		glTexCoord2f(0, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+	glEnd();
+
+	// Render the right quad
+	glBegin(GL_QUADS);
+		glTexCoord2f(0, 0); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+		glTexCoord2f(1, 0); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+		glTexCoord2f(1, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+		glTexCoord2f(0, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+	glEnd();
+
+	// Render the top quad
+	glBegin(GL_QUADS);
+		glTexCoord2f(0, 0); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+		glTexCoord2f(1, 0); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+		glTexCoord2f(1, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+		glTexCoord2f(0, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+	glEnd();
+
+	// Render the bottom quad
+	glBegin(GL_QUADS);
+		glTexCoord2f(0, 0); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+		glTexCoord2f(1, 0); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+		glTexCoord2f(1, 1); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+		glTexCoord2f(0, 1); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+	glEnd();
 }
 
 void Engine::DrawBlock() {

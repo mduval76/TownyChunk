@@ -6,6 +6,10 @@ Vector3f Player::GetPosition() const {
 	return m_position;
 }
 
+std::array<float, 2> Player::GetRotation() const {
+	return m_rotation;
+}
+
 void Player::SetPosition(const Vector3f& position) {
 	m_position = position;
 }
@@ -14,6 +18,8 @@ void Player::TurnLeftRight(float value) {
 	m_rotY += value;
 	if (m_rotY > 360 || m_rotY < -360)
 		m_rotY = 0;
+
+	m_rotation[0] = m_rotX;
 }
 
 void Player::TurnTopBottom(float value) {
@@ -22,6 +28,8 @@ void Player::TurnTopBottom(float value) {
 		m_rotX = 90;
 	if (m_rotX < -90)
 		m_rotX = -90;
+
+	m_rotation[1] = m_rotY;
 }
 
 void Player::Move(bool front, bool back, bool left, bool right, float elapsedTime) {
@@ -50,9 +58,8 @@ void Player::Move(bool front, bool back, bool left, bool right, float elapsedTim
 	}
 }
 
-void Player::ApplyTransformation(Transformation& transformation) const {
+void Player::ApplyTransformation(Transformation& transformation, bool includeRotation) {
 	transformation.ApplyRotation(-m_rotX, 1.0f, 0, 0);
 	transformation.ApplyRotation(-m_rotY, 0, 1.0f, 0);
 	transformation.ApplyTranslation(-m_position);
-
 }
