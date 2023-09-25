@@ -22,8 +22,7 @@ public:
 
 private:
 	Vector3f m_position = Vector3f(0.0f, 0.0f, 0.0f);
-
-	std::array<float, 2> m_rotation;
+	std::array<float, 2> m_rotation = { 0.0f, 0.0f };
 
 	float m_rotX;
 	float m_rotY;

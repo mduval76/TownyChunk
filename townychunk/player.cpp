@@ -20,6 +20,7 @@ void Player::TurnLeftRight(float value) {
 		m_rotY = 0;
 
 	m_rotation[0] = m_rotX;
+	m_rotation[1] = m_rotY;
 }
 
 void Player::TurnTopBottom(float value) {
@@ -29,6 +30,7 @@ void Player::TurnTopBottom(float value) {
 	if (m_rotX < -90)
 		m_rotX = -90;
 
+	m_rotation[0] = m_rotX;
 	m_rotation[1] = m_rotY;
 }
 

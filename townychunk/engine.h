@@ -26,15 +26,16 @@ private:
     bool LoadTexture(Texture& texture, const std::string& filename, bool stopOnError = true);
 
     void DrawSkybox();
+    void DrawFloor();
     void DrawBlock();
 
 private:
     Player m_player = Player(Vector3f(0.0f, 0.0f, 0.0f));
 
     Texture m_textureFloor;
-    Texture m_textureBlock;
-    Texture m_textureSide1;
-    Texture m_textureSide2;
+    Texture m_textureFaceX;
+    Texture m_textureFaceY;
+    Texture m_textureFaceZ;
     Texture m_textureMonster;
     Texture m_textureDark;
 
