@@ -45,8 +45,6 @@ private:
     bool m_keyA = false;
     bool m_keyS = false;
     bool m_keyD = false;
-
-    bool m_fun = false;
 };
 
 #endif // ENGINE_H__
