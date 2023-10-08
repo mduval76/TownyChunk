@@ -42,11 +42,11 @@ void Array3d<T>::Set(int x, int y, int z, T type) {
 	m_blocks[To1dIndex(x, y, z)] = type;
 }
 
+
 template <class T>
 T Array3d<T>::Get(int x, int y, int z) const {
 	return m_blocks[To1dIndex(x, y, z)];
 }
-
 template <class T>
 void Array3d<T>::Reset(T type) {
 	for (int i = 0; i < m_x * m_y * m_z; ++i)

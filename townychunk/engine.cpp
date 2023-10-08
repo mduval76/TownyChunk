@@ -14,6 +14,12 @@ void Engine::Init() {
 		abort();
 	}
 
+	std::cout << "Loading and compiling shaders..." << std::endl;
+	if (!m_shader01.Load(SHADER_PATH "shader01.vert", SHADER_PATH "shader01.frag", true)) {
+		std::cout << "Failed to load shader" << std::endl;
+		exit(1);
+	}
+
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glEnable(GL_TEXTURE_2D);
 
@@ -71,11 +77,20 @@ void Engine::Render(float elapsedTime) {
 	m_player.Move(m_keyW, m_keyS, m_keyA, m_keyD, gameTime);
 	std::array<float, 2> rot = m_player.GetRotation();
 	m_player.ApplyTransformation(t);
-	t.ApplyTranslation(0.0f, 0.0f, -5.0f);
+	t.ApplyTranslation(0.0f, 0.0f, -25.0f);
 	t.Use();
 
 	// Plancher
 	DrawFloor();
+
+	// Chunk
+	m_textureFaceY.Bind();
+	if (m_testChunk.IsDirty())
+		m_testChunk.Update();
+
+	m_shader01.Use();
+	m_testChunk.Render();
+	Shader::Disable();
 
 	// Skybox
 	t.SetIdentity();
@@ -83,7 +98,9 @@ void Engine::Render(float elapsedTime) {
 	t.ApplyRotation(-rot[1], 0, 1.0f, 0);
 	t.Use();
 
+	glDepthMask(GL_FALSE);
 	DrawSkybox();
+	glDepthMask(GL_TRUE);
 }
 
 void Engine::KeyPressEvent(unsigned char key) {
@@ -163,61 +180,55 @@ bool Engine::LoadTexture(Texture& texture, const std::string& filename, bool sto
 
 		return false;
 	}
+
 	return true;
 }
 
 void Engine::DrawSkybox() {
-	// FRONT
 	m_textureMonster.Bind();
-	glCullFace(GL_FRONT);
-	glBegin(GL_QUADS);
+	glBegin(GL_QUADS); // FRONT 
 		glNormal3f(0, 0, 1);
 		glTexCoord2f(0, 0); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
-		glTexCoord2f(0, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
-		glTexCoord2f(1, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
 		glTexCoord2f(1, 0); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+		glTexCoord2f(1, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+		glTexCoord2f(0, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
 	glEnd();
-	glCullFace(GL_BACK);
 
-	// LEFT
 	m_textureDark.Bind();
-	glBegin(GL_QUADS);
-		glTexCoord2f(0, 0); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
-		glTexCoord2f(1, 0); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
-		glTexCoord2f(1, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
-		glTexCoord2f(0, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
-	glEnd();
-
-	// BACK
-	glBegin(GL_QUADS);
-		glTexCoord2f(0, 0); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
-		glTexCoord2f(1, 0); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
-		glTexCoord2f(1, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
-		glTexCoord2f(0, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
-	glEnd();
-
-	// RIGHT
-	glBegin(GL_QUADS);
+		glBegin(GL_QUADS); // RIGHT
 		glTexCoord2f(0, 0); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
 		glTexCoord2f(1, 0); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
 		glTexCoord2f(1, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
 		glTexCoord2f(0, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
 	glEnd();
 
-	// TOP
-	glBegin(GL_QUADS);
-		glTexCoord2f(0, 0); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
-		glTexCoord2f(0, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
-		glTexCoord2f(1, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+	glBegin(GL_QUADS); // BACK
+		glNormal3f(0, 0, 1);
+		glTexCoord2f(0, 0); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+		glTexCoord2f(0, 1); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+		glTexCoord2f(1, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
 		glTexCoord2f(1, 0); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
 	glEnd();
 
-	// BOTTOM
-	glBegin(GL_QUADS);
-		glTexCoord2f(0, 0); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
-		glTexCoord2f(1, 0); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
-		glTexCoord2f(1, 1); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
-		glTexCoord2f(0, 1); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+	glBegin(GL_QUADS); // LEFT
+		glTexCoord2f(0, 0); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+		glTexCoord2f(1, 0); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+		glTexCoord2f(1, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+		glTexCoord2f(0, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+	glEnd();
+
+	glBegin(GL_QUADS); // TOP
+		glTexCoord2f(0, 0); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+		glTexCoord2f(0, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+		glTexCoord2f(1, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+		glTexCoord2f(1, 0); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+	glEnd();
+
+	glBegin(GL_QUADS); // BOTTOM
+		glTexCoord2f(0, 0); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+		glTexCoord2f(1, 0); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+		glTexCoord2f(1, 1); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+		glTexCoord2f(0, 1); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
 	glEnd();
 }
 
@@ -234,15 +245,24 @@ void Engine::DrawFloor() {
 }
 
 void Engine::DrawBlock() {
-	m_textureFaceX.Bind();
-	glBegin(GL_QUADS);			// LEFT
-		glNormal3f(-1, 0, 0);	// Normal X-
-		glTexCoord2f(0, 0);	glVertex3f(-0.5, -0.5, -0.5);
-		glTexCoord2f(1, 0);	glVertex3f(-0.5, -0.5, 0.5);
-		glTexCoord2f(1, 1);	glVertex3f(-0.5, 0.5, 0.5);
-		glTexCoord2f(0, 1);	glVertex3f(-0.5, 0.5, -0.5);
+	m_textureFaceZ.Bind();
+	glBegin(GL_QUADS);			// FRONT
+		glNormal3f(0, 0, 1);	// Normal Z+
+		glTexCoord2f(0, 0);	glVertex3f(-0.5, -0.5, 0.5);
+		glTexCoord2f(1, 0);	glVertex3f(0.5, -0.5, 0.5);
+		glTexCoord2f(1, 1);	glVertex3f(0.5, 0.5, 0.5);
+		glTexCoord2f(0, 1);	glVertex3f(-0.5, 0.5, 0.5);
 	glEnd();
 
+	glBegin(GL_QUADS);			// BACK
+		glNormal3f(0, 0, -1);	// Normal Z-
+		glTexCoord2f(0, 0); glVertex3f(0.5, -0.5, -0.5);
+		glTexCoord2f(1, 0); glVertex3f(-0.5, -0.5, -0.5);
+		glTexCoord2f(1, 1); glVertex3f(-0.5, 0.5, -0.5);
+		glTexCoord2f(0, 1); glVertex3f(0.5, 0.5, -0.5);
+	glEnd();
+
+	m_textureFaceX.Bind();
 	glBegin(GL_QUADS);			// RIGHT
 		glNormal3f(1, 0, 0);	// Normal X+
 		glTexCoord2f(0, 0);	glVertex3f(0.5, -0.5, 0.5);
@@ -251,13 +271,21 @@ void Engine::DrawBlock() {
 		glTexCoord2f(0, 1);	glVertex3f(0.5, 0.5, 0.5);
 	glEnd();
 
+	glBegin(GL_QUADS);			// LEFT
+		glNormal3f(-1, 0, 0);	// Normal X-
+		glTexCoord2f(0, 0);	glVertex3f(-0.5, -0.5, -0.5);
+		glTexCoord2f(1, 0);	glVertex3f(-0.5, -0.5, 0.5);
+		glTexCoord2f(1, 1);	glVertex3f(-0.5, 0.5, 0.5);
+		glTexCoord2f(0, 1);	glVertex3f(-0.5, 0.5, -0.5);
+	glEnd();
+
 	m_textureFaceY.Bind();
 	glBegin(GL_QUADS);			// TOP	
 		glNormal3f(0, 1, 0);	// Normal Y+
-		glTexCoord2f(0, 0);	glVertex3f(-0.5, 0.5, -0.5);
-		glTexCoord2f(1, 0);	glVertex3f(0.5, 0.5, -0.5);
-		glTexCoord2f(1, 1);	glVertex3f(0.5, 0.5, 0.5);
-		glTexCoord2f(0, 1);	glVertex3f(-0.5, 0.5, 0.5);
+		glTexCoord2f(0, 0);	glVertex3f(-0.5, 0.5, 0.5);
+		glTexCoord2f(1, 0);	glVertex3f(0.5, 0.5, 0.5);
+		glTexCoord2f(1, 1);	glVertex3f(0.5, 0.5, -0.5);
+		glTexCoord2f(0, 1);	glVertex3f(-0.5, 0.5, -0.5);
 	glEnd();
 
 	glBegin(GL_QUADS);			// BOTTOM
@@ -267,22 +295,4 @@ void Engine::DrawBlock() {
 		glTexCoord2f(1, 1);	glVertex3f(0.5, -0.5, 0.5);
 		glTexCoord2f(0, 1);	glVertex3f(-0.5, -0.5, 0.5);
 	glEnd();
-
-	m_textureFaceZ.Bind();
-	glBegin(GL_QUADS);			// FRONT
-		glNormal3f(0, 0, 1);	// Normal Z-
-		glTexCoord2f(0, 0);	glVertex3f(-0.5, -0.5, 0.5);
-		glTexCoord2f(1, 0);	glVertex3f(0.5, -0.5, 0.5);
-		glTexCoord2f(1, 1);	glVertex3f(0.5, 0.5, 0.5);
-		glTexCoord2f(0, 1);	glVertex3f(-0.5, 0.5, 0.5);
-	glEnd();
-
-	glBegin(GL_QUADS);			// BACK
-		glNormal3f(0, 0, -1);	// Normal Z+
-		glTexCoord2f(0, 0); glVertex3f(0.5, -0.5, -0.5);
-		glTexCoord2f(1, 0); glVertex3f(-0.5, -0.5, -0.5);
-		glTexCoord2f(1, 1); glVertex3f(-0.5, 0.5, -0.5);
-		glTexCoord2f(0, 1); glVertex3f(0.5, 0.5, -0.5);
-	glEnd();
-
 }

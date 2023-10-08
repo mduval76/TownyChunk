@@ -23,6 +23,7 @@ typedef uint8_t BlockType; // Using uint8_t instead of enum, the amount of memor
 enum BLOCK_TYPE {BTYPE_AIR, BTYPE_DIRT, BTYPE_GRASS};
 
 #define TEXTURE_PATH        "../townychunk/media/textures/"
+#define SHADER_PATH         "../townychunk/media/shaders/"
 #define VIEW_DISTANCE       128
 
 #endif // DEFINE_H__
