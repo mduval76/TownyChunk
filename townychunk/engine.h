@@ -21,7 +21,7 @@ public:
     virtual void KeyPressEvent(unsigned char key);
     virtual void KeyReleaseEvent(unsigned char key);
     virtual void MouseMoveEvent(int x, int y);
-    virtual void MousePressEvent(const MOUSE_BUTTON &button, int x, int y);
+    virtual void MousePressEvent(const MOUSE_BUTTON& button, int x, int y);
     virtual void MouseReleaseEvent(const MOUSE_BUTTON &button, int x, int y);
 
 private:

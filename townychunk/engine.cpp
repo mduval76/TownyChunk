@@ -9,6 +9,7 @@ Engine::~Engine() {}
 
 void Engine::Init() {
 	GLenum glewErr = glewInit();
+
 	if (glewErr != GLEW_OK) {
 		std::cerr << " ERREUR GLEW : " << glewGetErrorString(glewErr) << std::endl;
 		abort();
@@ -71,7 +72,7 @@ void Engine::Render(float elapsedTime) {
 	// Transformations initiales
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-
+ 
 	// Camera (Player)
 	Transformation t;
 	m_player.Move(m_keyW, m_keyS, m_keyA, m_keyD, gameTime);
@@ -98,9 +99,7 @@ void Engine::Render(float elapsedTime) {
 	t.ApplyRotation(-rot[1], 0, 1.0f, 0);
 	t.Use();
 
-	glDepthMask(GL_FALSE);
 	DrawSkybox();
-	glDepthMask(GL_TRUE);
 }
 
 void Engine::KeyPressEvent(unsigned char key) {
