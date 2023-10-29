@@ -6,4 +6,5 @@
 /.vs/TownyChunk/FileContentIndex
 /townychunk/Debug
 /townychunk/townychunk.vcxproj.user
-/Debug
+/Debug/townychunk.exe
+/Debug/townychunk.pdb
