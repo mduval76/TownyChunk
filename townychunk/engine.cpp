@@ -58,26 +58,26 @@ void Engine::LoadResource() {
 
 	TextureAtlas::TextureIndex texIdxDirt = m_textureAtlas.AddTexture(TEXTURE_PATH "dirt.jpg");
 	TextureAtlas::TextureIndex texIdxFace = m_textureAtlas.AddTexture(TEXTURE_PATH "face.jpg");
-	TextureAtlas::TextureIndex texIdxHellX = m_textureAtlas.AddTexture(TEXTURE_PATH "hell_x.png");
-	TextureAtlas::TextureIndex texIdxHellY = m_textureAtlas.AddTexture(TEXTURE_PATH "hell_y.png");
-	TextureAtlas::TextureIndex texIdxHellZ = m_textureAtlas.AddTexture(TEXTURE_PATH "hell_z.png");
 	TextureAtlas::TextureIndex texIdxMarble = m_textureAtlas.AddTexture(TEXTURE_PATH "marble.jpg");
 	TextureAtlas::TextureIndex texIdxStone = m_textureAtlas.AddTexture(TEXTURE_PATH "stone.jpg");
 
-	if (!m_textureAtlas.Generate(512, false)) {
+	if (!m_textureAtlas.Generate(256, false)) {
 		std::cerr << "Unable to generate texture atlas..." << std::endl;
 		abort();
 	}
 
-	float u, v, w, h;
-	m_textureAtlas.TextureIndexToCoord(texIdxDirt, u, v, w, h);
-	m_textureAtlas.TextureIndexToCoord(texIdxFace, u, v, w, h);
-	m_textureAtlas.TextureIndexToCoord(texIdxHellX, u, v, w, h);
-	m_textureAtlas.TextureIndexToCoord(texIdxHellY, u, v, w, h);
-	m_textureAtlas.TextureIndexToCoord(texIdxHellZ, u, v, w, h);
-	m_textureAtlas.TextureIndexToCoord(texIdxMarble, u, v, w, h);
-	m_textureAtlas.TextureIndexToCoord(texIdxStone, u, v, w, h);
+	std::map<BlockType, TextureAtlas::TextureIndex> btIndices;
+	btIndices[BTYPE_DIRT] = texIdxDirt;
+	btIndices[BTYPE_FACE] = texIdxFace;
+	btIndices[BTYPE_MARBLE] = texIdxMarble;
+	btIndices[BTYPE_STONE] = texIdxStone;
 
+	for (auto& pair : btIndices) {
+		float u, v, w, h;
+		m_textureAtlas.TextureIndexToCoord(pair.second, u, v, w, h);
+
+		BlockInfo::SetBlockTextureCoords(pair.first, u, v, w, h);
+	}
 }
 
 void Engine::UnloadResource() {}

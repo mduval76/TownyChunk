@@ -2,21 +2,20 @@
 #include <climits>
 
 #include "chunk.h"
+#include "blockinfo.h"
 
 Chunk::Chunk() : m_blocks(CHUNK_SIZE_X, CHUNK_SIZE_Y, CHUNK_SIZE_Z) {
 	m_blocks.Reset(BTYPE_AIR);
 	for (int x = 0; x < CHUNK_SIZE_X; ++x) {
 		for (int z = 0; z < CHUNK_SIZE_Z; ++z) {
 			for (int y = 0; y < 4; ++y) {
-					SetBlock(x, y, z, BTYPE_STONE);
+				SetBlock(x, y, z, BTYPE_STONE);
 			}
 		}
 	}
 }
 
-Chunk::~Chunk() {
-}
-
+Chunk::~Chunk() {}
 
 void Chunk::Update() {
 	if (m_isDirty) {
@@ -53,41 +52,44 @@ void Chunk::Update() {
 }
 
 void Chunk::AddBlockToMesh(VertexBuffer::VertexData* vd, int& count, BlockType type, int x, int y, int z) {
+	float u, v, w, h;
+	BlockInfo::GetBlockTextureCoords(type, u, v, w, h);
+
 	// FRONT
-	vd[count++] = VertexBuffer::VertexData(x - 0.5f, y - 0.5f, z + 0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f);
-	vd[count++] = VertexBuffer::VertexData(x + 0.5f, y - 0.5f, z + 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f);
-	vd[count++] = VertexBuffer::VertexData(x + 0.5f, y + 0.5f, z + 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
-	vd[count++] = VertexBuffer::VertexData(x - 0.5f, y + 0.5f, z + 0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f);
+	vd[count++] = VertexBuffer::VertexData(x - 0.5f, y - 0.5f, z + 0.5f, 1.0f, 1.0f, 1.0f, u, v);
+	vd[count++] = VertexBuffer::VertexData(x + 0.5f, y - 0.5f, z + 0.5f, 1.0f, 1.0f, 1.0f, u + w, v);
+	vd[count++] = VertexBuffer::VertexData(x + 0.5f, y + 0.5f, z + 0.5f, 1.0f, 1.0f, 1.0f, u + w, v + h);
+	vd[count++] = VertexBuffer::VertexData(x - 0.5f, y + 0.5f, z + 0.5f, 1.0f, 1.0f, 1.0f, u, v + h);
 
 	// RIGHT
-	vd[count++] = VertexBuffer::VertexData(x + 0.5f, y - 0.5f, z + 0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f);
-	vd[count++] = VertexBuffer::VertexData(x + 0.5f, y - 0.5f, z - 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f);
-	vd[count++] = VertexBuffer::VertexData(x + 0.5f, y + 0.5f, z - 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
-	vd[count++] = VertexBuffer::VertexData(x + 0.5f, y + 0.5f, z + 0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f);
+	vd[count++] = VertexBuffer::VertexData(x + 0.5f, y - 0.5f, z + 0.5f, 1.0f, 1.0f, 1.0f, u, v);
+	vd[count++] = VertexBuffer::VertexData(x + 0.5f, y - 0.5f, z - 0.5f, 1.0f, 1.0f, 1.0f, u + w, v);
+	vd[count++] = VertexBuffer::VertexData(x + 0.5f, y + 0.5f, z - 0.5f, 1.0f, 1.0f, 1.0f, u + w, v + h);
+	vd[count++] = VertexBuffer::VertexData(x + 0.5f, y + 0.5f, z + 0.5f, 1.0f, 1.0f, 1.0f, u, v + h);
 
 	// BACK
-	vd[count++] = VertexBuffer::VertexData(x + 0.5f, y - 0.5f, z - 0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f);
-	vd[count++] = VertexBuffer::VertexData(x - 0.5f, y - 0.5f, z - 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f);
-	vd[count++] = VertexBuffer::VertexData(x - 0.5f, y + 0.5f, z - 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
-	vd[count++] = VertexBuffer::VertexData(x + 0.5f, y + 0.5f, z - 0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f);
+	vd[count++] = VertexBuffer::VertexData(x + 0.5f, y - 0.5f, z - 0.5f, 1.0f, 1.0f, 1.0f, u, v);
+	vd[count++] = VertexBuffer::VertexData(x - 0.5f, y - 0.5f, z - 0.5f, 1.0f, 1.0f, 1.0f, u + w, v);
+	vd[count++] = VertexBuffer::VertexData(x - 0.5f, y + 0.5f, z - 0.5f, 1.0f, 1.0f, 1.0f, u + w, v + h);
+	vd[count++] = VertexBuffer::VertexData(x + 0.5f, y + 0.5f, z - 0.5f, 1.0f, 1.0f, 1.0f, u, v + h);
 
 	// LEFT
-	vd[count++] = VertexBuffer::VertexData(x - 0.5f, y - 0.5f, z - 0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f);
-	vd[count++] = VertexBuffer::VertexData(x - 0.5f, y - 0.5f, z + 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f);
-	vd[count++] = VertexBuffer::VertexData(x - 0.5f, y + 0.5f, z + 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
-	vd[count++] = VertexBuffer::VertexData(x - 0.5f, y + 0.5f, z - 0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f);
+	vd[count++] = VertexBuffer::VertexData(x - 0.5f, y - 0.5f, z - 0.5f, 1.0f, 1.0f, 1.0f, u, v);
+	vd[count++] = VertexBuffer::VertexData(x - 0.5f, y - 0.5f, z + 0.5f, 1.0f, 1.0f, 1.0f, u + w, v);
+	vd[count++] = VertexBuffer::VertexData(x - 0.5f, y + 0.5f, z + 0.5f, 1.0f, 1.0f, 1.0f, u + w, v + h);
+	vd[count++] = VertexBuffer::VertexData(x - 0.5f, y + 0.5f, z - 0.5f, 1.0f, 1.0f, 1.0f, u, v + h);
 
 	// TOP
-	vd[count++] = VertexBuffer::VertexData(x - 0.5f, y + 0.5f, z + 0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f);
-	vd[count++] = VertexBuffer::VertexData(x + 0.5f, y + 0.5f, z + 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f);
-	vd[count++] = VertexBuffer::VertexData(x + 0.5f, y + 0.5f, z - 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
-	vd[count++] = VertexBuffer::VertexData(x - 0.5f, y + 0.5f, z - 0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f);
+	vd[count++] = VertexBuffer::VertexData(x - 0.5f, y + 0.5f, z + 0.5f, 1.0f, 1.0f, 1.0f, u, v);
+	vd[count++] = VertexBuffer::VertexData(x + 0.5f, y + 0.5f, z + 0.5f, 1.0f, 1.0f, 1.0f, u + w, v);
+	vd[count++] = VertexBuffer::VertexData(x + 0.5f, y + 0.5f, z - 0.5f, 1.0f, 1.0f, 1.0f, u + w, v + h);
+	vd[count++] = VertexBuffer::VertexData(x - 0.5f, y + 0.5f, z - 0.5f, 1.0f, 1.0f, 1.0f, u, v + h);
 
 	// BOTTOM
-	vd[count++] = VertexBuffer::VertexData(x - 0.5f, y - 0.5f, z - 0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f);
-	vd[count++] = VertexBuffer::VertexData(x + 0.5f, y - 0.5f, z - 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f);
-	vd[count++] = VertexBuffer::VertexData(x + 0.5f, y - 0.5f, z + 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
-	vd[count++] = VertexBuffer::VertexData(x - 0.5f, y - 0.5f, z + 0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f);
+	vd[count++] = VertexBuffer::VertexData(x - 0.5f, y - 0.5f, z - 0.5f, 1.0f, 1.0f, 1.0f, u, v);
+	vd[count++] = VertexBuffer::VertexData(x + 0.5f, y - 0.5f, z - 0.5f, 1.0f, 1.0f, 1.0f, u + w, v);
+	vd[count++] = VertexBuffer::VertexData(x + 0.5f, y - 0.5f, z + 0.5f, 1.0f, 1.0f, 1.0f, u + w, v + h);
+	vd[count++] = VertexBuffer::VertexData(x - 0.5f, y - 0.5f, z + 0.5f, 1.0f, 1.0f, 1.0f, u, v + h);
 }
 
 void Chunk::Render() const {
