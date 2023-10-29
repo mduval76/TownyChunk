@@ -58,6 +58,9 @@ void Engine::LoadResource() {
 
 	TextureAtlas::TextureIndex texIdxDirt = m_textureAtlas.AddTexture(TEXTURE_PATH "dirt.jpg");
 	TextureAtlas::TextureIndex texIdxFace = m_textureAtlas.AddTexture(TEXTURE_PATH "face.jpg");
+	TextureAtlas::TextureIndex texIdxHellX = m_textureAtlas.AddTexture(TEXTURE_PATH "hell_x.png");
+	TextureAtlas::TextureIndex texIdxHellY = m_textureAtlas.AddTexture(TEXTURE_PATH "hell_y.png");
+	TextureAtlas::TextureIndex texIdxHellZ = m_textureAtlas.AddTexture(TEXTURE_PATH "hell_z.png");
 	TextureAtlas::TextureIndex texIdxMarble = m_textureAtlas.AddTexture(TEXTURE_PATH "marble.jpg");
 	TextureAtlas::TextureIndex texIdxStone = m_textureAtlas.AddTexture(TEXTURE_PATH "stone.jpg");
 
@@ -76,8 +79,24 @@ void Engine::LoadResource() {
 		float u, v, w, h;
 		m_textureAtlas.TextureIndexToCoord(pair.second, u, v, w, h);
 
-		BlockInfo::SetBlockTextureCoords(pair.first, u, v, w, h);
+		for (int face = BlockInfo::FRONT; face < BlockInfo::LAST; ++face) {
+			BlockInfo::SetBlockTextureCoords(pair.first, static_cast<BlockInfo::BlockFace>(face), u, v, w, h);
+		}
 	}
+
+	float u, v, w, h;
+	m_textureAtlas.TextureIndexToCoord(texIdxHellZ, u, v, w, h);
+	BlockInfo::SetBlockTextureCoords(BTYPE_HELL, BlockInfo::FRONT, u, v, w, h); 
+	m_textureAtlas.TextureIndexToCoord(texIdxHellZ, u, v, w, h);
+	BlockInfo::SetBlockTextureCoords(BTYPE_HELL, BlockInfo::BACK, u, v, w, h);  
+	m_textureAtlas.TextureIndexToCoord(texIdxHellX, u, v, w, h);
+	BlockInfo::SetBlockTextureCoords(BTYPE_HELL, BlockInfo::LEFT, u, v, w, h);  
+	m_textureAtlas.TextureIndexToCoord(texIdxHellX, u, v, w, h);
+	BlockInfo::SetBlockTextureCoords(BTYPE_HELL, BlockInfo::RIGHT, u, v, w, h);
+	m_textureAtlas.TextureIndexToCoord(texIdxHellX, u, v, w, h);
+	BlockInfo::SetBlockTextureCoords(BTYPE_HELL, BlockInfo::TOP, u, v, w, h);
+	m_textureAtlas.TextureIndexToCoord(texIdxHellX, u, v, w, h);
+	BlockInfo::SetBlockTextureCoords(BTYPE_HELL, BlockInfo::BOTTOM, u, v, w, h);
 }
 
 void Engine::UnloadResource() {}

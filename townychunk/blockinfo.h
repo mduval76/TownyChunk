@@ -5,23 +5,32 @@
 #include <string>
 #include "define.h"
 
-class BlockInfo
-{
+class BlockInfo {
 public:
     struct TextureCoordinates {
         float u, v, w, h;
     };
 
-    BlockInfo(BlockType type, const std::string& name, int durability, float u, float v, float w, float h);
+    enum BlockFace {
+        FRONT,
+        BACK,
+        LEFT,
+        RIGHT,
+        TOP,
+        BOTTOM,
+        LAST
+    };
+
+    BlockInfo(BlockType type, const std::string& name, int durability);
     ~BlockInfo();
 
     BlockType GetType() const;
 
-    static void GetBlockTextureCoords(BlockType type, float& u, float& v, float& w, float& h);
-    static void SetBlockTextureCoords(BlockType type, float u, float v, float w, float h);
-
     int GetDurability() const;
     void SetDurability(int durability);
+
+    static void GetBlockTextureCoords(BlockType type, BlockFace face, float& u, float& v, float& w, float& h);
+    static void SetBlockTextureCoords(BlockType type, BlockFace face, float u, float v, float w, float h);
 
     void Show() const;
 
@@ -30,7 +39,7 @@ private:
     std::string m_name;
     int m_durability;
 
-    static std::map<BlockType, TextureCoordinates> textureCoords;
+    static std::map<BlockType, std::map<BlockFace, TextureCoordinates>> textureCoords;
 };
 
 #endif // BLOCKINFO_H__

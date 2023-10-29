@@ -9,7 +9,7 @@ Chunk::Chunk() : m_blocks(CHUNK_SIZE_X, CHUNK_SIZE_Y, CHUNK_SIZE_Z) {
 	for (int x = 0; x < CHUNK_SIZE_X; ++x) {
 		for (int z = 0; z < CHUNK_SIZE_Z; ++z) {
 			for (int y = 0; y < 4; ++y) {
-				SetBlock(x, y, z, BTYPE_STONE);
+				SetBlock(x, y, z, BTYPE_HELL);
 			}
 		}
 	}
@@ -53,39 +53,44 @@ void Chunk::Update() {
 
 void Chunk::AddBlockToMesh(VertexBuffer::VertexData* vd, int& count, BlockType type, int x, int y, int z) {
 	float u, v, w, h;
-	BlockInfo::GetBlockTextureCoords(type, u, v, w, h);
 
 	// FRONT
+	BlockInfo::GetBlockTextureCoords(type, BlockInfo::BlockFace::FRONT, u, v, w, h);
 	vd[count++] = VertexBuffer::VertexData(x - 0.5f, y - 0.5f, z + 0.5f, 1.0f, 1.0f, 1.0f, u, v);
 	vd[count++] = VertexBuffer::VertexData(x + 0.5f, y - 0.5f, z + 0.5f, 1.0f, 1.0f, 1.0f, u + w, v);
 	vd[count++] = VertexBuffer::VertexData(x + 0.5f, y + 0.5f, z + 0.5f, 1.0f, 1.0f, 1.0f, u + w, v + h);
 	vd[count++] = VertexBuffer::VertexData(x - 0.5f, y + 0.5f, z + 0.5f, 1.0f, 1.0f, 1.0f, u, v + h);
 
 	// RIGHT
+	BlockInfo::GetBlockTextureCoords(type, BlockInfo::BlockFace::RIGHT, u, v, w, h);
 	vd[count++] = VertexBuffer::VertexData(x + 0.5f, y - 0.5f, z + 0.5f, 1.0f, 1.0f, 1.0f, u, v);
 	vd[count++] = VertexBuffer::VertexData(x + 0.5f, y - 0.5f, z - 0.5f, 1.0f, 1.0f, 1.0f, u + w, v);
 	vd[count++] = VertexBuffer::VertexData(x + 0.5f, y + 0.5f, z - 0.5f, 1.0f, 1.0f, 1.0f, u + w, v + h);
 	vd[count++] = VertexBuffer::VertexData(x + 0.5f, y + 0.5f, z + 0.5f, 1.0f, 1.0f, 1.0f, u, v + h);
 
 	// BACK
+	BlockInfo::GetBlockTextureCoords(type, BlockInfo::BlockFace::BACK, u, v, w, h);
 	vd[count++] = VertexBuffer::VertexData(x + 0.5f, y - 0.5f, z - 0.5f, 1.0f, 1.0f, 1.0f, u, v);
 	vd[count++] = VertexBuffer::VertexData(x - 0.5f, y - 0.5f, z - 0.5f, 1.0f, 1.0f, 1.0f, u + w, v);
 	vd[count++] = VertexBuffer::VertexData(x - 0.5f, y + 0.5f, z - 0.5f, 1.0f, 1.0f, 1.0f, u + w, v + h);
 	vd[count++] = VertexBuffer::VertexData(x + 0.5f, y + 0.5f, z - 0.5f, 1.0f, 1.0f, 1.0f, u, v + h);
 
 	// LEFT
+	BlockInfo::GetBlockTextureCoords(type, BlockInfo::BlockFace::LEFT, u, v, w, h);
 	vd[count++] = VertexBuffer::VertexData(x - 0.5f, y - 0.5f, z - 0.5f, 1.0f, 1.0f, 1.0f, u, v);
 	vd[count++] = VertexBuffer::VertexData(x - 0.5f, y - 0.5f, z + 0.5f, 1.0f, 1.0f, 1.0f, u + w, v);
 	vd[count++] = VertexBuffer::VertexData(x - 0.5f, y + 0.5f, z + 0.5f, 1.0f, 1.0f, 1.0f, u + w, v + h);
 	vd[count++] = VertexBuffer::VertexData(x - 0.5f, y + 0.5f, z - 0.5f, 1.0f, 1.0f, 1.0f, u, v + h);
 
 	// TOP
+	BlockInfo::GetBlockTextureCoords(type, BlockInfo::BlockFace::TOP, u, v, w, h);
 	vd[count++] = VertexBuffer::VertexData(x - 0.5f, y + 0.5f, z + 0.5f, 1.0f, 1.0f, 1.0f, u, v);
 	vd[count++] = VertexBuffer::VertexData(x + 0.5f, y + 0.5f, z + 0.5f, 1.0f, 1.0f, 1.0f, u + w, v);
 	vd[count++] = VertexBuffer::VertexData(x + 0.5f, y + 0.5f, z - 0.5f, 1.0f, 1.0f, 1.0f, u + w, v + h);
 	vd[count++] = VertexBuffer::VertexData(x - 0.5f, y + 0.5f, z - 0.5f, 1.0f, 1.0f, 1.0f, u, v + h);
 
 	// BOTTOM
+	BlockInfo::GetBlockTextureCoords(type, BlockInfo::BlockFace::BOTTOM, u, v, w, h);
 	vd[count++] = VertexBuffer::VertexData(x - 0.5f, y - 0.5f, z - 0.5f, 1.0f, 1.0f, 1.0f, u, v);
 	vd[count++] = VertexBuffer::VertexData(x + 0.5f, y - 0.5f, z - 0.5f, 1.0f, 1.0f, 1.0f, u + w, v);
 	vd[count++] = VertexBuffer::VertexData(x + 0.5f, y - 0.5f, z + 0.5f, 1.0f, 1.0f, 1.0f, u + w, v + h);
