@@ -9,6 +9,7 @@
 #include "shader.h"
 #include "texture.h"
 #include "textureatlas.h"
+#include "vector3.h"
 
 class Engine : public OpenglContext
 {
@@ -29,9 +30,12 @@ public:
 private:
     bool LoadTexture(Texture& texture, const std::string& filename, bool stopOnError = true);
 
+    unsigned int GetFps(float elapsedTime) const;
+
+    void DrawHud(float elapsedTime);
     void DrawSkybox();
-    void DrawFloor();
-    void DrawBlock();
+
+    void PrintText(unsigned int x, unsigned int y, const std::string& t);
 
 private:
     BlockInfo* m_blockInfo[BTYPE_LAST];
@@ -42,17 +46,21 @@ private:
 
     Shader m_shader01;
 
-    Texture m_textureMonster;
+    Texture m_textureCrosshair;
     Texture m_textureDark;
+    Texture m_textureFont;
+    Texture m_textureMonster;
 
     TextureAtlas m_textureAtlas = TextureAtlas(BTYPE_LAST);
 
     bool m_wireframe = false;
 
-    bool m_keyW = false;
     bool m_keyA = false;
-    bool m_keyS = false;
     bool m_keyD = false;
+    bool m_keyI = false;
+    bool m_keyS = false;
+    bool m_keySpace = false;
+    bool m_keyW = false;
 };
 
 #endif // ENGINE_H__

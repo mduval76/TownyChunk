@@ -1,6 +1,7 @@
 #include "engine.h"
 #include <algorithm>
 #include <cmath>
+#include <iomanip>
 #include <iostream>
 
 Engine::Engine() {}
@@ -33,6 +34,7 @@ void Engine::Init() {
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LINE_SMOOTH);
 	glEnable(GL_CULL_FACE);
+	glEnable(GL_MULTISAMPLE);
 
 	// Light
 	GLfloat light0Pos[4] = { 0.0f, CHUNK_SIZE_Y, 0.0f, 1.0f };
@@ -55,6 +57,8 @@ void Engine::DeInit() {}
 void Engine::LoadResource() {
 	LoadTexture(m_textureMonster, TEXTURE_PATH "monster.jpg");
 	LoadTexture(m_textureDark, TEXTURE_PATH "darkness.jpg");
+	LoadTexture(m_textureFont, TEXTURE_PATH "font.bmp");
+	LoadTexture(m_textureCrosshair, TEXTURE_PATH "cross.bmp");
 
 	TextureAtlas::TextureIndex texIdxDirt = m_textureAtlas.AddTexture(TEXTURE_PATH "dirt.jpg");
 	TextureAtlas::TextureIndex texIdxFace = m_textureAtlas.AddTexture(TEXTURE_PATH "face.jpg");
@@ -64,7 +68,7 @@ void Engine::LoadResource() {
 	TextureAtlas::TextureIndex texIdxMarble = m_textureAtlas.AddTexture(TEXTURE_PATH "marble.jpg");
 	TextureAtlas::TextureIndex texIdxStone = m_textureAtlas.AddTexture(TEXTURE_PATH "stone.jpg");
 
-	if (!m_textureAtlas.Generate(256, false)) {
+	if (!m_textureAtlas.Generate(512, false)) {
 		std::cerr << "Unable to generate texture atlas..." << std::endl;
 		abort();
 	}
@@ -93,9 +97,9 @@ void Engine::LoadResource() {
 	BlockInfo::SetBlockTextureCoords(BTYPE_HELL, BlockInfo::LEFT, u, v, w, h);  
 	m_textureAtlas.TextureIndexToCoord(texIdxHellX, u, v, w, h);
 	BlockInfo::SetBlockTextureCoords(BTYPE_HELL, BlockInfo::RIGHT, u, v, w, h);
-	m_textureAtlas.TextureIndexToCoord(texIdxHellX, u, v, w, h);
+	m_textureAtlas.TextureIndexToCoord(texIdxHellY, u, v, w, h);
 	BlockInfo::SetBlockTextureCoords(BTYPE_HELL, BlockInfo::TOP, u, v, w, h);
-	m_textureAtlas.TextureIndexToCoord(texIdxHellX, u, v, w, h);
+	m_textureAtlas.TextureIndexToCoord(texIdxHellY, u, v, w, h);
 	BlockInfo::SetBlockTextureCoords(BTYPE_HELL, BlockInfo::BOTTOM, u, v, w, h);
 }
 
@@ -113,14 +117,11 @@ void Engine::Render(float elapsedTime) {
  
 	// Camera (Player)
 	Transformation t;
-	m_player.Move(m_keyW, m_keyS, m_keyA, m_keyD, gameTime);
+	m_player.Move(m_keyW, m_keyS, m_keyA, m_keyD, m_keySpace, gameTime);
 	std::array<float, 2> rot = m_player.GetRotation();
 	m_player.ApplyTransformation(t);
-	t.ApplyTranslation(0.0f, 0.0f, -25.0f);
+	t.ApplyTranslation(0.0f, -5.0f, -25.0f);
 	t.Use();
-
-	// Plancher
-	DrawFloor();
 
 	// Chunk
 	m_textureAtlas.Bind();
@@ -138,24 +139,40 @@ void Engine::Render(float elapsedTime) {
 	t.Use();
 
 	DrawSkybox();
+
+	if (m_wireframe)
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	
+	if (m_keyI) {
+		DrawHud(elapsedTime);
+	}
+
+	if (m_wireframe)
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 }
 
 void Engine::KeyPressEvent(unsigned char key) {
 	switch (key) {
-	case 0: // ( GAUCHE ) A
+	case 0: // ( LEFT ) A
 		m_keyA = true;
 		break;
-	case 3: // ( ARRIÈRE ) D
+	case 3: // ( BACK ) D
 		m_keyD = true;
 		break;
-	case 18: // ( DROITE ) S
+	case 8: // ( INFO ) I
+		m_keyI = !m_keyI;
+		break;
+	case 18: // ( RIGHT ) S
 		m_keyS = true;
 		break;
-	case 22: // ( AVANT ) W
+	case 22: // ( FRONT ) W
 		m_keyW = true;
 		break;
 	case 36: // ESC
 		Stop();
+		break;
+	case 57: // ( JUMP ) SPACE
+		m_keySpace = true;
 		break;
 	case 94: // F10
 		SetFullscreen(!IsFullscreen());
@@ -185,6 +202,9 @@ void Engine::KeyReleaseEvent(unsigned char key) {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		else
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		break;
+	case 57: // ( JUMP ) SPACE
+		m_keySpace = false;
 		break;
 	}
 }
@@ -219,6 +239,10 @@ bool Engine::LoadTexture(Texture& texture, const std::string& filename, bool sto
 	}
 
 	return true;
+}
+
+unsigned int Engine::GetFps(float elapsedTime) const {
+	return 1 / elapsedTime;
 }
 
 void Engine::DrawSkybox() {
@@ -269,67 +293,89 @@ void Engine::DrawSkybox() {
 	glEnd();
 }
 
-void Engine::DrawFloor() {
-	//m_textureFloor.Bind();
-	//float nbRep = 25.0f;
-	//glBegin(GL_QUADS);
-	//	glNormal3f(0, 1, 0);
-	//	glTexCoord2f(0, 0);			glVertex3f(-100.f, -2.0f, 100.f);
-	//	glTexCoord2f(nbRep, 0);		glVertex3f(100.f, -2.0f, 100.f);
-	//	glTexCoord2f(nbRep, nbRep); glVertex3f(100.f, -2.0f, -100.f);
-	//	glTexCoord2f(0, nbRep);		glVertex3f(-100.f, -2.0f, -100.f);
-	//glEnd();
+void Engine::PrintText(unsigned int x, unsigned int y, const std::string& t) {
+	glLoadIdentity();
+	glTranslated(x, y, 0);
+
+	const float atlasWidth = 400.0f;
+	const float atlasHeight = 400.0f;
+	const int numCols = 16;
+	const int numRows = 16;
+	const float charWidth = atlasWidth / numCols;
+	const float charHeight = atlasHeight / numRows;
+
+	for (unsigned int i = 0; i < t.length(); ++i)
+	{
+		char c = t[i];
+		int col = (c - 32) % numCols;
+		int row = (c - 32) / numCols;
+
+		float left = col * charWidth / atlasWidth;
+		float right = left + charWidth / atlasWidth;
+		float top = 1.0f - (row * charHeight) / atlasHeight;
+		float bottom = top - charHeight / atlasHeight;
+
+		glBegin(GL_QUADS);
+		glTexCoord2f(left, bottom);
+		glVertex2f(0, 0);
+		glTexCoord2f(right, bottom);
+		glVertex2f(charWidth - 5, 0);
+		glTexCoord2f(right, top);
+		glVertex2f(charWidth - 5, charHeight - 5);
+		glTexCoord2f(left, top);
+		glVertex2f(0, charHeight - 5);
+		glEnd();
+
+		glTranslated(charWidth, 0, 0);
+	}
 }
 
-void Engine::DrawBlock() {
-	//m_textureFaceZ.Bind();
-	//glBegin(GL_QUADS);			// FRONT
-	//	glNormal3f(0, 0, 1);	// Normal Z+
-	//	glTexCoord2f(0, 0);	glVertex3f(-0.5, -0.5, 0.5);
-	//	glTexCoord2f(1, 0);	glVertex3f(0.5, -0.5, 0.5);
-	//	glTexCoord2f(1, 1);	glVertex3f(0.5, 0.5, 0.5);
-	//	glTexCoord2f(0, 1);	glVertex3f(-0.5, 0.5, 0.5);
-	//glEnd();
+void Engine::DrawHud(float elapsedTime) {
+	// Setter le blend function , tout ce qui sera noir sera transparent
+	glDisable(GL_LIGHTING);
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+	glEnable(GL_BLEND);
+	glDisable(GL_DEPTH_TEST);
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	glOrtho(0, Width(), 0, Height(), -1, 1);
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
 
-	//glBegin(GL_QUADS);			// BACK
-	//	glNormal3f(0, 0, -1);	// Normal Z-
-	//	glTexCoord2f(0, 0); glVertex3f(0.5, -0.5, -0.5);
-	//	glTexCoord2f(1, 0); glVertex3f(-0.5, -0.5, -0.5);
-	//	glTexCoord2f(1, 1); glVertex3f(-0.5, 0.5, -0.5);
-	//	glTexCoord2f(0, 1); glVertex3f(0.5, 0.5, -0.5);
-	//glEnd();
+	// Bind de la texture pour le font
+	m_textureFont.Bind();
+	std::ostringstream ss;
+	ss << " Fps : " << GetFps(elapsedTime);
+	PrintText(10, Height() - 25, ss.str());
+	ss.str("");
 
-	//m_textureFaceX.Bind();
-	//glBegin(GL_QUADS);			// RIGHT
-	//	glNormal3f(1, 0, 0);	// Normal X+
-	//	glTexCoord2f(0, 0);	glVertex3f(0.5, -0.5, 0.5);
-	//	glTexCoord2f(1, 0);	glVertex3f(0.5, -0.5, -0.5);
-	//	glTexCoord2f(1, 1);	glVertex3f(0.5, 0.5, -0.5);
-	//	glTexCoord2f(0, 1);	glVertex3f(0.5, 0.5, 0.5);
-	//glEnd();
+	Vector3f pos = m_player.GetPosition();
+	ss << " Position : " << std::fixed << std::setprecision(3) << pos.x << ", " << pos.y << ", " << pos.z; // IMPORTANT : on utilise l ’ operateur << pour afficher la position
+	PrintText(10, 10, ss.str());
 
-	//glBegin(GL_QUADS);			// LEFT
-	//	glNormal3f(-1, 0, 0);	// Normal X-
-	//	glTexCoord2f(0, 0);	glVertex3f(-0.5, -0.5, -0.5);
-	//	glTexCoord2f(1, 0);	glVertex3f(-0.5, -0.5, 0.5);
-	//	glTexCoord2f(1, 1);	glVertex3f(-0.5, 0.5, 0.5);
-	//	glTexCoord2f(0, 1);	glVertex3f(-0.5, 0.5, -0.5);
-	//glEnd();
-
-	//m_textureFaceY.Bind();
-	//glBegin(GL_QUADS);			// TOP	
-	//	glNormal3f(0, 1, 0);	// Normal Y+
-	//	glTexCoord2f(0, 0);	glVertex3f(-0.5, 0.5, 0.5);
-	//	glTexCoord2f(1, 0);	glVertex3f(0.5, 0.5, 0.5);
-	//	glTexCoord2f(1, 1);	glVertex3f(0.5, 0.5, -0.5);
-	//	glTexCoord2f(0, 1);	glVertex3f(-0.5, 0.5, -0.5);
-	//glEnd();
-
-	//glBegin(GL_QUADS);			// BOTTOM
-	//	glNormal3f(0, -1, 0);	// Normal Y-
-	//	glTexCoord2f(0, 0);	glVertex3f(-0.5, -0.5, -0.5);
-	//	glTexCoord2f(1, 0);	glVertex3f(0.5, -0.5, -0.5);
-	//	glTexCoord2f(1, 1);	glVertex3f(0.5, -0.5, 0.5);
-	//	glTexCoord2f(0, 1);	glVertex3f(-0.5, -0.5, 0.5);
-	//glEnd();
+	// Affichage du crosshair
+	m_textureCrosshair.Bind();
+	static const int crossSize = 32;
+	glLoadIdentity();
+	glTranslated(Width() / 2 - crossSize / 2, Height() / 2 - crossSize / 2, 0);
+	glBegin(GL_QUADS);
+	
+	glTexCoord2f(0, 0);
+	glVertex2i(0, 0);
+	glTexCoord2f(1, 0);
+	glVertex2i(crossSize, 0);
+	glTexCoord2f(1, 1);
+	glVertex2i(crossSize, crossSize);
+	glTexCoord2f(0, 1);
+	glVertex2i(0, crossSize);
+	glEnd();
+	glEnable(GL_LIGHTING);
+	glDisable(GL_BLEND);
+	glEnable(GL_DEPTH_TEST);
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
 }

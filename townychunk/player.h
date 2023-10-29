@@ -16,11 +16,13 @@ public:
 
 	void TurnLeftRight(float value);
 	void TurnTopBottom(float value);
-	void Move(bool front, bool back, bool left, bool right, float elapsedTime);
+	void Move(bool front, bool back, bool left, bool right, bool up, float elapsedTime);
 
 	void ApplyTransformation(Transformation& transformation, bool includeRotation = true);
 
 private:
+	float CalculateJumpSpeed(float elapsedTime, bool isJumping);
+
 	Vector3f m_position = Vector3f(0.0f, 0.0f, 0.0f);
 	std::array<float, 2> m_rotation = { 0.0f, 0.0f };
 
