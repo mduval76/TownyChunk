@@ -9,8 +9,6 @@
 #include <GL/glew.h>
 #include <gl/GL.h>
 #include <gl/GLU.h>
-#else
-#include <GL/glew.h>
 #endif
 
 #define CHUNK_SIZE_X 16

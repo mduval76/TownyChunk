@@ -53,10 +53,10 @@ void Engine::Init() {
 void Engine::DeInit() {}
 
 void Engine::LoadResource() {
-	LoadTexture(m_textureFloor, TEXTURE_PATH "floor.jpg");
-	LoadTexture(m_textureFaceX, TEXTURE_PATH "block_face_X.png");
-	LoadTexture(m_textureFaceY, TEXTURE_PATH "block_face_Y.png");
-	LoadTexture(m_textureFaceZ, TEXTURE_PATH "block_face_Z.png");
+	LoadTexture(m_textureFloor, TEXTURE_PATH "marble.jpg");
+	LoadTexture(m_textureFaceX, TEXTURE_PATH "hell_x.png");
+	LoadTexture(m_textureFaceY, TEXTURE_PATH "hell_y.png");
+	LoadTexture(m_textureFaceZ, TEXTURE_PATH "hell_z.png");
 	LoadTexture(m_textureMonster, TEXTURE_PATH "monster.jpg");
 	LoadTexture(m_textureDark, TEXTURE_PATH "darkness.jpg");
 }
