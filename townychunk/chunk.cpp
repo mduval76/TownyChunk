@@ -7,9 +7,8 @@ Chunk::Chunk() : m_blocks(CHUNK_SIZE_X, CHUNK_SIZE_Y, CHUNK_SIZE_Z) {
 	m_blocks.Reset(BTYPE_AIR);
 	for (int x = 0; x < CHUNK_SIZE_X; ++x) {
 		for (int z = 0; z < CHUNK_SIZE_Z; ++z) {
-			for (int y = 0; y < 32; ++y) {
-				if (x % 2 == 0 && y % 2 == 0 && z % 2 == 0)
-					SetBlock(x, y, z, BTYPE_DIRT);
+			for (int y = 0; y < 4; ++y) {
+					SetBlock(x, y, z, BTYPE_STONE);
 			}
 		}
 	}

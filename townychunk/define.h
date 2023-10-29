@@ -20,7 +20,7 @@
 #define PI 3.1415926535897932384626433832795f
 
 typedef uint8_t BlockType; // Using uint8_t instead of enum, the amount of memory used is reduced by 75%.
-enum BLOCK_TYPE { BTYPE_AIR, BTYPE_DIRT, BTYPE_GRASS };
+enum BLOCK_TYPE { BTYPE_AIR, BTYPE_DIRT, BTYPE_FACE, BTYPE_HELL, BTYPE_MARBLE, BTYPE_STONE, BTYPE_LAST };
 
 #define TEXTURE_PATH        "../townychunk/media/textures/"
 #define SHADER_PATH         "../townychunk/media/shaders/"

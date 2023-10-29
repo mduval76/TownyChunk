@@ -53,12 +53,31 @@ void Engine::Init() {
 void Engine::DeInit() {}
 
 void Engine::LoadResource() {
-	LoadTexture(m_textureFloor, TEXTURE_PATH "marble.jpg");
-	LoadTexture(m_textureFaceX, TEXTURE_PATH "hell_x.png");
-	LoadTexture(m_textureFaceY, TEXTURE_PATH "hell_y.png");
-	LoadTexture(m_textureFaceZ, TEXTURE_PATH "hell_z.png");
 	LoadTexture(m_textureMonster, TEXTURE_PATH "monster.jpg");
 	LoadTexture(m_textureDark, TEXTURE_PATH "darkness.jpg");
+
+	TextureAtlas::TextureIndex texIdxDirt = m_textureAtlas.AddTexture(TEXTURE_PATH "dirt.jpg");
+	TextureAtlas::TextureIndex texIdxFace = m_textureAtlas.AddTexture(TEXTURE_PATH "face.jpg");
+	TextureAtlas::TextureIndex texIdxHellX = m_textureAtlas.AddTexture(TEXTURE_PATH "hell_x.png");
+	TextureAtlas::TextureIndex texIdxHellY = m_textureAtlas.AddTexture(TEXTURE_PATH "hell_y.png");
+	TextureAtlas::TextureIndex texIdxHellZ = m_textureAtlas.AddTexture(TEXTURE_PATH "hell_z.png");
+	TextureAtlas::TextureIndex texIdxMarble = m_textureAtlas.AddTexture(TEXTURE_PATH "marble.jpg");
+	TextureAtlas::TextureIndex texIdxStone = m_textureAtlas.AddTexture(TEXTURE_PATH "stone.jpg");
+
+	if (!m_textureAtlas.Generate(512, false)) {
+		std::cerr << "Unable to generate texture atlas..." << std::endl;
+		abort();
+	}
+
+	float u, v, w, h;
+	m_textureAtlas.TextureIndexToCoord(texIdxDirt, u, v, w, h);
+	m_textureAtlas.TextureIndexToCoord(texIdxFace, u, v, w, h);
+	m_textureAtlas.TextureIndexToCoord(texIdxHellX, u, v, w, h);
+	m_textureAtlas.TextureIndexToCoord(texIdxHellY, u, v, w, h);
+	m_textureAtlas.TextureIndexToCoord(texIdxHellZ, u, v, w, h);
+	m_textureAtlas.TextureIndexToCoord(texIdxMarble, u, v, w, h);
+	m_textureAtlas.TextureIndexToCoord(texIdxStone, u, v, w, h);
+
 }
 
 void Engine::UnloadResource() {}
@@ -85,12 +104,12 @@ void Engine::Render(float elapsedTime) {
 	DrawFloor();
 
 	// Chunk
-	m_textureFaceY.Bind();
-	if (m_testChunk.IsDirty())
-		m_testChunk.Update();
+	m_textureAtlas.Bind();
+	if (m_chunk.IsDirty())
+		m_chunk.Update();
 
 	m_shader01.Use();
-	m_testChunk.Render();
+	m_chunk.Render();
 	Shader::Disable();
 
 	// Skybox
@@ -232,66 +251,66 @@ void Engine::DrawSkybox() {
 }
 
 void Engine::DrawFloor() {
-	m_textureFloor.Bind();
-	float nbRep = 25.0f;
-	glBegin(GL_QUADS);
-		glNormal3f(0, 1, 0);
-		glTexCoord2f(0, 0);			glVertex3f(-100.f, -2.0f, 100.f);
-		glTexCoord2f(nbRep, 0);		glVertex3f(100.f, -2.0f, 100.f);
-		glTexCoord2f(nbRep, nbRep); glVertex3f(100.f, -2.0f, -100.f);
-		glTexCoord2f(0, nbRep);		glVertex3f(-100.f, -2.0f, -100.f);
-	glEnd();
+	//m_textureFloor.Bind();
+	//float nbRep = 25.0f;
+	//glBegin(GL_QUADS);
+	//	glNormal3f(0, 1, 0);
+	//	glTexCoord2f(0, 0);			glVertex3f(-100.f, -2.0f, 100.f);
+	//	glTexCoord2f(nbRep, 0);		glVertex3f(100.f, -2.0f, 100.f);
+	//	glTexCoord2f(nbRep, nbRep); glVertex3f(100.f, -2.0f, -100.f);
+	//	glTexCoord2f(0, nbRep);		glVertex3f(-100.f, -2.0f, -100.f);
+	//glEnd();
 }
 
 void Engine::DrawBlock() {
-	m_textureFaceZ.Bind();
-	glBegin(GL_QUADS);			// FRONT
-		glNormal3f(0, 0, 1);	// Normal Z+
-		glTexCoord2f(0, 0);	glVertex3f(-0.5, -0.5, 0.5);
-		glTexCoord2f(1, 0);	glVertex3f(0.5, -0.5, 0.5);
-		glTexCoord2f(1, 1);	glVertex3f(0.5, 0.5, 0.5);
-		glTexCoord2f(0, 1);	glVertex3f(-0.5, 0.5, 0.5);
-	glEnd();
+	//m_textureFaceZ.Bind();
+	//glBegin(GL_QUADS);			// FRONT
+	//	glNormal3f(0, 0, 1);	// Normal Z+
+	//	glTexCoord2f(0, 0);	glVertex3f(-0.5, -0.5, 0.5);
+	//	glTexCoord2f(1, 0);	glVertex3f(0.5, -0.5, 0.5);
+	//	glTexCoord2f(1, 1);	glVertex3f(0.5, 0.5, 0.5);
+	//	glTexCoord2f(0, 1);	glVertex3f(-0.5, 0.5, 0.5);
+	//glEnd();
 
-	glBegin(GL_QUADS);			// BACK
-		glNormal3f(0, 0, -1);	// Normal Z-
-		glTexCoord2f(0, 0); glVertex3f(0.5, -0.5, -0.5);
-		glTexCoord2f(1, 0); glVertex3f(-0.5, -0.5, -0.5);
-		glTexCoord2f(1, 1); glVertex3f(-0.5, 0.5, -0.5);
-		glTexCoord2f(0, 1); glVertex3f(0.5, 0.5, -0.5);
-	glEnd();
+	//glBegin(GL_QUADS);			// BACK
+	//	glNormal3f(0, 0, -1);	// Normal Z-
+	//	glTexCoord2f(0, 0); glVertex3f(0.5, -0.5, -0.5);
+	//	glTexCoord2f(1, 0); glVertex3f(-0.5, -0.5, -0.5);
+	//	glTexCoord2f(1, 1); glVertex3f(-0.5, 0.5, -0.5);
+	//	glTexCoord2f(0, 1); glVertex3f(0.5, 0.5, -0.5);
+	//glEnd();
 
-	m_textureFaceX.Bind();
-	glBegin(GL_QUADS);			// RIGHT
-		glNormal3f(1, 0, 0);	// Normal X+
-		glTexCoord2f(0, 0);	glVertex3f(0.5, -0.5, 0.5);
-		glTexCoord2f(1, 0);	glVertex3f(0.5, -0.5, -0.5);
-		glTexCoord2f(1, 1);	glVertex3f(0.5, 0.5, -0.5);
-		glTexCoord2f(0, 1);	glVertex3f(0.5, 0.5, 0.5);
-	glEnd();
+	//m_textureFaceX.Bind();
+	//glBegin(GL_QUADS);			// RIGHT
+	//	glNormal3f(1, 0, 0);	// Normal X+
+	//	glTexCoord2f(0, 0);	glVertex3f(0.5, -0.5, 0.5);
+	//	glTexCoord2f(1, 0);	glVertex3f(0.5, -0.5, -0.5);
+	//	glTexCoord2f(1, 1);	glVertex3f(0.5, 0.5, -0.5);
+	//	glTexCoord2f(0, 1);	glVertex3f(0.5, 0.5, 0.5);
+	//glEnd();
 
-	glBegin(GL_QUADS);			// LEFT
-		glNormal3f(-1, 0, 0);	// Normal X-
-		glTexCoord2f(0, 0);	glVertex3f(-0.5, -0.5, -0.5);
-		glTexCoord2f(1, 0);	glVertex3f(-0.5, -0.5, 0.5);
-		glTexCoord2f(1, 1);	glVertex3f(-0.5, 0.5, 0.5);
-		glTexCoord2f(0, 1);	glVertex3f(-0.5, 0.5, -0.5);
-	glEnd();
+	//glBegin(GL_QUADS);			// LEFT
+	//	glNormal3f(-1, 0, 0);	// Normal X-
+	//	glTexCoord2f(0, 0);	glVertex3f(-0.5, -0.5, -0.5);
+	//	glTexCoord2f(1, 0);	glVertex3f(-0.5, -0.5, 0.5);
+	//	glTexCoord2f(1, 1);	glVertex3f(-0.5, 0.5, 0.5);
+	//	glTexCoord2f(0, 1);	glVertex3f(-0.5, 0.5, -0.5);
+	//glEnd();
 
-	m_textureFaceY.Bind();
-	glBegin(GL_QUADS);			// TOP	
-		glNormal3f(0, 1, 0);	// Normal Y+
-		glTexCoord2f(0, 0);	glVertex3f(-0.5, 0.5, 0.5);
-		glTexCoord2f(1, 0);	glVertex3f(0.5, 0.5, 0.5);
-		glTexCoord2f(1, 1);	glVertex3f(0.5, 0.5, -0.5);
-		glTexCoord2f(0, 1);	glVertex3f(-0.5, 0.5, -0.5);
-	glEnd();
+	//m_textureFaceY.Bind();
+	//glBegin(GL_QUADS);			// TOP	
+	//	glNormal3f(0, 1, 0);	// Normal Y+
+	//	glTexCoord2f(0, 0);	glVertex3f(-0.5, 0.5, 0.5);
+	//	glTexCoord2f(1, 0);	glVertex3f(0.5, 0.5, 0.5);
+	//	glTexCoord2f(1, 1);	glVertex3f(0.5, 0.5, -0.5);
+	//	glTexCoord2f(0, 1);	glVertex3f(-0.5, 0.5, -0.5);
+	//glEnd();
 
-	glBegin(GL_QUADS);			// BOTTOM
-		glNormal3f(0, -1, 0);	// Normal Y-
-		glTexCoord2f(0, 0);	glVertex3f(-0.5, -0.5, -0.5);
-		glTexCoord2f(1, 0);	glVertex3f(0.5, -0.5, -0.5);
-		glTexCoord2f(1, 1);	glVertex3f(0.5, -0.5, 0.5);
-		glTexCoord2f(0, 1);	glVertex3f(-0.5, -0.5, 0.5);
-	glEnd();
+	//glBegin(GL_QUADS);			// BOTTOM
+	//	glNormal3f(0, -1, 0);	// Normal Y-
+	//	glTexCoord2f(0, 0);	glVertex3f(-0.5, -0.5, -0.5);
+	//	glTexCoord2f(1, 0);	glVertex3f(0.5, -0.5, -0.5);
+	//	glTexCoord2f(1, 1);	glVertex3f(0.5, -0.5, 0.5);
+	//	glTexCoord2f(0, 1);	glVertex3f(-0.5, -0.5, 0.5);
+	//glEnd();
 }
