@@ -2,6 +2,7 @@
 #define DEFINE_H__
 
 #include <SFML/Window.hpp>
+#include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
 
 #ifdef _WIN32

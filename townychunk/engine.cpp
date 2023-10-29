@@ -79,6 +79,7 @@ void Engine::LoadResource() {
 	btIndices[BTYPE_MARBLE] = texIdxMarble;
 	btIndices[BTYPE_STONE] = texIdxStone;
 
+	// Single texture for all faces
 	for (auto& pair : btIndices) {
 		float u, v, w, h;
 		m_textureAtlas.TextureIndexToCoord(pair.second, u, v, w, h);
@@ -88,6 +89,7 @@ void Engine::LoadResource() {
 		}
 	}
 
+	// Different texture for each face
 	float u, v, w, h;
 	m_textureAtlas.TextureIndexToCoord(texIdxHellZ, u, v, w, h);
 	BlockInfo::SetBlockTextureCoords(BTYPE_HELL, BlockInfo::FRONT, u, v, w, h); 
@@ -101,6 +103,15 @@ void Engine::LoadResource() {
 	BlockInfo::SetBlockTextureCoords(BTYPE_HELL, BlockInfo::TOP, u, v, w, h);
 	m_textureAtlas.TextureIndexToCoord(texIdxHellY, u, v, w, h);
 	BlockInfo::SetBlockTextureCoords(BTYPE_HELL, BlockInfo::BOTTOM, u, v, w, h);
+
+	m_music.setVolume(50.0f);
+	if (!m_music.openFromFile("../townychunk/media/audio/music.ogg")) {
+		std::cerr << "Unable to load music" << std::endl;
+		abort();
+	}
+
+	m_music.play();
+	m_music.setLoop(true);
 }
 
 void Engine::UnloadResource() {}

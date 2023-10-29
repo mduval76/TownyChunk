@@ -44,6 +44,8 @@ private:
 
     Player m_player = Player(Vector3f(0.0f, 0.0f, 0.0f));
 
+    sf::Music m_music;
+
     Shader m_shader01;
 
     Texture m_textureCrosshair;
