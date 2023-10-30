@@ -38,7 +38,8 @@ void Player::Move(bool front, bool back, bool left, bool right, bool up, float e
 	float yrotrad = (m_rotY / 180 * 3.141592654f);
 	float speed = 0.25f;
 
-	if ((front && left) || (front && right) || (back && left) || (back && right)) {
+	if ((front && left) || (front && right) || (back && left) || (back && right) ||
+		(up && left) || (up && right) || (up && front) || (up && back)) {
 		speed /= 1.5;
 	}
 
@@ -61,12 +62,15 @@ void Player::Move(bool front, bool back, bool left, bool right, bool up, float e
 
 	if (up) {
 		float jumpSpeed = CalculateJumpSpeed(elapsedTime, true);
-		m_position.y += speed;
+		m_position.y += jumpSpeed;
 	}
 	else if (m_position.y > 0) {
 		float jumpSpeed = CalculateJumpSpeed(elapsedTime, false);
-		m_position.y -= speed;
+		m_position.y -= jumpSpeed;
 	}
+
+	if (m_position.y < 0)
+		m_position.y = 0;
 }
 
 void Player::ApplyTransformation(Transformation& transformation, bool includeRotation) {
@@ -76,18 +80,15 @@ void Player::ApplyTransformation(Transformation& transformation, bool includeRot
 }
 
 float Player::CalculateJumpSpeed(float elapsedTime, bool isJumping) {
-	 float initialSpeed;
     float decayFactor;
     float terminalSpeed;
 
     if (isJumping) {
-        initialSpeed = 0.5f;
-        decayFactor = 0.9f;
-        terminalSpeed = 0.01f;
+        decayFactor = 0.8f;
+        terminalSpeed = 0.1f;
     } else {
-        initialSpeed = 0.1f;
-        decayFactor = 1.1f;
-        terminalSpeed = 0.5f;
+        decayFactor = 0.5f;
+        terminalSpeed = 0.08f;
     }
 
     static float currentSpeed = isJumping ? 0.05f : 0.01f;
