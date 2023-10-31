@@ -4,7 +4,7 @@
 #include <iomanip>
 #include <iostream>
 
-Engine::Engine() {}
+Engine::Engine() : m_chunks(4, 4) {}
 
 Engine::~Engine() {}
 
@@ -68,7 +68,7 @@ void Engine::LoadResource() {
 	TextureAtlas::TextureIndex texIdxMarble = m_textureAtlas.AddTexture(TEXTURE_PATH "marble.jpg");
 	TextureAtlas::TextureIndex texIdxStone = m_textureAtlas.AddTexture(TEXTURE_PATH "stone.jpg");
 
-	if (!m_textureAtlas.Generate(512, false)) {
+	if (!m_textureAtlas.Generate(256, false)) {
 		std::cerr << "Unable to generate texture atlas..." << std::endl;
 		abort();
 	}
@@ -128,7 +128,7 @@ void Engine::Render(float elapsedTime) {
  
 	// Camera (Player)
 	Transformation t;
-	m_player.Move(m_keyW, m_keyS, m_keyA, m_keyD, m_keySpace, gameTime);
+	m_player.Move(m_keyW, m_keyS, m_keyA, m_keyD, m_keySpace, elapsedTime);
 	std::array<float, 2> rot = m_player.GetRotation();
 	m_player.ApplyTransformation(t);
 	t.ApplyTranslation(0.0f, -5.0f, -25.0f);
@@ -194,19 +194,23 @@ void Engine::KeyPressEvent(unsigned char key) {
 }
 
 void Engine::KeyReleaseEvent(unsigned char key) {
+		switch (key) {
+		case 0: // ( LEFT ) A
+			m_keyA = false;
+			break;
+		case 3: // ( BACK ) D
+			m_keyD = false;
+			break;
+		case 18: // ( RIGHT ) S
+			m_keyS = false;
+			break;
+		case 22: // ( FRONT ) W
+			m_keyW = false;
+			break;
+		}
+	
+
 	switch (key) {
-	case 0: // ( GAUCHE ) A
-		m_keyA = false;
-		break;
-	case 3: // ( ARRIÈRE ) D
-		m_keyD = false;
-		break;
-	case 18: // ( DROITE ) S
-		m_keyS = false;
-		break;
-	case 22: // ( AVANT ) W
-		m_keyW = false;
-		break;
 	case 24: // Y
 		m_wireframe = !m_wireframe;
 		if (m_wireframe)
@@ -291,9 +295,9 @@ void Engine::DrawSkybox() {
 
 	glBegin(GL_QUADS); // TOP
 		glTexCoord2f(0, 0); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
-		glTexCoord2f(0, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
-		glTexCoord2f(1, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
 		glTexCoord2f(1, 0); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+		glTexCoord2f(1, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+		glTexCoord2f(0, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
 	glEnd();
 
 	glBegin(GL_QUADS); // BOTTOM
@@ -358,7 +362,7 @@ void Engine::DrawHud(float elapsedTime) {
 	// Bind de la texture pour le font
 	m_textureFont.Bind();
 	std::ostringstream ss;
-	ss << " Fps : " << GetFps(elapsedTime);
+	ss << " FPS : " << GetFps(elapsedTime);
 	PrintText(10, Height() - 25, ss.str());
 	ss.str("");
 

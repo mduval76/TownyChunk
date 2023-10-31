@@ -20,6 +20,9 @@
 
 #define PI 3.1415926535897932384626433832795f
 
+#define MAX_JUMP_HEIGHT 1.1f
+#define JUMP_TIME 0.2f
+
 typedef uint8_t BlockType; // Using uint8_t instead of enum, the amount of memory used is reduced by 75%.
 enum BLOCK_TYPE { BTYPE_AIR, BTYPE_DIRT, BTYPE_FACE, BTYPE_HELL, BTYPE_MARBLE, BTYPE_STONE, BTYPE_LAST };
 

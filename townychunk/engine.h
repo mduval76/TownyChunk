@@ -1,6 +1,7 @@
 #ifndef ENGINE_H__
 #define ENGINE_H__
 
+#include "array2d.h"
 #include "blockinfo.h"
 #include "chunk.h"
 #include "define.h"
@@ -38,6 +39,8 @@ private:
     void PrintText(unsigned int x, unsigned int y, const std::string& t);
 
 private:
+    Array2d<Chunk*> m_chunks;
+
     BlockInfo* m_blockInfo[BTYPE_LAST];
 
     Chunk m_chunk;
