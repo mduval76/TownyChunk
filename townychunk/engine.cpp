@@ -194,23 +194,19 @@ void Engine::KeyPressEvent(unsigned char key) {
 }
 
 void Engine::KeyReleaseEvent(unsigned char key) {
-		switch (key) {
-		case 0: // ( LEFT ) A
-			m_keyA = false;
-			break;
-		case 3: // ( BACK ) D
-			m_keyD = false;
-			break;
-		case 18: // ( RIGHT ) S
-			m_keyS = false;
-			break;
-		case 22: // ( FRONT ) W
-			m_keyW = false;
-			break;
-		}
-	
-
 	switch (key) {
+	case 0: // ( LEFT ) A
+		m_keyA = false;
+		break;
+	case 3: // ( BACK ) D
+		m_keyD = false;
+		break;
+	case 18: // ( RIGHT ) S
+		m_keyS = false;
+		break;
+	case 22: // ( FRONT ) W
+		m_keyW = false;
+		break;
 	case 24: // Y
 		m_wireframe = !m_wireframe;
 		if (m_wireframe)
@@ -367,7 +363,7 @@ void Engine::DrawHud(float elapsedTime) {
 	ss.str("");
 
 	Vector3f pos = m_player.GetPosition();
-	ss << " Position : " << std::fixed << std::setprecision(3) << pos.x << ", " << pos.y << ", " << pos.z; // IMPORTANT : on utilise l ’ operateur << pour afficher la position
+	ss << " Position : " << std::fixed << std::setprecision(3) << pos.x << ", " << pos.y << ", " << pos.z; // IMPORTANT : on utilise l’operateur << pour afficher la position
 	PrintText(10, 10, ss.str());
 
 	// Affichage du crosshair
