@@ -26,8 +26,11 @@
 typedef uint8_t BlockType; // Using uint8_t instead of enum, the amount of memory used is reduced by 75%.
 enum BLOCK_TYPE { BTYPE_AIR, BTYPE_DIRT, BTYPE_FACE, BTYPE_HELL, BTYPE_MARBLE, BTYPE_STONE, BTYPE_LAST };
 
-#define TEXTURE_PATH        "../townychunk/media/textures/"
-#define SHADER_PATH         "../townychunk/media/shaders/"
-#define VIEW_DISTANCE       128
+#define TEXTURE_PATH    "../townychunk/media/textures/"
+#define SHADER_PATH     "../townychunk/media/shaders/"
+#define VIEW_DISTANCE   128
+
+#define CHUNKS_IN_X   VIEW_DISTANCE / CHUNK_SIZE_X
+#define CHUNKS_IN_Z   VIEW_DISTANCE / CHUNK_SIZE_Z
 
 #endif // DEFINE_H__

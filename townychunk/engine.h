@@ -1,16 +1,21 @@
 #ifndef ENGINE_H__
 #define ENGINE_H__
 
+#include "define.h"
 #include "array2d.h"
 #include "blockinfo.h"
 #include "chunk.h"
-#include "define.h"
 #include "openglcontext.h"
 #include "player.h"
 #include "shader.h"
 #include "texture.h"
 #include "textureatlas.h"
 #include "vector3.h"
+
+#include <algorithm>
+#include <cmath>
+#include <iomanip>
+#include <iostream>
 
 class Engine : public OpenglContext
 {
@@ -39,7 +44,7 @@ private:
     void PrintText(unsigned int x, unsigned int y, const std::string& t);
 
 private:
-    Array2d<Chunk*> m_chunks;
+    Array2d<Chunk*> m_world;
 
     BlockInfo* m_blockInfo[BTYPE_LAST];
 

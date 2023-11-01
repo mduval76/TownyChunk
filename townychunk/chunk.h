@@ -4,6 +4,13 @@
 #include "array3d.h"
 #include "vertexbuffer.h"
 
+struct ChunkWorldCoords {
+	int x;
+	int z;
+
+	ChunkWorldCoords(int chunkPosX = 0, int chunkPosZ = 0) : x(chunkPosX), z(chunkPosZ) {}
+};
+
 class Chunk {
 public:
 	Chunk();
@@ -17,11 +24,14 @@ public:
 	void AddBlockToMesh(VertexBuffer::VertexData* vd, int& count, BlockType type, int x, int y, int z);
 	void Render() const;
 	void SetBlock(int x, int y, int z, BlockType type);
+	void SetChunkCoords(int x, int z);
 	void RemoveBlock(int x, int y, int z);
 
 private:
 	Array3d<BlockType> m_blocks;
 	VertexBuffer m_vbo = VertexBuffer();
+	
+	ChunkWorldCoords m_chunkCoords;
 
 	bool m_isDirty = true;
 };

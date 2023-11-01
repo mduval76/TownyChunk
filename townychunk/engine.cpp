@@ -1,10 +1,7 @@
 #include "engine.h"
-#include <algorithm>
-#include <cmath>
-#include <iomanip>
-#include <iostream>
 
-Engine::Engine() : m_chunks(4, 4) {}
+
+Engine::Engine() : m_world(CHUNKS_IN_X, CHUNKS_IN_Z) {}
 
 Engine::~Engine() {}
 
@@ -104,6 +101,14 @@ void Engine::LoadResource() {
 	m_textureAtlas.TextureIndexToCoord(texIdxHellY, u, v, w, h);
 	BlockInfo::SetBlockTextureCoords(BTYPE_HELL, BlockInfo::BOTTOM, u, v, w, h);
 
+	for (int i = 0; i < CHUNKS_IN_X; i++) {
+		for (int j = 0; j < CHUNKS_IN_Z; j++) {
+			Chunk* chunk = new Chunk();
+			chunk->SetChunkCoords(i, j);
+			m_world.Set(i, j, chunk);
+		}
+	}
+
 	m_music.setVolume(50.0f);
 	if (!m_music.openFromFile("../townychunk/media/audio/music.ogg")) {
 		std::cerr << "Unable to load music" << std::endl;
@@ -131,16 +136,24 @@ void Engine::Render(float elapsedTime) {
 	m_player.Move(m_keyW, m_keyS, m_keyA, m_keyD, m_keySpace, elapsedTime);
 	std::array<float, 2> rot = m_player.GetRotation();
 	m_player.ApplyTransformation(t);
-	t.ApplyTranslation(0.0f, -5.0f, -25.0f);
+	t.ApplyTranslation(0.0f, -5.0f, 0.0f);
 	t.Use();
 
 	// Chunk
 	m_textureAtlas.Bind();
-	if (m_chunk.IsDirty())
-		m_chunk.Update();
 
 	m_shader01.Use();
-	m_chunk.Render();
+
+	for (int i = 0; i < CHUNKS_IN_X; i++) {
+		for (int j = 0; j < CHUNKS_IN_Z; j++) {
+			Chunk* chunk = m_world.Get(i, j);
+			if (chunk->IsDirty())
+				chunk->Update();
+
+			chunk->Render();
+		}
+	}
+
 	Shader::Disable();
 
 	// Skybox
@@ -158,8 +171,9 @@ void Engine::Render(float elapsedTime) {
 		DrawHud(elapsedTime);
 	}
 
-	if (m_wireframe)
+	if (m_wireframe) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	}
 }
 
 void Engine::KeyPressEvent(unsigned char key) {

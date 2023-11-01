@@ -53,6 +53,7 @@ void Chunk::Update() {
 
 void Chunk::AddBlockToMesh(VertexBuffer::VertexData* vd, int& count, BlockType type, int x, int y, int z) {
 	float u, v, w, h;
+
 	float chunkX = m_chunkCoords.x * CHUNK_SIZE_X + x;
 	float chunkZ = m_chunkCoords.z * CHUNK_SIZE_Z + z;
 
