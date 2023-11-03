@@ -53,61 +53,65 @@ void Chunk::Update() {
 
 void Chunk::AddBlockToMesh(VertexBuffer::VertexData* vd, int& count, BlockType type, int x, int y, int z) {
 	float u, v, w, h;
-	float chunkX = m_chunkCoords.x * CHUNK_SIZE_X + x;
-	float chunkZ = m_chunkCoords.z * CHUNK_SIZE_Z + z;
+	float globalX = m_chunkCoords.x * CHUNK_SIZE_X + x;
+	float globalZ = m_chunkCoords.z * CHUNK_SIZE_Z + z;
 
 	// FRONT
-	if (GetBlock(x, y, z + 1) == BTYPE_AIR || z == CHUNK_SIZE_Z - 1) {
+	bool isFrontOnWorldEdge = (z == CHUNK_SIZE_Z - 1) && (m_chunkCoords.z == WORLD_SIZE_Z - 1);
+	if ((GetBlock(x, y, z + 1) == BTYPE_AIR || z == CHUNK_SIZE_Z - 1) && isFrontOnWorldEdge) {
 		BlockInfo::GetBlockTextureCoords(type, BlockInfo::BlockFace::FRONT, u, v, w, h);
-		vd[count++] = VertexBuffer::VertexData(chunkX - 0.5f, y - 0.5f, chunkZ + 0.5f, 1.0f, 1.0f, 1.0f, u, v);
-		vd[count++] = VertexBuffer::VertexData(chunkX + 0.5f, y - 0.5f, chunkZ + 0.5f, 1.0f, 1.0f, 1.0f, u + w, v);
-		vd[count++] = VertexBuffer::VertexData(chunkX + 0.5f, y + 0.5f, chunkZ + 0.5f, 1.0f, 1.0f, 1.0f, u + w, v + h);
-		vd[count++] = VertexBuffer::VertexData(chunkX - 0.5f, y + 0.5f, chunkZ + 0.5f, 1.0f, 1.0f, 1.0f, u, v + h);
+		vd[count++] = VertexBuffer::VertexData(globalX - 0.5f, y - 0.5f, globalZ + 0.5f, 1.0f, 1.0f, 1.0f, u, v);
+		vd[count++] = VertexBuffer::VertexData(globalX + 0.5f, y - 0.5f, globalZ + 0.5f, 1.0f, 1.0f, 1.0f, u + w, v);
+		vd[count++] = VertexBuffer::VertexData(globalX + 0.5f, y + 0.5f, globalZ + 0.5f, 1.0f, 1.0f, 1.0f, u + w, v + h);
+		vd[count++] = VertexBuffer::VertexData(globalX - 0.5f, y + 0.5f, globalZ + 0.5f, 1.0f, 1.0f, 1.0f, u, v + h);
 	}
 
 	// RIGHT
-	if (GetBlock(x + 1, y, z) == BTYPE_AIR || x == CHUNK_SIZE_X - 1) {
+	bool isRightOnWorldEdge = (x == CHUNK_SIZE_X - 1) && (m_chunkCoords.x == WORLD_SIZE_X - 1);
+	if ((GetBlock(x + 1, y, z) == BTYPE_AIR || x == CHUNK_SIZE_X - 1) && isRightOnWorldEdge) {
 		BlockInfo::GetBlockTextureCoords(type, BlockInfo::BlockFace::RIGHT, u, v, w, h);
-		vd[count++] = VertexBuffer::VertexData(chunkX + 0.5f, y - 0.5f, chunkZ + 0.5f, 1.0f, 1.0f, 1.0f, u, v);
-		vd[count++] = VertexBuffer::VertexData(chunkX + 0.5f, y - 0.5f, chunkZ - 0.5f, 1.0f, 1.0f, 1.0f, u + w, v);
-		vd[count++] = VertexBuffer::VertexData(chunkX + 0.5f, y + 0.5f, chunkZ - 0.5f, 1.0f, 1.0f, 1.0f, u + w, v + h);
-		vd[count++] = VertexBuffer::VertexData(chunkX + 0.5f, y + 0.5f, chunkZ + 0.5f, 1.0f, 1.0f, 1.0f, u, v + h);
+		vd[count++] = VertexBuffer::VertexData(globalX + 0.5f, y - 0.5f, globalZ + 0.5f, 1.0f, 1.0f, 1.0f, u, v);
+		vd[count++] = VertexBuffer::VertexData(globalX + 0.5f, y - 0.5f, globalZ - 0.5f, 1.0f, 1.0f, 1.0f, u + w, v);
+		vd[count++] = VertexBuffer::VertexData(globalX + 0.5f, y + 0.5f, globalZ - 0.5f, 1.0f, 1.0f, 1.0f, u + w, v + h);
+		vd[count++] = VertexBuffer::VertexData(globalX + 0.5f, y + 0.5f, globalZ + 0.5f, 1.0f, 1.0f, 1.0f, u, v + h);
 	}
 
 	// BACK
-	if (GetBlock(x, y, z - 1) == BTYPE_AIR || z == 0) {
+	bool isBackOnWorldEdge = (z == 0) && (m_chunkCoords.z == 0);
+	if ((GetBlock(x, y, z - 1) == BTYPE_AIR || z == 0) && isBackOnWorldEdge) {
 		BlockInfo::GetBlockTextureCoords(type, BlockInfo::BlockFace::BACK, u, v, w, h);
-		vd[count++] = VertexBuffer::VertexData(chunkX + 0.5f, y - 0.5f, chunkZ - 0.5f, 1.0f, 1.0f, 1.0f, u, v);
-		vd[count++] = VertexBuffer::VertexData(chunkX - 0.5f, y - 0.5f, chunkZ - 0.5f, 1.0f, 1.0f, 1.0f, u + w, v);
-		vd[count++] = VertexBuffer::VertexData(chunkX - 0.5f, y + 0.5f, chunkZ - 0.5f, 1.0f, 1.0f, 1.0f, u + w, v + h);
-		vd[count++] = VertexBuffer::VertexData(chunkX + 0.5f, y + 0.5f, chunkZ - 0.5f, 1.0f, 1.0f, 1.0f, u, v + h);
+		vd[count++] = VertexBuffer::VertexData(globalX + 0.5f, y - 0.5f, globalZ - 0.5f, 1.0f, 1.0f, 1.0f, u, v);
+		vd[count++] = VertexBuffer::VertexData(globalX - 0.5f, y - 0.5f, globalZ - 0.5f, 1.0f, 1.0f, 1.0f, u + w, v);
+		vd[count++] = VertexBuffer::VertexData(globalX - 0.5f, y + 0.5f, globalZ - 0.5f, 1.0f, 1.0f, 1.0f, u + w, v + h);
+		vd[count++] = VertexBuffer::VertexData(globalX + 0.5f, y + 0.5f, globalZ - 0.5f, 1.0f, 1.0f, 1.0f, u, v + h);
 	}
 
 	// LEFT
-	if (GetBlock(x - 1, y, z) == BTYPE_AIR || x == 0) {
+	bool isLeftOnWorldEdge = (x == 0) && (m_chunkCoords.x == 0);
+	if ((GetBlock(x - 1, y, z) == BTYPE_AIR || x == 0) && isLeftOnWorldEdge) {
 		BlockInfo::GetBlockTextureCoords(type, BlockInfo::BlockFace::LEFT, u, v, w, h);
-		vd[count++] = VertexBuffer::VertexData(chunkX - 0.5f, y - 0.5f, chunkZ - 0.5f, 1.0f, 1.0f, 1.0f, u, v);
-		vd[count++] = VertexBuffer::VertexData(chunkX - 0.5f, y - 0.5f, chunkZ + 0.5f, 1.0f, 1.0f, 1.0f, u + w, v);
-		vd[count++] = VertexBuffer::VertexData(chunkX - 0.5f, y + 0.5f, chunkZ + 0.5f, 1.0f, 1.0f, 1.0f, u + w, v + h);
-		vd[count++] = VertexBuffer::VertexData(chunkX - 0.5f, y + 0.5f, chunkZ - 0.5f, 1.0f, 1.0f, 1.0f, u, v + h);
+		vd[count++] = VertexBuffer::VertexData(globalX - 0.5f, y - 0.5f, globalZ - 0.5f, 1.0f, 1.0f, 1.0f, u, v);
+		vd[count++] = VertexBuffer::VertexData(globalX - 0.5f, y - 0.5f, globalZ + 0.5f, 1.0f, 1.0f, 1.0f, u + w, v);
+		vd[count++] = VertexBuffer::VertexData(globalX - 0.5f, y + 0.5f, globalZ + 0.5f, 1.0f, 1.0f, 1.0f, u + w, v + h);
+		vd[count++] = VertexBuffer::VertexData(globalX - 0.5f, y + 0.5f, globalZ - 0.5f, 1.0f, 1.0f, 1.0f, u, v + h);
 	}
 
 	// BOTTOM
 	if (GetBlock(x, y - 1, z) == BTYPE_AIR || y == 0) {
 		BlockInfo::GetBlockTextureCoords(type, BlockInfo::BlockFace::BOTTOM, u, v, w, h);
-		vd[count++] = VertexBuffer::VertexData(chunkX - 0.5f, y - 0.5f, chunkZ - 0.5f, 1.0f, 1.0f, 1.0f, u, v);
-		vd[count++] = VertexBuffer::VertexData(chunkX + 0.5f, y - 0.5f, chunkZ - 0.5f, 1.0f, 1.0f, 1.0f, u + w, v);
-		vd[count++] = VertexBuffer::VertexData(chunkX + 0.5f, y - 0.5f, chunkZ + 0.5f, 1.0f, 1.0f, 1.0f, u + w, v + h);
-		vd[count++] = VertexBuffer::VertexData(chunkX - 0.5f, y - 0.5f, chunkZ + 0.5f, 1.0f, 1.0f, 1.0f, u, v + h);
+		vd[count++] = VertexBuffer::VertexData(globalX - 0.5f, y - 0.5f, globalZ - 0.5f, 1.0f, 1.0f, 1.0f, u, v);
+		vd[count++] = VertexBuffer::VertexData(globalX + 0.5f, y - 0.5f, globalZ - 0.5f, 1.0f, 1.0f, 1.0f, u + w, v);
+		vd[count++] = VertexBuffer::VertexData(globalX + 0.5f, y - 0.5f, globalZ + 0.5f, 1.0f, 1.0f, 1.0f, u + w, v + h);
+		vd[count++] = VertexBuffer::VertexData(globalX - 0.5f, y - 0.5f, globalZ + 0.5f, 1.0f, 1.0f, 1.0f, u, v + h);
 	}
 
 	// TOP
 	if (GetBlock(x, y + 1, z) == BTYPE_AIR) {
 		BlockInfo::GetBlockTextureCoords(type, BlockInfo::BlockFace::TOP, u, v, w, h);
-		vd[count++] = VertexBuffer::VertexData(chunkX - 0.5f, y + 0.5f, chunkZ + 0.5f, 1.0f, 1.0f, 1.0f, u, v);
-		vd[count++] = VertexBuffer::VertexData(chunkX + 0.5f, y + 0.5f, chunkZ + 0.5f, 1.0f, 1.0f, 1.0f, u + w, v);
-		vd[count++] = VertexBuffer::VertexData(chunkX + 0.5f, y + 0.5f, chunkZ - 0.5f, 1.0f, 1.0f, 1.0f, u + w, v + h);
-		vd[count++] = VertexBuffer::VertexData(chunkX - 0.5f, y + 0.5f, chunkZ - 0.5f, 1.0f, 1.0f, 1.0f, u, v + h);
+		vd[count++] = VertexBuffer::VertexData(globalX - 0.5f, y + 0.5f, globalZ + 0.5f, 1.0f, 1.0f, 1.0f, u, v);
+		vd[count++] = VertexBuffer::VertexData(globalX + 0.5f, y + 0.5f, globalZ + 0.5f, 1.0f, 1.0f, 1.0f, u + w, v);
+		vd[count++] = VertexBuffer::VertexData(globalX + 0.5f, y + 0.5f, globalZ - 0.5f, 1.0f, 1.0f, 1.0f, u + w, v + h);
+		vd[count++] = VertexBuffer::VertexData(globalX - 0.5f, y + 0.5f, globalZ - 0.5f, 1.0f, 1.0f, 1.0f, u, v + h);
 	}
 }
 

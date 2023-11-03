@@ -43,7 +43,7 @@ TextureAtlas::TextureIndex TextureAtlas::AddTexture(const std::string& fname)
 bool TextureAtlas::Generate(int textureSize, bool mipmap)
 {
     // TODO mipmap pas encore 100% parfait...
-    assert(!mipmap);
+    //assert(!mipmap);
 
     if(!IsPowerOfTwo(textureSize))
         return false;
@@ -96,13 +96,12 @@ bool TextureAtlas::Generate(int textureSize, bool mipmap)
     if(mipmap)
     {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,  GL_LINEAR_MIPMAP_LINEAR);
-        //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,  GL_NEAREST_MIPMAP_LINEAR );
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     }
     else
     {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);	
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     }
 
     int level = textureSize;

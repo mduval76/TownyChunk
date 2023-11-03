@@ -11,6 +11,7 @@
 #include "texture.h"
 #include "textureatlas.h"
 #include "vector3.h"
+#include "world.h"
 
 #include <algorithm>
 #include <cmath>
@@ -44,11 +45,9 @@ private:
     void PrintText(unsigned int x, unsigned int y, const std::string& t);
 
 private:
-    Array2d<Chunk*> m_world;
+    World m_world;
 
     BlockInfo* m_blockInfo[BTYPE_LAST];
-
-    Chunk m_chunk;
 
     Player m_player = Player(Vector3f(0.0f, 0.0f, 0.0f));
 

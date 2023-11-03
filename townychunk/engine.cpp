@@ -1,7 +1,7 @@
 #include "engine.h"
 
 
-Engine::Engine() : m_world(CHUNKS_IN_X, CHUNKS_IN_Z) {}
+Engine::Engine() {}
 
 Engine::~Engine() {}
 
@@ -70,6 +70,15 @@ void Engine::LoadResource() {
 		abort();
 	}
 
+	GLfloat maxAnisotropy;
+	glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAnisotropy);
+	glBindTexture(GL_TEXTURE_2D, texIdxDirt);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAnisotropy);
+	glGenerateMipmap(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
 	std::map<BlockType, TextureAtlas::TextureIndex> btIndices;
 	btIndices[BTYPE_DIRT] = texIdxDirt;
 	btIndices[BTYPE_FACE] = texIdxFace;
@@ -101,13 +110,7 @@ void Engine::LoadResource() {
 	m_textureAtlas.TextureIndexToCoord(texIdxHellY, u, v, w, h);
 	BlockInfo::SetBlockTextureCoords(BTYPE_HELL, BlockInfo::BOTTOM, u, v, w, h);
 
-	for (int i = 0; i < CHUNKS_IN_X; i++) {
-		for (int j = 0; j < CHUNKS_IN_Z; j++) {
-			Chunk* chunk = new Chunk();
-			chunk->SetChunkCoords(i, j);
-			m_world.Set(i, j, chunk);
-		}
-	}
+	m_world.Render();
 
 	m_music.setVolume(50.0f);
 	if (!m_music.openFromFile("../townychunk/media/audio/music.ogg")) {
@@ -141,19 +144,16 @@ void Engine::Render(float elapsedTime) {
 
 	// Chunk
 	m_textureAtlas.Bind();
-
 	m_shader01.Use();
-
-	for (int i = 0; i < CHUNKS_IN_X; i++) {
-		for (int j = 0; j < CHUNKS_IN_Z; j++) {
-			Chunk* chunk = m_world.Get(i, j);
-			if (chunk->IsDirty())
+	for (int i = 0; i < WORLD_SIZE_X; i++) {
+		for (int j = 0; j < WORLD_SIZE_Z; j++) {
+			Chunk* chunk = m_world.GetChunk(i, j);
+			if (chunk->IsDirty()) {
 				chunk->Update();
-
+			}
 			chunk->Render();
 		}
 	}
-
 	Shader::Disable();
 
 	// Skybox

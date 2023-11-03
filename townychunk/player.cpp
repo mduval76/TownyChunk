@@ -64,8 +64,8 @@ void Player::Move(bool front, bool back, bool left, bool right, bool up, float e
 		m_position.y += m_jumpSpeed * elapsedTime;
 		m_jumpSpeed -= m_gravity * elapsedTime;
 
-		if (m_position.y <= -10) {
-			m_position.y = -10;
+		if (m_position.y <= 0) {
+			m_position.y = 0;
 			m_isJumping = false;
 
 			m_jumpDirectionFront = false;

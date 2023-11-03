@@ -1,13 +1,12 @@
 #ifndef CHUNK_H__
 #define CHUNK_H__
 
+#include "array2d.h"
 #include "array3d.h"
 #include "vertexbuffer.h"
 
 struct ChunkWorldCoords {
-	int x;
-	int z;
-
+	int x, z;
 	ChunkWorldCoords(int chunkPosX = 0, int chunkPosZ = 0) : x(chunkPosX), z(chunkPosZ) {}
 };
 
@@ -18,6 +17,7 @@ public:
 
 	BlockType GetBlock(int x, int y, int z);
 
+	bool IsBorderingChunk() const;
 	bool IsDirty() const;
 
 	void Update();
@@ -32,6 +32,7 @@ private:
 	VertexBuffer m_vbo = VertexBuffer();
 	
 	ChunkWorldCoords m_chunkCoords;
+	ChunkWorldCoords m_world[WORLD_SIZE_X * WORLD_SIZE_Z];
 
 	bool m_isDirty = true;
 };

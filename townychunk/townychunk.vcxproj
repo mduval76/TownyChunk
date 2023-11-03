@@ -27,6 +27,7 @@
     <ClInclude Include="transformation.h" />
     <ClInclude Include="vector3.h" />
     <ClInclude Include="vertexbuffer.h" />
+    <ClInclude Include="world.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="blockinfo.cpp" />
@@ -41,6 +42,7 @@
     <ClCompile Include="tool.cpp" />
     <ClCompile Include="transformation.cpp" />
     <ClCompile Include="vertexbuffer.cpp" />
+    <ClCompile Include="world.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{A21FD938-1FEA-4687-AB86-0EABAC30877B}</ProjectGuid>
