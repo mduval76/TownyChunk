@@ -48,7 +48,8 @@ private:
 private:
     BlockInfo* m_blockInfo[BTYPE_LAST];
     World* m_world;
-    Player m_player = Player(Vector3f((WORLD_SIZE_X * CHUNK_SIZE_X) / 2, 50.0f, (WORLD_SIZE_Z * CHUNK_SIZE_Z) / 2));
+    //Player m_player = Player(Vector3f((WORLD_SIZE_X * CHUNK_SIZE_X) / 2, 50.0f, (WORLD_SIZE_Z * CHUNK_SIZE_Z) / 2));
+    Player m_player = Player(Vector3f(0.0f, 50.0f, 0.0f));
 
     sf::Music m_music;
 

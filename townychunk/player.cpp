@@ -110,18 +110,18 @@ Vector3f Player::AdjustEdgePosition(const Vector3f& targetPosition) const {
 
     Vector3f adjustedPosition = targetPosition;
 
-    if (targetPosition.x < 0.5f) {
-		adjustedPosition.x = 0.5f;
+    if (targetPosition.x < 0.0f) {
+		adjustedPosition.x = 0.0f;
 	}
-    else if (targetPosition.x > worldEdgeBlockX - 0.5f) {
-		adjustedPosition.x = worldEdgeBlockX - 0.5f;
+    else if (targetPosition.x > worldEdgeBlockX - 1.0f) {
+		adjustedPosition.x = worldEdgeBlockX - 1.0f;
 	}
 
-    if (targetPosition.z < 0.5f) {
-		adjustedPosition.z = 0.5f;
+    if (targetPosition.z < 0.0f) {
+		adjustedPosition.z = 0.0f;
 	}
-    else if (targetPosition.z > worldEdgeBlockZ - 0.5f) {
-		adjustedPosition.z = worldEdgeBlockZ - 0.5f;
+    else if (targetPosition.z > worldEdgeBlockZ - 1.0f) {
+		adjustedPosition.z = worldEdgeBlockZ - 1.0f;
 	}
 
     if (targetPosition.y < 0.0f) adjustedPosition.y = 0.0f;
