@@ -1,7 +1,7 @@
 #include "engine.h"
 
 
-Engine::Engine() {}
+Engine::Engine() : m_world() {}
 
 Engine::~Engine() {}
 
@@ -110,7 +110,7 @@ void Engine::LoadResource() {
 	m_textureAtlas.TextureIndexToCoord(texIdxHellY, u, v, w, h);
 	BlockInfo::SetBlockTextureCoords(BTYPE_HELL, BlockInfo::BOTTOM, u, v, w, h);
 
-	m_world.Render();
+	m_world = new World();
 
 	m_music.setVolume(50.0f);
 	if (!m_music.openFromFile("../townychunk/media/audio/music.ogg")) {
@@ -147,7 +147,7 @@ void Engine::Render(float elapsedTime) {
 	m_shader01.Use();
 	for (int i = 0; i < WORLD_SIZE_X; i++) {
 		for (int j = 0; j < WORLD_SIZE_Z; j++) {
-			Chunk* chunk = m_world.GetChunk(i, j);
+			Chunk* chunk = m_world->GetChunk(i, j);
 			if (chunk->IsDirty()) {
 				chunk->Update();
 			}
