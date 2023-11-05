@@ -5,11 +5,6 @@
 #include "array3d.h"
 #include "vertexbuffer.h"
 
-struct ChunkWorldCoords {
-	int x, z;
-	ChunkWorldCoords(int chunkPosX = 0, int chunkPosZ = 0) : x(chunkPosX), z(chunkPosZ) {}
-};
-
 class Chunk {
 public:
 	Chunk(int x, int z);

@@ -74,29 +74,59 @@ void Player::Move(Chunk* chunk, bool front, bool back, bool left, bool right, bo
         m_isJumping = false;
     }
 
+    Vector3f targetPosition = m_position;
+
     // Movement mechanics
     if (front) {
-        m_position.x += float(sin(yrotrad)) * velocity;
-        m_position.z -= float(cos(yrotrad)) * velocity;
+        targetPosition.x += float(sin(yrotrad)) * velocity;
+        targetPosition.z -= float(cos(yrotrad)) * velocity;
     }
     if (back) {
-        m_position.x -= float(sin(yrotrad)) * velocity;
-        m_position.z += float(cos(yrotrad)) * velocity;
+        targetPosition.x -= float(sin(yrotrad)) * velocity;
+        targetPosition.z += float(cos(yrotrad)) * velocity;
     }
     if (left) {
-        m_position.x -= float(cos(yrotrad)) * velocity;
-        m_position.z -= float(sin(yrotrad)) * velocity;
+        targetPosition.x -= float(cos(yrotrad)) * velocity;
+        targetPosition.z -= float(sin(yrotrad)) * velocity;
     }
     if (right) {
-        m_position.x += float(cos(yrotrad)) * velocity;
-        m_position.z += float(sin(yrotrad)) * velocity;
+        targetPosition.x += float(cos(yrotrad)) * velocity;
+        targetPosition.z += float(sin(yrotrad)) * velocity;
     }
+
+    targetPosition = AdjustEdgePosition(targetPosition);
+    m_position = targetPosition;
 }
 
 void Player::ApplyTransformation(Transformation& transformation, bool includeRotation) {
 	transformation.ApplyRotation(-m_rotX, 1.0f, 0, 0);
 	transformation.ApplyRotation(-m_rotY, 0, 1.0f, 0);
 	transformation.ApplyTranslation(-m_position);
+}
+
+Vector3f Player::AdjustEdgePosition(const Vector3f& targetPosition) const {
+    float worldEdgeBlockX = CHUNK_SIZE_X * WORLD_SIZE_X;
+    float worldEdgeBlockZ = CHUNK_SIZE_Z * WORLD_SIZE_Z;
+
+    Vector3f adjustedPosition = targetPosition;
+
+    if (targetPosition.x < 0.5f) {
+		adjustedPosition.x = 0.5f;
+	}
+    else if (targetPosition.x > worldEdgeBlockX - 0.5f) {
+		adjustedPosition.x = worldEdgeBlockX - 0.5f;
+	}
+
+    if (targetPosition.z < 0.5f) {
+		adjustedPosition.z = 0.5f;
+	}
+    else if (targetPosition.z > worldEdgeBlockZ - 0.5f) {
+		adjustedPosition.z = worldEdgeBlockZ - 0.5f;
+	}
+
+    if (targetPosition.y < 0.0f) adjustedPosition.y = 0.0f;
+
+	return adjustedPosition;
 }
 
 bool Player::IsJumping() const {

@@ -13,6 +13,8 @@ public:
 
 	Vector3f GetPosition() const;
 	Vector3f GetDirection();
+	Vector3f AdjustEdgePosition(const Vector3f& targetPosition) const;
+
 	std::array<float, 2> GetRotation() const;
 	void SetPosition(const Vector3f& position);
 
@@ -21,6 +23,7 @@ public:
 	void Move(Chunk* chunk, bool front, bool back, bool left, bool right, bool up, float elapsedTime);
 
 	void ApplyTransformation(Transformation& transformation, bool includeRotation = true);
+
 	bool IsJumping() const;
 
 private:
@@ -31,14 +34,8 @@ private:
 	float m_rotX;
 	float m_rotY;
 	float m_yVelocity = 0.0f;
-	float m_offset = -10.0f;
-	float m_jumpSpeed = 0.0f;
 
 	bool m_isJumping = false;
-	bool m_jumpDirectionFront = false;
-	bool m_jumpDirectionBack = false;
-	bool m_jumpDirectionLeft = false;
-	bool m_jumpDirectionRight = false;
 };
 
 #endif // PLAYER_H__

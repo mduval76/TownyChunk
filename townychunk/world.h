@@ -17,7 +17,6 @@ public:
 
 private:
     Array2d<Chunk*> m_chunks;
-    BlockInfo* m_blockInfo[BTYPE_LAST];
 };
 
 #endif // WORLD_H__

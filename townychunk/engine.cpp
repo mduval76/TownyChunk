@@ -136,8 +136,13 @@ void Engine::Render(float elapsedTime) {
  
 	// Camera (Player)
 	Transformation t;
-	Chunk* currentChunk = m_world->GetChunk(m_player.GetPosition().x, m_player.GetPosition().z);
-	m_player.Move(currentChunk, m_keyW, m_keyS, m_keyA, m_keyD, m_keySpace, elapsedTime);
+	int chunkX = static_cast<int>(m_player.GetPosition().x / CHUNK_SIZE_X);
+	int chunkZ = static_cast<int>(m_player.GetPosition().z / CHUNK_SIZE_Z);
+	Chunk* currentChunk = m_world->GetChunk(chunkX, chunkZ);
+	if (currentChunk != nullptr) {
+		m_player.Move(currentChunk, m_keyW, m_keyS, m_keyA, m_keyD, m_keySpace, elapsedTime);
+	}
+
 	std::array<float, 2> rot = m_player.GetRotation();
 	m_player.ApplyTransformation(t);
 	t.ApplyTranslation(0.0f, 0.0f, 0.0f);
