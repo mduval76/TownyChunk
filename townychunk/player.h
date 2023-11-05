@@ -1,6 +1,7 @@
 #ifndef PLAYER_H__
 #define PLAYER_H__
 
+#include "chunk.h"
 #include "transformation.h"
 #include "vector3.h"
 
@@ -16,7 +17,7 @@ public:
 
 	void TurnLeftRight(float value);
 	void TurnTopBottom(float value);
-	void Move(bool front, bool back, bool left, bool right, bool up, float elapsedTime);
+	void Move(Chunk* chunk, bool front, bool back, bool left, bool right, bool up, float elapsedTime);
 
 	void ApplyTransformation(Transformation& transformation, bool includeRotation = true);
 	bool IsJumping() const;

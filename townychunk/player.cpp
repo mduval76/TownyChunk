@@ -34,7 +34,7 @@ void Player::TurnTopBottom(float value) {
 	m_rotation[1] = m_rotY;
 }
 
-void Player::Move(bool front, bool back, bool left, bool right, bool up, float elapsedTime) {
+void Player::Move(Chunk* chunk, bool front, bool back, bool left, bool right, bool up, float elapsedTime) {
 	float yrotrad = ((m_rotY / 180) * 3.141592654f);
 	float velocity = 0.25f;
 

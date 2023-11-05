@@ -17,7 +17,6 @@ public:
 
 	BlockType GetBlock(int x, int y, int z);
 
-	bool IsBorderingChunk() const;
 	bool IsDirty() const;
 
 	void Update();
@@ -32,7 +31,6 @@ private:
 	VertexBuffer m_vbo = VertexBuffer();
 	
 	ChunkWorldCoords m_chunkCoords;
-	ChunkWorldCoords m_world[WORLD_SIZE_X * WORLD_SIZE_Z];
 
 	bool m_isDirty = true;
 };

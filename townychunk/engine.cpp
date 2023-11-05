@@ -62,7 +62,7 @@ void Engine::LoadResource() {
 	TextureAtlas::TextureIndex texIdxHellX = m_textureAtlas.AddTexture(TEXTURE_PATH "hell_x.png");
 	TextureAtlas::TextureIndex texIdxHellY = m_textureAtlas.AddTexture(TEXTURE_PATH "hell_y.png");
 	TextureAtlas::TextureIndex texIdxHellZ = m_textureAtlas.AddTexture(TEXTURE_PATH "hell_z.png");
-	TextureAtlas::TextureIndex texIdxMarble = m_textureAtlas.AddTexture(TEXTURE_PATH "marble.jpg");
+	TextureAtlas::TextureIndex texIdxMarble = m_textureAtlas.AddTexture(TEXTURE_PATH "marble.png");
 	TextureAtlas::TextureIndex texIdxStone = m_textureAtlas.AddTexture(TEXTURE_PATH "stone.jpg");
 
 	if (!m_textureAtlas.Generate(256, false)) {
@@ -136,7 +136,8 @@ void Engine::Render(float elapsedTime) {
  
 	// Camera (Player)
 	Transformation t;
-	m_player.Move(m_keyW, m_keyS, m_keyA, m_keyD, m_keySpace, elapsedTime);
+	Chunk* currentChunk = m_world->GetChunk(m_player.GetPosition().x, m_player.GetPosition().z);
+	m_player.Move(currentChunk, m_keyW, m_keyS, m_keyA, m_keyD, m_keySpace, elapsedTime);
 	std::array<float, 2> rot = m_player.GetRotation();
 	m_player.ApplyTransformation(t);
 	t.ApplyTranslation(0.0f, -5.0f, 0.0f);
