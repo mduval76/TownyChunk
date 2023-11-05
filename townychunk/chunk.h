@@ -30,7 +30,8 @@ private:
 	Array3d<BlockType> m_blocks;
 	VertexBuffer m_vbo = VertexBuffer();
 	
-	ChunkWorldCoords m_chunkCoords;
+	int m_chunkX = 0;
+	int m_chunkZ = 0;
 
 	bool m_isDirty = true;
 };

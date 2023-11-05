@@ -47,73 +47,50 @@ void Player::TurnTopBottom(float value) {
 }
 
 void Player::Move(Chunk* chunk, bool front, bool back, bool left, bool right, bool up, float elapsedTime) {
-	float yrotrad = ((m_rotY / 180) * PI);
-	float xrotrad = ((m_rotX / 180) * PI);
-	float velocity = 0.1f;
+    float yrotrad = ((m_rotY / 180) * PI);
+    float xrotrad = ((m_rotX / 180) * PI);
+    float velocity = 0.25f;
 
-	// Prevent faster movement when moving diagonally
-	if ((front && left) || (front && right) || (back && left) || (back && right) ||
-		(up && left) || (up && right) || (up && front) || (up && back)) {
-		velocity /= 1.5;
-	}
+    // Prevent faster movement when moving diagonally
+    if ((front && left) || (front && right) || (back && left) || (back && right) ||
+        (up && left) || (up && right) || (up && front) || (up && back)) {
+        velocity /= 1.5;
+    }
 
+    // Jump mechanics
+    if (up && m_position.y == 0) {
+        m_isJumping = true;
+        m_yVelocity = INITIAL_JUMP_FORCE;
+    }
 
+    // Apply gravity
+    m_yVelocity += GRAVITY * elapsedTime;
+    m_position.y += m_yVelocity * elapsedTime;
 
-	// Jump mechanics
-	if (up && !m_isJumping && m_position.y == 0) {
-		m_isJumping = true;
-		m_gravity = MAX_JUMP_HEIGHT / (JUMP_TIME * JUMP_TIME);
-		m_jumpSpeed = sqrt(2 * MAX_JUMP_HEIGHT * m_gravity);
+    // Ground limit
+    if (m_position.y < 0) {
+        m_position.y = 0;
+        m_yVelocity = 0.0f;
+        m_isJumping = false;
+    }
 
-		m_jumpDirectionFront = front;
-		m_jumpDirectionBack = back;
-		m_jumpDirectionLeft = left;
-		m_jumpDirectionRight = right;
-	}
-
-	// Constant gravity
-	m_position.y += m_jumpSpeed * elapsedTime;
-	m_jumpSpeed -= m_gravity * elapsedTime;
-
-	// Ground limit
-	if (m_position.y <= 0) {
-		m_position.y = 0;
-		m_isJumping = false;
-
-		m_jumpDirectionFront = false;
-		m_jumpDirectionBack = false;
-		m_jumpDirectionLeft = false;
-		m_jumpDirectionRight = false;
-	}
-
-	// Apply jump
-	if (m_isJumping) {
-		front = m_jumpDirectionFront;
-		back = m_jumpDirectionBack;
-		left = m_jumpDirectionLeft;
-		right = m_jumpDirectionRight;
-	}
-
-	// Movement mechanics
-	if (front) {
-		m_position.x += float(sin(yrotrad)) * velocity;
-		m_position.z -= float(cos(yrotrad)) * velocity;
-	}
-	if (back) {
-		m_position.x -= float(sin(yrotrad)) * velocity;
-		m_position.z += float(cos(yrotrad)) * velocity;
-	}
-	if (left) {
-		m_position.x -= float(cos(yrotrad)) * velocity;
-		m_position.z -= float(sin(yrotrad)) * velocity;
-	}
-	if (right) {
-		m_position.x += float(cos(yrotrad)) * velocity;
-		m_position.z += float(sin(yrotrad)) * velocity;
-	}
-	if (up) {
-		m_position.y += velocity;
-	}
+    // Movement mechanics
+    if (front) {
+        m_position.x += float(sin(yrotrad)) * velocity;
+        m_position.z -= float(cos(yrotrad)) * velocity;
+    }
+    if (back) {
+        m_position.x -= float(sin(yrotrad)) * velocity;
+        m_position.z += float(cos(yrotrad)) * velocity;
+    }
+    if (left) {
+        m_position.x -= float(cos(yrotrad)) * velocity;
+        m_position.z -= float(sin(yrotrad)) * velocity;
+    }
+    if (right) {
+        m_position.x += float(cos(yrotrad)) * velocity;
+        m_position.z += float(sin(yrotrad)) * velocity;
+    }
 }
 
 void Player::ApplyTransformation(Transformation& transformation, bool includeRotation) {

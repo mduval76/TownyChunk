@@ -48,7 +48,7 @@ private:
 private:
     World* m_world;
 
-    Player m_player = Player(Vector3f(0.0f, 0.0f, 0.0f));
+    Player m_player = Player(Vector3f((WORLD_SIZE_X * CHUNK_SIZE_X) / 2, 50.0f, (WORLD_SIZE_Z * CHUNK_SIZE_Z) / 2));
 
     sf::Music m_music;
 

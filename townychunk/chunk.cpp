@@ -4,7 +4,7 @@
 #include "chunk.h"
 #include "blockinfo.h"
 
-Chunk::Chunk(int x, int z) : m_blocks(CHUNK_SIZE_X, CHUNK_SIZE_Y, CHUNK_SIZE_Z), m_chunkCoords() {
+Chunk::Chunk(int x, int z) : m_blocks(CHUNK_SIZE_X, CHUNK_SIZE_Y, CHUNK_SIZE_Z), m_chunkX(x), m_chunkZ(z) {
 	m_blocks.Reset(BTYPE_AIR);
 	for (int x = 0; x < CHUNK_SIZE_X; ++x) {
 		for (int z = 0; z < CHUNK_SIZE_Z; ++z) {
@@ -65,8 +65,8 @@ void Chunk::Update() {
 
 void Chunk::AddBlockToMesh(VertexBuffer::VertexData* vd, int& count, BlockType type, int x, int y, int z) {
 	float u, v, w, h;
-	float globalX = m_chunkCoords.x * CHUNK_SIZE_X + x;
-	float globalZ = m_chunkCoords.z * CHUNK_SIZE_Z + z;
+	float globalX = m_chunkX * CHUNK_SIZE_X + x;
+	float globalZ = m_chunkZ * CHUNK_SIZE_Z + z;
 
 
 	// FRONT
@@ -141,8 +141,8 @@ void Chunk::SetBlock(int x, int y, int z, BlockType type) {
 }
 
 void Chunk::SetChunkCoords(int x, int z) {
-	m_chunkCoords.x = x;
-	m_chunkCoords.z = z;
+	m_chunkX = x;
+	m_chunkZ = z;
 }
 
 BlockType Chunk::GetBlock(int x, int y, int z) {

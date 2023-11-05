@@ -30,8 +30,8 @@ private:
 
 	float m_rotX;
 	float m_rotY;
-	float m_gravity = 0.0f;
-	float m_height = 0.0f;
+	float m_yVelocity = 0.0f;
+	float m_offset = -10.0f;
 	float m_jumpSpeed = 0.0f;
 
 	bool m_isJumping = false;

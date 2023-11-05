@@ -140,7 +140,7 @@ void Engine::Render(float elapsedTime) {
 	m_player.Move(currentChunk, m_keyW, m_keyS, m_keyA, m_keyD, m_keySpace, elapsedTime);
 	std::array<float, 2> rot = m_player.GetRotation();
 	m_player.ApplyTransformation(t);
-	t.ApplyTranslation(0.0f, -1.7f, 0.0f);
+	t.ApplyTranslation(0.0f, 0.0f, 0.0f);
 	t.Use();
 
 	// Chunk
@@ -394,7 +394,7 @@ void Engine::DrawHud(float elapsedTime) {
 	m_textureFont.Bind();
 	std::ostringstream ss;
 	Vector3f currentDirection = m_player.GetDirection();
-	ss << " Direction : " << DirectionToString(currentDirection);
+	ss << " DIRECTION : " << DirectionToString(currentDirection);
 	PrintText(10, Height() - 30, ss.str());
 	ss.str("");
 	ss << " FPS : " << GetFps(elapsedTime);
@@ -409,7 +409,7 @@ void Engine::DrawHud(float elapsedTime) {
 	ss.str("");
 
 	ss << (pos.x > 0 ? " BLOCK: ( X " : " BLOCK: ( X-") << 
-		abs((int)(pos.x) % CHUNK_SIZE_X) << (pos.y > 0 ? " | Y " : " | Y-") << 
+		abs((int)(pos.x) % CHUNK_SIZE_X) << " | Y " << 
 		abs((int)(pos.y) % CHUNK_SIZE_Y) << (pos.z > 0 ? " | Z " : " | Z-") << 
 		abs((int)(pos.z) % CHUNK_SIZE_Z) << ")";
 	PrintText(10, 50, ss.str());
@@ -417,7 +417,7 @@ void Engine::DrawHud(float elapsedTime) {
 
 	ss << (pos.x > 0 ? " GLOBAL: ( X " : " GLOBAL: ( X-") << 
 		std::fixed << std::setprecision(2) << 
-		abs(pos.x) << (pos.y > 0 ? " | Y " : " | Y-") << 
+		abs(pos.x) << " | Y " << 
 		abs(pos.y) << (pos.z > 0 ? " | Z " : " | Z-") << 
 		abs(pos.z) << ")";
 	PrintText(10, 20, ss.str());

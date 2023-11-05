@@ -18,10 +18,10 @@
 #define CHUNK_SIZE_Y 128
 #define CHUNK_SIZE_Z 16
 
+#define GRAVITY -9.81f
 #define PI 3.1415926535897932384626433832795f
 
-#define MAX_JUMP_HEIGHT 1.1f
-#define JUMP_TIME 0.2f
+#define INITIAL_JUMP_FORCE 5.0f
 
 typedef uint8_t BlockType;
 enum BLOCK_TYPE { BTYPE_AIR, BTYPE_DIRT, BTYPE_FACE, BTYPE_HELL, BTYPE_MARBLE, BTYPE_STONE, BTYPE_LAST };
@@ -30,7 +30,7 @@ enum BLOCK_TYPE { BTYPE_AIR, BTYPE_DIRT, BTYPE_FACE, BTYPE_HELL, BTYPE_MARBLE, B
 #define SHADER_PATH     "../townychunk/media/shaders/"
 #define VIEW_DISTANCE   128
 
-#define WORLD_SIZE_X   3
-#define WORLD_SIZE_Z   3
+#define WORLD_SIZE_X   5
+#define WORLD_SIZE_Z   5
 
 #endif // DEFINE_H__
