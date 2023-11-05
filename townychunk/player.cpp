@@ -6,6 +6,18 @@ Vector3f Player::GetPosition() const {
 	return m_position;
 }
 
+Vector3f Player::GetDirection() {
+	float yrotrad = (m_rotY / 180.0f) * static_cast<float>(PI);
+	float xrotrad = (m_rotX / 180.0f) * static_cast<float>(PI);
+
+	m_direction.x = sin(yrotrad) * cos(xrotrad);
+	m_direction.y = sin(xrotrad);
+	m_direction.z = -cos(yrotrad) * cos(xrotrad);
+	m_direction.Normalize();
+
+	return m_direction;
+}
+
 std::array<float, 2> Player::GetRotation() const {
 	return m_rotation;
 }
@@ -35,14 +47,17 @@ void Player::TurnTopBottom(float value) {
 }
 
 void Player::Move(Chunk* chunk, bool front, bool back, bool left, bool right, bool up, float elapsedTime) {
-	float yrotrad = ((m_rotY / 180) * 3.141592654f);
-	float velocity = 0.25f;
+	float yrotrad = ((m_rotY / 180) * PI);
+	float xrotrad = ((m_rotX / 180) * PI);
+	float velocity = 0.1f;
 
 	// Prevent faster movement when moving diagonally
 	if ((front && left) || (front && right) || (back && left) || (back && right) ||
 		(up && left) || (up && right) || (up && front) || (up && back)) {
 		velocity /= 1.5;
 	}
+
+
 
 	// Jump mechanics
 	if (up && !m_isJumping && m_position.y == 0) {
@@ -55,24 +70,28 @@ void Player::Move(Chunk* chunk, bool front, bool back, bool left, bool right, bo
 		m_jumpDirectionLeft = left;
 		m_jumpDirectionRight = right;
 	}
+
+	// Constant gravity
+	m_position.y += m_jumpSpeed * elapsedTime;
+	m_jumpSpeed -= m_gravity * elapsedTime;
+
+	// Ground limit
+	if (m_position.y <= 0) {
+		m_position.y = 0;
+		m_isJumping = false;
+
+		m_jumpDirectionFront = false;
+		m_jumpDirectionBack = false;
+		m_jumpDirectionLeft = false;
+		m_jumpDirectionRight = false;
+	}
+
+	// Apply jump
 	if (m_isJumping) {
 		front = m_jumpDirectionFront;
 		back = m_jumpDirectionBack;
 		left = m_jumpDirectionLeft;
 		right = m_jumpDirectionRight;
-
-		m_position.y += m_jumpSpeed * elapsedTime;
-		m_jumpSpeed -= m_gravity * elapsedTime;
-
-		if (m_position.y <= 0) {
-			m_position.y = 0;
-			m_isJumping = false;
-
-			m_jumpDirectionFront = false;
-			m_jumpDirectionBack = false;
-			m_jumpDirectionLeft = false;
-			m_jumpDirectionRight = false;
-		}
 	}
 
 	// Movement mechanics
@@ -91,6 +110,9 @@ void Player::Move(Chunk* chunk, bool front, bool back, bool left, bool right, bo
 	if (right) {
 		m_position.x += float(cos(yrotrad)) * velocity;
 		m_position.z += float(sin(yrotrad)) * velocity;
+	}
+	if (up) {
+		m_position.y += velocity;
 	}
 }
 

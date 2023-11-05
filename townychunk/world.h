@@ -3,6 +3,7 @@
 
 #include "define.h"
 #include "array2d.h"
+#include "blockinfo.h"
 #include "chunk.h"
 
 class World {
@@ -16,6 +17,7 @@ public:
 
 private:
     Array2d<Chunk*> m_chunks;
+    BlockInfo* m_blockInfo[BTYPE_LAST];
 };
 
 #endif // WORLD_H__

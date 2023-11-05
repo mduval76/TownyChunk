@@ -140,7 +140,7 @@ void Engine::Render(float elapsedTime) {
 	m_player.Move(currentChunk, m_keyW, m_keyS, m_keyA, m_keyD, m_keySpace, elapsedTime);
 	std::array<float, 2> rot = m_player.GetRotation();
 	m_player.ApplyTransformation(t);
-	t.ApplyTranslation(0.0f, -5.0f, 0.0f);
+	t.ApplyTranslation(0.0f, -1.7f, 0.0f);
 	t.Use();
 
 	// Chunk
@@ -267,6 +267,26 @@ bool Engine::LoadTexture(Texture& texture, const std::string& filename, bool sto
 	return true;
 }
 
+std::string Engine::DirectionToString(const Vector3f& direction) const {
+	const float x = direction.x;
+	const float y = direction.y;
+	const float z = direction.z;
+
+	std::string currentDirection;
+
+	if (std::abs(direction.x) > std::abs(direction.y) && std::abs(direction.x) > std::abs(direction.z)) {
+		currentDirection = (direction.x > 0) ? "X+" : "X-";
+	}
+	else if (std::abs(direction.y) > std::abs(direction.x) && std::abs(direction.y) > std::abs(direction.z)) {
+		currentDirection = (direction.y < 0) ? "Y+" : "Y-";
+	}
+	else {
+		currentDirection = (direction.z > 0) ? "Z+" : "Z-";
+	}
+
+	return currentDirection;
+}
+
 unsigned int Engine::GetFps(float elapsedTime) const {
 	return 1 / elapsedTime;
 }
@@ -373,13 +393,35 @@ void Engine::DrawHud(float elapsedTime) {
 	// Bind de la texture pour le font
 	m_textureFont.Bind();
 	std::ostringstream ss;
+	Vector3f currentDirection = m_player.GetDirection();
+	ss << " Direction : " << DirectionToString(currentDirection);
+	PrintText(10, Height() - 30, ss.str());
+	ss.str("");
 	ss << " FPS : " << GetFps(elapsedTime);
-	PrintText(10, Height() - 25, ss.str());
+	PrintText(10, Height() - 60, ss.str());
 	ss.str("");
 
 	Vector3f pos = m_player.GetPosition();
-	ss << " Position : " << std::fixed << std::setprecision(3) << pos.x << ", " << pos.y << ", " << pos.z; // IMPORTANT : on utilise l’operateur << pour afficher la position
-	PrintText(10, 10, ss.str());
+	ss << (pos.x > 0 ? " CHUNK: ( X " : " CHUNK: ( X-") << 
+		abs((int)(pos.x / CHUNK_SIZE_X)) << (pos.z > 0 ? " | Z " : " | Z-") << 
+		abs((int)(pos.z / CHUNK_SIZE_Z)) << " )";
+	PrintText(10, 80, ss.str());
+	ss.str("");
+
+	ss << (pos.x > 0 ? " BLOCK: ( X " : " BLOCK: ( X-") << 
+		abs((int)(pos.x) % CHUNK_SIZE_X) << (pos.y > 0 ? " | Y " : " | Y-") << 
+		abs((int)(pos.y) % CHUNK_SIZE_Y) << (pos.z > 0 ? " | Z " : " | Z-") << 
+		abs((int)(pos.z) % CHUNK_SIZE_Z) << ")";
+	PrintText(10, 50, ss.str());
+	ss.str("");
+
+	ss << (pos.x > 0 ? " GLOBAL: ( X " : " GLOBAL: ( X-") << 
+		std::fixed << std::setprecision(2) << 
+		abs(pos.x) << (pos.y > 0 ? " | Y " : " | Y-") << 
+		abs(pos.y) << (pos.z > 0 ? " | Z " : " | Z-") << 
+		abs(pos.z) << ")";
+	PrintText(10, 20, ss.str());
+	ss.str("");
 
 	// Affichage du crosshair
 	m_textureCrosshair.Bind();

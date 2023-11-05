@@ -36,6 +36,7 @@ public:
 
 private:
     bool LoadTexture(Texture& texture, const std::string& filename, bool stopOnError = true);
+    std::string DirectionToString(const Vector3f& direction) const;
 
     unsigned int GetFps(float elapsedTime) const;
 
@@ -46,7 +47,6 @@ private:
 
 private:
     World* m_world;
-    BlockInfo* m_blockInfo[BTYPE_LAST];
 
     Player m_player = Player(Vector3f(0.0f, 0.0f, 0.0f));
 

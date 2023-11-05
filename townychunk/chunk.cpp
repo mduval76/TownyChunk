@@ -4,7 +4,7 @@
 #include "chunk.h"
 #include "blockinfo.h"
 
-Chunk::Chunk() : m_blocks(CHUNK_SIZE_X, CHUNK_SIZE_Y, CHUNK_SIZE_Z), m_chunkCoords() {
+Chunk::Chunk(int x, int z) : m_blocks(CHUNK_SIZE_X, CHUNK_SIZE_Y, CHUNK_SIZE_Z), m_chunkCoords() {
 	m_blocks.Reset(BTYPE_AIR);
 	for (int x = 0; x < CHUNK_SIZE_X; ++x) {
 		for (int z = 0; z < CHUNK_SIZE_Z; ++z) {
@@ -106,7 +106,7 @@ void Chunk::AddBlockToMesh(VertexBuffer::VertexData* vd, int& count, BlockType t
 	}
 
 	// BOTTOM
-	if (GetBlock(x, y - 1, z) == BTYPE_AIR) {
+	if (GetBlock(x, y - 1, z) == BTYPE_AIR || y == 0) {
 		BlockInfo::GetBlockTextureCoords(type, BlockInfo::BlockFace::BOTTOM, u, v, w, h);
 		vd[count++] = VertexBuffer::VertexData(globalX - 0.5f, y - 0.5f, globalZ - 0.5f, 0.8f, 0.8f, 0.8f, u, v);
 		vd[count++] = VertexBuffer::VertexData(globalX + 0.5f, y - 0.5f, globalZ - 0.5f, 0.8f, 0.8f, 0.8f, u + w, v);

@@ -12,6 +12,7 @@ public:
 	Player(const Vector3f& position, float rotX = 0, float rotY = 0);
 
 	Vector3f GetPosition() const;
+	Vector3f GetDirection();
 	std::array<float, 2> GetRotation() const;
 	void SetPosition(const Vector3f& position);
 
@@ -24,6 +25,7 @@ public:
 
 private:
 	Vector3f m_position = Vector3f(0.0f, 0.0f, 0.0f);
+	Vector3f m_direction = Vector3f(0.0f, 0.0f, 0.0f);
 	std::array<float, 2> m_rotation = { 0.0f, 0.0f };
 
 	float m_rotX;

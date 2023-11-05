@@ -12,17 +12,17 @@ struct ChunkWorldCoords {
 
 class Chunk {
 public:
-	Chunk();
+	Chunk(int x, int z);
 	~Chunk();
 
 	BlockType GetBlock(int x, int y, int z);
-
 	bool IsDirty() const;
 
 	void Update();
 	void AddBlockToMesh(VertexBuffer::VertexData* vd, int& count, BlockType type, int x, int y, int z);
 	void Render() const;
 	void SetBlock(int x, int y, int z, BlockType type);
+
 	void SetChunkCoords(int x, int z);
 	void RemoveBlock(int x, int y, int z);
 
