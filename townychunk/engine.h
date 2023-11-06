@@ -36,6 +36,8 @@ public:
 
 private:
     bool LoadTexture(Texture& texture, const std::string& filename, bool stopOnError = true);
+    std::string DirectionToString(const Vector3f& direction) const;
+
 
     unsigned int GetFps(float elapsedTime) const;
 
@@ -45,11 +47,11 @@ private:
     void PrintText(unsigned int x, unsigned int y, const std::string& t);
 
 private:
-    World m_world;
+    World* m_world;
 
     BlockInfo* m_blockInfo[BTYPE_LAST];
 
-    Player m_player = Player(Vector3f(0.0f, 0.0f, 0.0f));
+    Player m_player = Player(Vector3f(VIEW_DISTANCE / 2, 50.0f, VIEW_DISTANCE / 2));
 
     sf::Music m_music;
 

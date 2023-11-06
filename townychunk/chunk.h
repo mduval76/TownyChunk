@@ -5,34 +5,30 @@
 #include "array3d.h"
 #include "vertexbuffer.h"
 
-struct ChunkWorldCoords {
-	int x, z;
-	ChunkWorldCoords(int chunkPosX = 0, int chunkPosZ = 0) : x(chunkPosX), z(chunkPosZ) {}
-};
-
 class Chunk {
 public:
-	Chunk();
+	Chunk(int x, int z);
 	~Chunk();
 
 	BlockType GetBlock(int x, int y, int z);
+	void SetBlock(int x, int y, int z, BlockType type);
+	void RemoveBlock(int x, int y, int z);
 
-	bool IsBorderingChunk() const;
+	int GetChunkXCoord() const;
+	int GetChunkZCoord() const;
+
 	bool IsDirty() const;
 
+	void Render() const;
 	void Update();
 	void AddBlockToMesh(VertexBuffer::VertexData* vd, int& count, BlockType type, int x, int y, int z);
-	void Render() const;
-	void SetBlock(int x, int y, int z, BlockType type);
-	void SetChunkCoords(int x, int z);
-	void RemoveBlock(int x, int y, int z);
 
 private:
 	Array3d<BlockType> m_blocks;
 	VertexBuffer m_vbo = VertexBuffer();
-	
-	ChunkWorldCoords m_chunkCoords;
-	ChunkWorldCoords m_world[WORLD_SIZE_X * WORLD_SIZE_Z];
+
+	int m_chunkX = 0;
+	int m_chunkZ = 0;
 
 	bool m_isDirty = true;
 };

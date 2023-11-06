@@ -4,7 +4,7 @@
 #include "chunk.h"
 #include "blockinfo.h"
 
-Chunk::Chunk() : m_blocks(CHUNK_SIZE_X, CHUNK_SIZE_Y, CHUNK_SIZE_Z), m_chunkCoords() {
+Chunk::Chunk(int x, int z) : m_blocks(CHUNK_SIZE_X, CHUNK_SIZE_Y, CHUNK_SIZE_Z), m_chunkX(x), m_chunkZ(z) {
 	m_blocks.Reset(BTYPE_AIR);
 	for (int x = 0; x < CHUNK_SIZE_X; ++x) {
 		for (int z = 0; z < CHUNK_SIZE_Z; ++z) {
@@ -53,13 +53,13 @@ void Chunk::Update() {
 
 void Chunk::AddBlockToMesh(VertexBuffer::VertexData* vd, int& count, BlockType type, int x, int y, int z) {
 	float u, v, w, h;
-	float globalX = m_chunkCoords.x * CHUNK_SIZE_X + x;
-	float globalZ = m_chunkCoords.z * CHUNK_SIZE_Z + z;
+	float globalX = m_chunkX * CHUNK_SIZE_X + x;
+	float globalZ = m_chunkZ * CHUNK_SIZE_Z + z;
 
 	// FRONT
-	bool isFrontOnWorldEdge = (z == CHUNK_SIZE_Z - 1) && (m_chunkCoords.z == WORLD_SIZE_Z - 1);
+	bool isFrontOnWorldEdge = (z == CHUNK_SIZE_Z - 1) && (m_chunkZ == WORLD_SIZE_Z - 1);
 	if ((GetBlock(x, y, z + 1) == BTYPE_AIR || z == CHUNK_SIZE_Z - 1) && isFrontOnWorldEdge) {
-		BlockInfo::GetBlockTextureCoords(type, BlockInfo::BlockFace::FRONT, u, v, w, h);
+		BlockInfo::GetBlockTextureCoords(type, FRONT, u, v, w, h);
 		vd[count++] = VertexBuffer::VertexData(globalX - 0.5f, y - 0.5f, globalZ + 0.5f, 1.0f, 1.0f, 1.0f, u, v);
 		vd[count++] = VertexBuffer::VertexData(globalX + 0.5f, y - 0.5f, globalZ + 0.5f, 1.0f, 1.0f, 1.0f, u + w, v);
 		vd[count++] = VertexBuffer::VertexData(globalX + 0.5f, y + 0.5f, globalZ + 0.5f, 1.0f, 1.0f, 1.0f, u + w, v + h);
@@ -67,9 +67,9 @@ void Chunk::AddBlockToMesh(VertexBuffer::VertexData* vd, int& count, BlockType t
 	}
 
 	// RIGHT
-	bool isRightOnWorldEdge = (x == CHUNK_SIZE_X - 1) && (m_chunkCoords.x == WORLD_SIZE_X - 1);
+	bool isRightOnWorldEdge = (x == CHUNK_SIZE_X - 1) && (m_chunkX == WORLD_SIZE_X - 1);
 	if ((GetBlock(x + 1, y, z) == BTYPE_AIR || x == CHUNK_SIZE_X - 1) && isRightOnWorldEdge) {
-		BlockInfo::GetBlockTextureCoords(type, BlockInfo::BlockFace::RIGHT, u, v, w, h);
+		BlockInfo::GetBlockTextureCoords(type, RIGHT, u, v, w, h);
 		vd[count++] = VertexBuffer::VertexData(globalX + 0.5f, y - 0.5f, globalZ + 0.5f, 1.0f, 1.0f, 1.0f, u, v);
 		vd[count++] = VertexBuffer::VertexData(globalX + 0.5f, y - 0.5f, globalZ - 0.5f, 1.0f, 1.0f, 1.0f, u + w, v);
 		vd[count++] = VertexBuffer::VertexData(globalX + 0.5f, y + 0.5f, globalZ - 0.5f, 1.0f, 1.0f, 1.0f, u + w, v + h);
@@ -77,9 +77,9 @@ void Chunk::AddBlockToMesh(VertexBuffer::VertexData* vd, int& count, BlockType t
 	}
 
 	// BACK
-	bool isBackOnWorldEdge = (z == 0) && (m_chunkCoords.z == 0);
+	bool isBackOnWorldEdge = (z == 0) && (m_chunkZ == 0);
 	if ((GetBlock(x, y, z - 1) == BTYPE_AIR || z == 0) && isBackOnWorldEdge) {
-		BlockInfo::GetBlockTextureCoords(type, BlockInfo::BlockFace::BACK, u, v, w, h);
+		BlockInfo::GetBlockTextureCoords(type, BACK, u, v, w, h);
 		vd[count++] = VertexBuffer::VertexData(globalX + 0.5f, y - 0.5f, globalZ - 0.5f, 1.0f, 1.0f, 1.0f, u, v);
 		vd[count++] = VertexBuffer::VertexData(globalX - 0.5f, y - 0.5f, globalZ - 0.5f, 1.0f, 1.0f, 1.0f, u + w, v);
 		vd[count++] = VertexBuffer::VertexData(globalX - 0.5f, y + 0.5f, globalZ - 0.5f, 1.0f, 1.0f, 1.0f, u + w, v + h);
@@ -87,9 +87,9 @@ void Chunk::AddBlockToMesh(VertexBuffer::VertexData* vd, int& count, BlockType t
 	}
 
 	// LEFT
-	bool isLeftOnWorldEdge = (x == 0) && (m_chunkCoords.x == 0);
+	bool isLeftOnWorldEdge = (x == 0) && (m_chunkX == 0);
 	if ((GetBlock(x - 1, y, z) == BTYPE_AIR || x == 0) && isLeftOnWorldEdge) {
-		BlockInfo::GetBlockTextureCoords(type, BlockInfo::BlockFace::LEFT, u, v, w, h);
+		BlockInfo::GetBlockTextureCoords(type, LEFT, u, v, w, h);
 		vd[count++] = VertexBuffer::VertexData(globalX - 0.5f, y - 0.5f, globalZ - 0.5f, 1.0f, 1.0f, 1.0f, u, v);
 		vd[count++] = VertexBuffer::VertexData(globalX - 0.5f, y - 0.5f, globalZ + 0.5f, 1.0f, 1.0f, 1.0f, u + w, v);
 		vd[count++] = VertexBuffer::VertexData(globalX - 0.5f, y + 0.5f, globalZ + 0.5f, 1.0f, 1.0f, 1.0f, u + w, v + h);
@@ -98,7 +98,7 @@ void Chunk::AddBlockToMesh(VertexBuffer::VertexData* vd, int& count, BlockType t
 
 	// BOTTOM
 	if (GetBlock(x, y - 1, z) == BTYPE_AIR || y == 0) {
-		BlockInfo::GetBlockTextureCoords(type, BlockInfo::BlockFace::BOTTOM, u, v, w, h);
+		BlockInfo::GetBlockTextureCoords(type, BOTTOM, u, v, w, h);
 		vd[count++] = VertexBuffer::VertexData(globalX - 0.5f, y - 0.5f, globalZ - 0.5f, 1.0f, 1.0f, 1.0f, u, v);
 		vd[count++] = VertexBuffer::VertexData(globalX + 0.5f, y - 0.5f, globalZ - 0.5f, 1.0f, 1.0f, 1.0f, u + w, v);
 		vd[count++] = VertexBuffer::VertexData(globalX + 0.5f, y - 0.5f, globalZ + 0.5f, 1.0f, 1.0f, 1.0f, u + w, v + h);
@@ -107,7 +107,7 @@ void Chunk::AddBlockToMesh(VertexBuffer::VertexData* vd, int& count, BlockType t
 
 	// TOP
 	if (GetBlock(x, y + 1, z) == BTYPE_AIR) {
-		BlockInfo::GetBlockTextureCoords(type, BlockInfo::BlockFace::TOP, u, v, w, h);
+		BlockInfo::GetBlockTextureCoords(type, TOP, u, v, w, h);
 		vd[count++] = VertexBuffer::VertexData(globalX - 0.5f, y + 0.5f, globalZ + 0.5f, 1.0f, 1.0f, 1.0f, u, v);
 		vd[count++] = VertexBuffer::VertexData(globalX + 0.5f, y + 0.5f, globalZ + 0.5f, 1.0f, 1.0f, 1.0f, u + w, v);
 		vd[count++] = VertexBuffer::VertexData(globalX + 0.5f, y + 0.5f, globalZ - 0.5f, 1.0f, 1.0f, 1.0f, u + w, v + h);
@@ -127,13 +127,16 @@ void Chunk::RemoveBlock(int x, int y, int z) {
 	m_blocks.Set(x, y, z, BTYPE_AIR);
 }
 
-void Chunk::SetBlock(int x, int y, int z, BlockType type) {
-	m_blocks.Set(x, y, z, type);
+int Chunk::GetChunkXCoord() const {
+	return m_chunkX;
 }
 
-void Chunk::SetChunkCoords(int x, int z) {
-	m_chunkCoords.x = x;
-	m_chunkCoords.z = z;
+int Chunk::GetChunkZCoord() const {
+	return m_chunkZ;
+}
+
+void Chunk::SetBlock(int x, int y, int z, BlockType type) {
+	m_blocks.Set(x, y, z, type);
 }
 
 BlockType Chunk::GetBlock(int x, int y, int z) {

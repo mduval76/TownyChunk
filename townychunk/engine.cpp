@@ -1,9 +1,11 @@
 #include "engine.h"
 
 
-Engine::Engine() {}
+Engine::Engine() : m_world(nullptr) {}
 
-Engine::~Engine() {}
+Engine::~Engine() {
+	delete m_world;
+}
 
 void Engine::Init() {
 	GLenum glewErr = glewInit();
@@ -44,6 +46,8 @@ void Engine::Init() {
 	glLightfv(GL_LIGHT0, GL_AMBIENT, light0Amb);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, light0Diff);
 	glLightfv(GL_LIGHT0, GL_SPECULAR, light0Spec);
+
+	m_world = new World();
 
 	CenterMouse();
 	HideCursor();
@@ -90,27 +94,25 @@ void Engine::LoadResource() {
 		float u, v, w, h;
 		m_textureAtlas.TextureIndexToCoord(pair.second, u, v, w, h);
 
-		for (int face = BlockInfo::FRONT; face < BlockInfo::LAST; ++face) {
-			BlockInfo::SetBlockTextureCoords(pair.first, static_cast<BlockInfo::BlockFace>(face), u, v, w, h);
+		for (int face = FRONT; face < LAST; ++face) {
+			BlockInfo::SetBlockTextureCoords(pair.first, static_cast<BlockFace>(face), u, v, w, h);
 		}
 	}
 
 	// Different texture for each face
 	float u, v, w, h;
 	m_textureAtlas.TextureIndexToCoord(texIdxHellZ, u, v, w, h);
-	BlockInfo::SetBlockTextureCoords(BTYPE_HELL, BlockInfo::FRONT, u, v, w, h); 
+	BlockInfo::SetBlockTextureCoords(BTYPE_HELL, FRONT, u, v, w, h); 
 	m_textureAtlas.TextureIndexToCoord(texIdxHellZ, u, v, w, h);
-	BlockInfo::SetBlockTextureCoords(BTYPE_HELL, BlockInfo::BACK, u, v, w, h);  
+	BlockInfo::SetBlockTextureCoords(BTYPE_HELL, BACK, u, v, w, h);  
 	m_textureAtlas.TextureIndexToCoord(texIdxHellX, u, v, w, h);
-	BlockInfo::SetBlockTextureCoords(BTYPE_HELL, BlockInfo::LEFT, u, v, w, h);  
+	BlockInfo::SetBlockTextureCoords(BTYPE_HELL, LEFT, u, v, w, h);  
 	m_textureAtlas.TextureIndexToCoord(texIdxHellX, u, v, w, h);
-	BlockInfo::SetBlockTextureCoords(BTYPE_HELL, BlockInfo::RIGHT, u, v, w, h);
+	BlockInfo::SetBlockTextureCoords(BTYPE_HELL, RIGHT, u, v, w, h);
 	m_textureAtlas.TextureIndexToCoord(texIdxHellY, u, v, w, h);
-	BlockInfo::SetBlockTextureCoords(BTYPE_HELL, BlockInfo::TOP, u, v, w, h);
+	BlockInfo::SetBlockTextureCoords(BTYPE_HELL, TOP, u, v, w, h);
 	m_textureAtlas.TextureIndexToCoord(texIdxHellY, u, v, w, h);
-	BlockInfo::SetBlockTextureCoords(BTYPE_HELL, BlockInfo::BOTTOM, u, v, w, h);
-
-	m_world.Render();
+	BlockInfo::SetBlockTextureCoords(BTYPE_HELL, BOTTOM, u, v, w, h);
 
 	m_music.setVolume(50.0f);
 	if (!m_music.openFromFile("../townychunk/media/audio/music.ogg")) {
@@ -139,7 +141,7 @@ void Engine::Render(float elapsedTime) {
 	m_player.Move(m_keyW, m_keyS, m_keyA, m_keyD, m_keySpace, elapsedTime);
 	std::array<float, 2> rot = m_player.GetRotation();
 	m_player.ApplyTransformation(t);
-	t.ApplyTranslation(0.0f, -5.0f, 0.0f);
+	t.ApplyTranslation(0.0f, -PLAYER_HEIGHT, 0.0f);
 	t.Use();
 
 	// Chunk
@@ -147,7 +149,7 @@ void Engine::Render(float elapsedTime) {
 	m_shader01.Use();
 	for (int i = 0; i < WORLD_SIZE_X; i++) {
 		for (int j = 0; j < WORLD_SIZE_Z; j++) {
-			Chunk* chunk = m_world.GetChunk(i, j);
+			Chunk* chunk = m_world->GetChunk(i, j);
 			if (chunk->IsDirty()) {
 				chunk->Update();
 			}
@@ -266,6 +268,26 @@ bool Engine::LoadTexture(Texture& texture, const std::string& filename, bool sto
 	return true;
 }
 
+std::string Engine::DirectionToString(const Vector3f& direction) const {
+	const float x = direction.x;
+	const float y = direction.y;
+	const float z = direction.z;
+
+	std::string currentDirection;
+
+	if (std::abs(direction.x) > std::abs(direction.y) && std::abs(direction.x) > std::abs(direction.z)) {
+		currentDirection = (direction.x > 0) ? "X+" : "X-";
+	}
+	else if (std::abs(direction.y) > std::abs(direction.x) && std::abs(direction.y) > std::abs(direction.z)) {
+		currentDirection = (direction.y < 0) ? "Y+" : "Y-";
+	}
+	else {
+		currentDirection = (direction.z > 0) ? "Z+" : "Z-";
+	}
+
+	return currentDirection;
+}
+
 unsigned int Engine::GetFps(float elapsedTime) const {
 	return 1 / elapsedTime;
 }
@@ -372,13 +394,35 @@ void Engine::DrawHud(float elapsedTime) {
 	// Bind de la texture pour le font
 	m_textureFont.Bind();
 	std::ostringstream ss;
+	Vector3f currentDirection = m_player.GetDirection();
+	ss << " DIRECTION : " << DirectionToString(currentDirection);
+	PrintText(10, Height() - 30, ss.str());
+	ss.str("");
 	ss << " FPS : " << GetFps(elapsedTime);
-	PrintText(10, Height() - 25, ss.str());
+	PrintText(10, Height() - 60, ss.str());
 	ss.str("");
 
 	Vector3f pos = m_player.GetPosition();
-	ss << " Position : " << std::fixed << std::setprecision(3) << pos.x << ", " << pos.y << ", " << pos.z; // IMPORTANT : on utilise l’operateur << pour afficher la position
-	PrintText(10, 10, ss.str());
+	ss << (pos.x > 0 ? " CHUNK: ( X " : " CHUNK: ( X-") <<
+		abs((int)(pos.x / CHUNK_SIZE_X)) << (pos.z > 0 ? " | Z " : " | Z-") <<
+		abs((int)(pos.z / CHUNK_SIZE_Z)) << " )";
+	PrintText(10, 80, ss.str());
+	ss.str("");
+
+	ss << (pos.x > 0 ? " BLOCK: ( X " : " BLOCK: ( X-") <<
+		abs((int)(pos.x) % CHUNK_SIZE_X) << " | Y " <<
+		abs((int)(pos.y) % CHUNK_SIZE_Y) << (pos.z > 0 ? " | Z " : " | Z-") <<
+		abs((int)(pos.z) % CHUNK_SIZE_Z) << ")";
+	PrintText(10, 50, ss.str());
+	ss.str("");
+
+	ss << (pos.x > 0 ? " GLOBAL: ( X " : " GLOBAL: ( X-") <<
+		std::fixed << std::setprecision(2) <<
+		abs(pos.x) << " | Y " <<
+		abs(pos.y) << (pos.z > 0 ? " | Z " : " | Z-") <<
+		abs(pos.z) << ")";
+	PrintText(10, 20, ss.str());
+	ss.str("");
 
 	// Affichage du crosshair
 	m_textureCrosshair.Bind();

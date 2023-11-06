@@ -11,16 +11,6 @@ public:
         float u, v, w, h;
     };
 
-    enum BlockFace {
-        FRONT,
-        BACK,
-        LEFT,
-        RIGHT,
-        TOP,
-        BOTTOM,
-        LAST
-    };
-
     BlockInfo(BlockType type, const std::string& name, int durability);
     ~BlockInfo();
 

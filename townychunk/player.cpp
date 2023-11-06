@@ -2,12 +2,24 @@
 
 Player::Player(const Vector3f& position, float rotX, float rotY) : m_position(position), m_rotX(rotX), m_rotY(rotY) {}
 
+std::array<float, 2> Player::GetRotation() const {
+	return m_rotation;
+}
+
 Vector3f Player::GetPosition() const {
 	return m_position;
 }
 
-std::array<float, 2> Player::GetRotation() const {
-	return m_rotation;
+Vector3f Player::GetDirection() {
+	float yrotrad = (m_rotY / 180.0f) * static_cast<float>(PI);
+	float xrotrad = (m_rotX / 180.0f) * static_cast<float>(PI);
+
+	m_direction.x = sin(yrotrad) * cos(xrotrad);
+	m_direction.y = sin(xrotrad);
+	m_direction.z = -cos(yrotrad) * cos(xrotrad);
+	m_direction.Normalize();
+
+	return m_direction;
 }
 
 void Player::SetPosition(const Vector3f& position) {
@@ -34,48 +46,39 @@ void Player::TurnTopBottom(float value) {
 	m_rotation[1] = m_rotY;
 }
 
+void Player::UpdateJump(bool up, float elapsedTime) {
+	if (up && !m_isJumping && m_position.y == 0) {
+		m_isJumping = true;
+		m_jumpSpeed = sqrt(-2 * MAX_JUMP_HEIGHT * GRAVITY);
+	}
+
+	m_position.y += m_jumpSpeed * elapsedTime;
+	m_jumpSpeed += GRAVITY * elapsedTime;
+
+	if (m_position.y < 0) {
+		m_position.y = 0;
+		m_isJumping = false;
+		m_jumpSpeed = 0;
+	}
+}
+
 void Player::Move(bool front, bool back, bool left, bool right, bool up, float elapsedTime) {
+	UpdateJump(up, elapsedTime);
+	UpdatePosition(front, back, left, right, elapsedTime);
+}
+
+void Player::UpdatePosition(bool front, bool back, bool left, bool right, float elapsedTime) {
 	float yrotrad = ((m_rotY / 180) * 3.141592654f);
 	float velocity = 0.25f;
 
-	// Prevent faster movement when moving diagonally
-	if ((front && left) || (front && right) || (back && left) || (back && right) ||
-		(up && left) || (up && right) || (up && front) || (up && back)) {
-		velocity /= 1.5;
+	if ((front && left) || (front && right) || (back && left) || (back && right)) {
+		velocity /= 1.414213562f;
 	}
 
-	// Jump mechanics
-	if (up && !m_isJumping && m_position.y == 0) {
-		m_isJumping = true;
-		m_gravity = MAX_JUMP_HEIGHT / (JUMP_TIME * JUMP_TIME);
-		m_jumpSpeed = sqrt(2 * MAX_JUMP_HEIGHT * m_gravity);
-
-		m_jumpDirectionFront = front;
-		m_jumpDirectionBack = back;
-		m_jumpDirectionLeft = left;
-		m_jumpDirectionRight = right;
-	}
 	if (m_isJumping) {
-		front = m_jumpDirectionFront;
-		back = m_jumpDirectionBack;
-		left = m_jumpDirectionLeft;
-		right = m_jumpDirectionRight;
-
-		m_position.y += m_jumpSpeed * elapsedTime;
-		m_jumpSpeed -= m_gravity * elapsedTime;
-
-		if (m_position.y <= 0) {
-			m_position.y = 0;
-			m_isJumping = false;
-
-			m_jumpDirectionFront = false;
-			m_jumpDirectionBack = false;
-			m_jumpDirectionLeft = false;
-			m_jumpDirectionRight = false;
-		}
+		velocity *= AIR_CONTROL;
 	}
 
-	// Movement mechanics
 	if (front) {
 		m_position.x += float(sin(yrotrad)) * velocity;
 		m_position.z -= float(cos(yrotrad)) * velocity;
