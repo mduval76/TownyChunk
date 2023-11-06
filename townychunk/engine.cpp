@@ -136,8 +136,8 @@ void Engine::Render(float elapsedTime) {
  
 	// Camera (Player)
 	Transformation t;
-	int chunkX = static_cast<int>(m_player.GetPosition().x / CHUNK_SIZE_X);
-	int chunkZ = static_cast<int>(m_player.GetPosition().z / CHUNK_SIZE_Z);
+	int chunkX = static_cast<int>(std::floor(m_player.GetPosition().x / CHUNK_SIZE_X));
+	int chunkZ = static_cast<int>(std::floor(m_player.GetPosition().z / CHUNK_SIZE_Z));
 	Chunk* currentChunk = m_world->GetChunk(chunkX, chunkZ);
 	if (currentChunk != nullptr) {
 		m_player.Move(currentChunk, m_keyW, m_keyS, m_keyA, m_keyD, m_keySpace, elapsedTime);
@@ -154,6 +154,9 @@ void Engine::Render(float elapsedTime) {
 	for (int i = 0; i < WORLD_SIZE_X; i++) {
 		for (int j = 0; j < WORLD_SIZE_Z; j++) {
 			Chunk* chunk = m_world->GetChunk(i, j);
+			if (chunk == nullptr) {
+				continue;
+			}
 			if (chunk->IsDirty()) {
 				chunk->Update();
 			}
@@ -407,24 +410,15 @@ void Engine::DrawHud(float elapsedTime) {
 	ss.str("");
 
 	Vector3f pos = m_player.GetPosition();
-	ss << (pos.x > 0 ? " CHUNK: ( X " : " CHUNK: ( X-") << 
-		abs((int)(pos.x / CHUNK_SIZE_X)) << (pos.z > 0 ? " | Z " : " | Z-") << 
-		abs((int)(pos.z / CHUNK_SIZE_Z)) << " )";
+	ss << " CHUNK: ( X " << (int)(pos.x / CHUNK_SIZE_X) << " | Z " << (int)(pos.z / CHUNK_SIZE_Z) << " )";
 	PrintText(10, 80, ss.str());
 	ss.str("");
 
-	ss << (pos.x > 0 ? " BLOCK: ( X " : " BLOCK: ( X-") << 
-		abs((int)(pos.x) % CHUNK_SIZE_X) << " | Y " << 
-		abs((int)(pos.y) % CHUNK_SIZE_Y) << (pos.z > 0 ? " | Z " : " | Z-") << 
-		abs((int)(pos.z) % CHUNK_SIZE_Z) << ")";
+	ss << " BLOCK: ( X " << (int)(pos.x) % CHUNK_SIZE_X << " | Y " << (int)(pos.y) % CHUNK_SIZE_Y << " | Z " << (int)(pos.z) % CHUNK_SIZE_Z << " )";
 	PrintText(10, 50, ss.str());
 	ss.str("");
 
-	ss << (pos.x > 0 ? " GLOBAL: ( X " : " GLOBAL: ( X-") << 
-		std::fixed << std::setprecision(2) << 
-		abs(pos.x) << " | Y " << 
-		abs(pos.y) << (pos.z > 0 ? " | Z " : " | Z-") << 
-		abs(pos.z) << ")";
+	ss << " GLOBAL: ( X " << std::fixed << std::setprecision(2) << pos.x << " | Y " << pos.y << " | Z " << pos.z << " )";
 	PrintText(10, 20, ss.str());
 	ss.str("");
 

@@ -18,6 +18,7 @@ public:
 	void Render() const;
 	void SetBlock(int x, int y, int z, BlockType type);
 
+
 	void SetChunkCoords(int x, int z);
 	void RemoveBlock(int x, int y, int z);
 

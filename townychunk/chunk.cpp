@@ -4,23 +4,23 @@
 #include "chunk.h"
 #include "blockinfo.h"
 
-Chunk::Chunk(int x, int z) : m_blocks(CHUNK_SIZE_X, CHUNK_SIZE_Y, CHUNK_SIZE_Z), m_chunkX(x), m_chunkZ(z) {
+Chunk::Chunk(int chunkX, int chunkZ) : m_blocks(CHUNK_SIZE_X, CHUNK_SIZE_Y, CHUNK_SIZE_Z), m_chunkX(chunkX), m_chunkZ(chunkZ) {
 	m_blocks.Reset(BTYPE_AIR);
-	for (int x = 0; x < CHUNK_SIZE_X; ++x) {
-		for (int z = 0; z < CHUNK_SIZE_Z; ++z) {
-			for (int y = 0; y < CHUNK_SIZE_Y; ++y) {
-
-				if (y < 4) {
-					SetBlock(x, y, z, BTYPE_HELL);
-				}
-				else if ((y == 4 || y == 5 || y == 6) && (x == 11) && (z == 1  || (z == 2  &&  y == 6)  ||  z == 3)   ||
-						((y == 4 || y == 5 || y == 6) && (x == 10  ||  x == 11 ||  x == 12 ||  x == 13) && (z == 14)) ||
-						((y == 4 || y == 5 || y == 6) && (x == 1)  && (z == 10 ||  z == 11 ||  z == 12  ||  z == 13)) ||
-						((y == 4 && x == 7 && z == 7) || 
-						 (y == 5 && x == 8 && z == 7) || 
-						 (y == 6 && x == 9 && z == 7) || 
-						 (y == 7 && x == 10 && z == 7))) {
-					 SetBlock(x, y, z, BTYPE_MARBLE);
+	if (!(chunkX == 0 || chunkZ == 0 || chunkX == WORLD_SIZE_X - 1 || chunkZ == WORLD_SIZE_Z - 1)) {
+		for (int x = 0; x < CHUNK_SIZE_X; ++x) {
+			for (int z = 0; z < CHUNK_SIZE_Z; ++z) {
+				for (int y = 0; y < CHUNK_SIZE_Y; ++y) {
+					if (y < 4) {
+						SetBlock(x, y, z, BTYPE_HELL);
+					} else if ((y == 4 || y == 5 || y == 6) && (x == 11) && (z == 1  || (z == 2  && y == 6)  ||  z == 3)   ||
+							  ((y == 4 || y == 5 || y == 6) && (x == 10  ||  x == 11 ||  x == 12 || x == 13) && (z == 14)) ||
+							  ((y == 4 || y == 5 || y == 6) && (x == 1)  && (z == 10 ||  z == 11 || z == 12  ||  z == 13)) ||
+							  ((y == 4 && x == 7 && z == 7) ||
+							   (y == 5 && x == 8 && z == 7) ||
+							   (y == 6 && x == 9 && z == 7) ||
+							   (y == 7 && x == 10 && z == 7))) {
+						SetBlock(x, y, z, BTYPE_MARBLE);
+					}
 				}
 			}
 		}

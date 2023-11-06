@@ -51,12 +51,18 @@ void Player::Move(Chunk* chunk, bool front, bool back, bool left, bool right, bo
     float xrotrad = ((m_rotX / 180) * PI);
     float velocity = 0.25f;
 
+    if (!chunk) {
+        std::cout << "Chunk is null in PLayer::Move" << std::endl;
+		return;
+	}
+
     // Prevent faster movement when moving diagonally
     if ((front && left) || (front && right) || (back && left) || (back && right) ||
         (up && left) || (up && right) || (up && front) || (up && back)) {
         velocity /= 1.5;
     }
 
+    
     // Jump mechanics
     if (up && m_position.y == 0) {
         m_isJumping = true;
@@ -75,6 +81,7 @@ void Player::Move(Chunk* chunk, bool front, bool back, bool left, bool right, bo
     }
 
     Vector3f targetPosition = m_position;
+    std::cout << "X: " << targetPosition.x << "Y: " << targetPosition.y << "Z: " << targetPosition.z << std::endl;
 
     // Movement mechanics
     if (front) {
@@ -94,8 +101,7 @@ void Player::Move(Chunk* chunk, bool front, bool back, bool left, bool right, bo
         targetPosition.z += float(sin(yrotrad)) * velocity;
     }
 
-    targetPosition = AdjustEdgePosition(targetPosition);
-    m_position = targetPosition;
+    m_position = AdjustEdgePosition(targetPosition);
 }
 
 void Player::ApplyTransformation(Transformation& transformation, bool includeRotation) {
@@ -105,28 +111,37 @@ void Player::ApplyTransformation(Transformation& transformation, bool includeRot
 }
 
 Vector3f Player::AdjustEdgePosition(const Vector3f& targetPosition) const {
-    float worldEdgeBlockX = CHUNK_SIZE_X * WORLD_SIZE_X;
-    float worldEdgeBlockZ = CHUNK_SIZE_Z * WORLD_SIZE_Z;
+    float minWorldLimitX = 0;
+    float maxWorldLimitX = (WORLD_SIZE_X * CHUNK_SIZE_X);
+    float minWorldLimitZ = 0;
+    float maxWorldLimitZ = (WORLD_SIZE_Z * CHUNK_SIZE_Z);
 
+    
+   
     Vector3f adjustedPosition = targetPosition;
 
-    if (targetPosition.x < 0.0f) {
-		adjustedPosition.x = 0.0f;
-	}
-    else if (targetPosition.x > worldEdgeBlockX - 1.0f) {
-		adjustedPosition.x = worldEdgeBlockX - 1.0f;
-	}
+    // X limits
+    if (targetPosition.x < minWorldLimitX) {
+        adjustedPosition.x = minWorldLimitX;
+    }
+    else if (targetPosition.x > maxWorldLimitX) {
+        adjustedPosition.x = maxWorldLimitX - 0.1f;
+    }
 
-    if (targetPosition.z < 0.0f) {
-		adjustedPosition.z = 0.0f;
-	}
-    else if (targetPosition.z > worldEdgeBlockZ - 1.0f) {
-		adjustedPosition.z = worldEdgeBlockZ - 1.0f;
-	}
+    // Z limits
+    if (targetPosition.z < minWorldLimitZ) {
+        adjustedPosition.z = minWorldLimitZ;
+    }
+    else if (targetPosition.z > maxWorldLimitZ) {
+        adjustedPosition.z = maxWorldLimitZ - 0.1f;
+    }
 
-    if (targetPosition.y < 0.0f) adjustedPosition.y = 0.0f;
+    // Y limits
+    if (targetPosition.y < 0.0f) {
+        adjustedPosition.y = 0.0f;
+    }
 
-	return adjustedPosition;
+    return adjustedPosition;
 }
 
 bool Player::IsJumping() const {

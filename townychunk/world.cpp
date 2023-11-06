@@ -23,6 +23,9 @@ World::~World() {
 }
 
 Chunk* World::GetChunk(int x, int z) {
+    if (x < 0 || z < 0 || x >= WORLD_SIZE_X || z >= WORLD_SIZE_Z) {
+        return nullptr;
+    }
     return m_chunks.Get(x, z);
 }
 
