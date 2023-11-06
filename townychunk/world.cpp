@@ -18,15 +18,18 @@ World::~World() {
 }
 
 Chunk* World::GetChunk(int x, int z) {
-	return m_chunks.Get(x, z);
+    if (x < 0 || z < 0 || x >= WORLD_SIZE_X || z >= WORLD_SIZE_Z) {
+        return nullptr;
+    }
+    return m_chunks.Get(x, z);
 }
 
 void World::Update() {
-	for (int i = 0; i < WORLD_SIZE_X; ++i) {
-		for (int j = 0; j < WORLD_SIZE_Z; ++j) {
-			m_chunks.Get(i, j)->Update();
-		}
-	}
+    for (int i = 0; i < WORLD_SIZE_X; ++i) {
+        for (int j = 0; j < WORLD_SIZE_Z; ++j) {
+            m_chunks.Get(i, j)->Update();
+        }
+    }
 }
 
 void World::Render() {

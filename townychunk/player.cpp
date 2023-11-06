@@ -103,6 +103,40 @@ void Player::ApplyTransformation(Transformation& transformation, bool includeRot
 	transformation.ApplyTranslation(-m_position);
 }
 
+Vector3f Player::AdjustEdgePosition(const Vector3f& targetPosition) const {
+    float minWorldLimitX = 0;
+    float maxWorldLimitX = (WORLD_SIZE_X * CHUNK_SIZE_X);
+    float minWorldLimitZ = 0;
+    float maxWorldLimitZ = (WORLD_SIZE_Z * CHUNK_SIZE_Z);
+
+    
+   
+    Vector3f adjustedPosition = targetPosition;
+
+    // X limits
+    if (targetPosition.x < minWorldLimitX) {
+        adjustedPosition.x = minWorldLimitX;
+    }
+    else if (targetPosition.x > maxWorldLimitX) {
+        adjustedPosition.x = maxWorldLimitX - 0.1f;
+    }
+
+    // Z limits
+    if (targetPosition.z < minWorldLimitZ) {
+        adjustedPosition.z = minWorldLimitZ;
+    }
+    else if (targetPosition.z > maxWorldLimitZ) {
+        adjustedPosition.z = maxWorldLimitZ - 0.1f;
+    }
+
+    // Y limits
+    if (targetPosition.y < 0.0f) {
+        adjustedPosition.y = 0.0f;
+    }
+
+    return adjustedPosition;
+}
+
 bool Player::IsJumping() const {
 	return m_isJumping;
 }

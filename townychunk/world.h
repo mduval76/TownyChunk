@@ -3,6 +3,7 @@
 
 #include "define.h"
 #include "array2d.h"
+#include "blockinfo.h"
 #include "chunk.h"
 
 class World {

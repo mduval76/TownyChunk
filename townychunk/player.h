@@ -1,6 +1,7 @@
 #ifndef PLAYER_H__
 #define PLAYER_H__
 
+#include "chunk.h"
 #include "transformation.h"
 #include "vector3.h"
 
@@ -22,6 +23,7 @@ public:
 	void UpdateJump(bool up, float elapsedTime);
 
 	void ApplyTransformation(Transformation& transformation, bool includeRotation = true);
+
 	bool IsJumping() const;
 
 private:
@@ -31,15 +33,9 @@ private:
 
 	float m_rotX;
 	float m_rotY;
-	float m_gravity = 0.0f;
-	float m_height = 0.0f;
-	float m_jumpSpeed = 0.0f;
+	float m_yVelocity = 0.0f;
 
 	bool m_isJumping = false;
-	bool m_jumpDirectionFront = false;
-	bool m_jumpDirectionBack = false;
-	bool m_jumpDirectionLeft = false;
-	bool m_jumpDirectionRight = false;
 };
 
 #endif // PLAYER_H__
