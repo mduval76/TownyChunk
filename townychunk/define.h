@@ -18,19 +18,25 @@
 #define CHUNK_SIZE_Y 128
 #define CHUNK_SIZE_Z 16
 
+#define WORLD_SIZE_X   VIEW_DISTANCE / CHUNK_SIZE_X
+#define WORLD_SIZE_Z   VIEW_DISTANCE / CHUNK_SIZE_Z
+#define GRAVITY 9.81f
+#define AIR_CONTROL 0.75f
 #define PI 3.1415926535897932384626433832795f
 
+#define INITIAL_JUMP_FORCE 5.0f
+#define VIEW_DISTANCE   128
 #define MAX_JUMP_HEIGHT 1.1f
 #define JUMP_TIME 0.2f
+#define PLAYER_HEIGHT   1.7f
 
-typedef uint8_t BlockType; // Using uint8_t instead of enum, the amount of memory used is reduced by 75%.
+typedef uint8_t BlockType;
 enum BLOCK_TYPE { BTYPE_AIR, BTYPE_DIRT, BTYPE_FACE, BTYPE_HELL, BTYPE_MARBLE, BTYPE_STONE, BTYPE_LAST };
+
+typedef uint8_t BlockFace;
+enum BLOCK_FACE { FRONT, BACK, LEFT, RIGHT, TOP, BOTTOM, LAST };
 
 #define TEXTURE_PATH    "../townychunk/media/textures/"
 #define SHADER_PATH     "../townychunk/media/shaders/"
-#define VIEW_DISTANCE   128
-
-#define WORLD_SIZE_X   VIEW_DISTANCE / CHUNK_SIZE_X
-#define WORLD_SIZE_Z   VIEW_DISTANCE / CHUNK_SIZE_Z
 
 #endif // DEFINE_H__

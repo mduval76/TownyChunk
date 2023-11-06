@@ -36,6 +36,7 @@ public:
 
 private:
     bool LoadTexture(Texture& texture, const std::string& filename, bool stopOnError = true);
+    std::string DirectionToString(const Vector3f& direction) const;
 
     unsigned int GetFps(float elapsedTime) const;
 
@@ -45,7 +46,7 @@ private:
     void PrintText(unsigned int x, unsigned int y, const std::string& t);
 
 private:
-    World m_world;
+    World* m_world;
 
     BlockInfo* m_blockInfo[BTYPE_LAST];
 
