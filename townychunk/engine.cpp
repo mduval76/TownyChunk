@@ -62,11 +62,10 @@ void Engine::LoadResource() {
 	LoadTexture(m_textureCrosshair, TEXTURE_PATH "cross.bmp");
 
 	TextureAtlas::TextureIndex texIdxDirt = m_textureAtlas.AddTexture(TEXTURE_PATH "dirt.jpg");
-	TextureAtlas::TextureIndex texIdxFace = m_textureAtlas.AddTexture(TEXTURE_PATH "face.jpg");
 	TextureAtlas::TextureIndex texIdxHellX = m_textureAtlas.AddTexture(TEXTURE_PATH "hell_x.png");
 	TextureAtlas::TextureIndex texIdxHellY = m_textureAtlas.AddTexture(TEXTURE_PATH "hell_y.png");
 	TextureAtlas::TextureIndex texIdxHellZ = m_textureAtlas.AddTexture(TEXTURE_PATH "hell_z.png");
-	TextureAtlas::TextureIndex texIdxMarble = m_textureAtlas.AddTexture(TEXTURE_PATH "marble.jpg");
+	TextureAtlas::TextureIndex texIdxMarble = m_textureAtlas.AddTexture(TEXTURE_PATH "marble.png");
 	TextureAtlas::TextureIndex texIdxStone = m_textureAtlas.AddTexture(TEXTURE_PATH "stone.jpg");
 
 	if (!m_textureAtlas.Generate(256, false)) {
@@ -74,18 +73,8 @@ void Engine::LoadResource() {
 		abort();
 	}
 
-	GLfloat maxAnisotropy;
-	glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAnisotropy);
-	glBindTexture(GL_TEXTURE_2D, texIdxDirt);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAnisotropy);
-	glGenerateMipmap(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, 0);
-
 	std::map<BlockType, TextureAtlas::TextureIndex> btIndices;
 	btIndices[BTYPE_DIRT] = texIdxDirt;
-	btIndices[BTYPE_FACE] = texIdxFace;
 	btIndices[BTYPE_MARBLE] = texIdxMarble;
 	btIndices[BTYPE_STONE] = texIdxStone;
 
@@ -94,25 +83,25 @@ void Engine::LoadResource() {
 		float u, v, w, h;
 		m_textureAtlas.TextureIndexToCoord(pair.second, u, v, w, h);
 
-		for (int face = BlockInfo::FRONT; face < BlockInfo::LAST; ++face) {
-			BlockInfo::SetBlockTextureCoords(pair.first, static_cast<BlockInfo::BlockFace>(face), u, v, w, h);
+		for (int face = FRONT; face < LAST; ++face) {
+			BlockInfo::SetBlockTextureCoords(pair.first, static_cast<BlockFace>(face), u, v, w, h);
 		}
 	}
 
 	// Different texture for each face
 	float u, v, w, h;
 	m_textureAtlas.TextureIndexToCoord(texIdxHellZ, u, v, w, h);
-	BlockInfo::SetBlockTextureCoords(BTYPE_HELL, BlockInfo::FRONT, u, v, w, h); 
+	BlockInfo::SetBlockTextureCoords(BTYPE_HELL, FRONT, u, v, w, h); 
 	m_textureAtlas.TextureIndexToCoord(texIdxHellZ, u, v, w, h);
-	BlockInfo::SetBlockTextureCoords(BTYPE_HELL, BlockInfo::BACK, u, v, w, h);  
+	BlockInfo::SetBlockTextureCoords(BTYPE_HELL, BACK, u, v, w, h);  
 	m_textureAtlas.TextureIndexToCoord(texIdxHellX, u, v, w, h);
-	BlockInfo::SetBlockTextureCoords(BTYPE_HELL, BlockInfo::LEFT, u, v, w, h);  
+	BlockInfo::SetBlockTextureCoords(BTYPE_HELL, LEFT, u, v, w, h);  
 	m_textureAtlas.TextureIndexToCoord(texIdxHellX, u, v, w, h);
-	BlockInfo::SetBlockTextureCoords(BTYPE_HELL, BlockInfo::RIGHT, u, v, w, h);
+	BlockInfo::SetBlockTextureCoords(BTYPE_HELL, RIGHT, u, v, w, h);
 	m_textureAtlas.TextureIndexToCoord(texIdxHellY, u, v, w, h);
-	BlockInfo::SetBlockTextureCoords(BTYPE_HELL, BlockInfo::TOP, u, v, w, h);
+	BlockInfo::SetBlockTextureCoords(BTYPE_HELL, TOP, u, v, w, h);
 	m_textureAtlas.TextureIndexToCoord(texIdxHellY, u, v, w, h);
-	BlockInfo::SetBlockTextureCoords(BTYPE_HELL, BlockInfo::BOTTOM, u, v, w, h);
+	BlockInfo::SetBlockTextureCoords(BTYPE_HELL, BOTTOM, u, v, w, h);
 
 	m_music.setVolume(50.0f);
 	if (!m_music.openFromFile("../townychunk/media/audio/music.ogg")) {

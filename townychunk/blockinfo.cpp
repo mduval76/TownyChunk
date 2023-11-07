@@ -1,7 +1,7 @@
 #include "blockinfo.h"
 #include <iostream>
 
-std::map<BlockType, std::map<BlockInfo::BlockFace, BlockInfo::TextureCoordinates>> BlockInfo::textureCoords = {};
+std::map<BlockType, std::map<BlockFace, BlockInfo::TextureCoordinates>> BlockInfo::textureCoords = {};
 
 BlockInfo::BlockInfo(BlockType type, const std::string& name, int durability)
     : m_type(type), m_name(name), m_durability(durability) {}
@@ -39,7 +39,7 @@ void BlockInfo::Show() const {
     std::cout << "Nom: " << m_name << std::endl;
     std::cout << "Durabilite: " << m_durability << std::endl;
 
-    for (int face = 0; face < BlockFace::LAST; ++face) {
+    for (int face = 0; face < LAST; ++face) {
         float u, v, w, h;
         GetBlockTextureCoords(m_type, static_cast<BlockFace>(face), u, v, w, h);
         std::cout << "Face " << face << " Coordonnees: " << u << ", " << v << ", " << w << ", " << h << std::endl;

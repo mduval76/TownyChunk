@@ -1,13 +1,16 @@
 #ifndef CHUNK_H__
 #define CHUNK_H__
 
+#include "define.h"
+#include "iworld.h"
 #include "array2d.h"
 #include "array3d.h"
+#include "blockinfo.h"
 #include "vertexbuffer.h"
 
 class Chunk {
 public:
-	Chunk(int x, int z);
+	Chunk(IWorld* world, int x, int z);
 	~Chunk();
 
 	BlockType GetBlock(int x, int y, int z);
@@ -17,17 +20,18 @@ public:
 	int GetChunkXCoord() const;
 	int GetChunkZCoord() const;
 
-	bool IsVisible(int x, int y, int z);
-	bool IsLocal(int x, int y, int z);
+	bool IsBlockFaceVisible(int x, int y, int z, BlockFace face);
 	bool IsDirty() const;
 
 	void Update();
 	void Render() const;
-	void AddBlockToMesh(VertexBuffer::VertexData* vd, int& count, BlockType type, int x, int y, int z);
+	void AddBlockToMesh(VertexBuffer::VertexData* vd, int& count, BlockType type, int x, int y, int z, BlockFace face);
 
 private:
 	Array3d<BlockType> m_blocks;
 	VertexBuffer m_vbo = VertexBuffer();
+
+	IWorld* m_world;
 	
 	int m_chunkXCoord = 0;
 	int m_chunkZCoord = 0;

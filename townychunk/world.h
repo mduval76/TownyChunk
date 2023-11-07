@@ -3,14 +3,15 @@
 
 #include "define.h"
 #include "array2d.h"
+#include "iworld.h"
 #include "chunk.h"
 
-class World {
+class World : public IWorld {
 public:
     World();
     ~World();
 
-    Chunk* GetChunk(int x, int z);
+    Chunk* GetChunk(int x, int z) const override;
     void Update(); 
     void Render();
 
