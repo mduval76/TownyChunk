@@ -8,14 +8,16 @@ Chunk::Chunk(IWorld* world, int x, int z) : m_blocks(CHUNK_SIZE_X, CHUNK_SIZE_Y,
 	for (int x = 0; x < CHUNK_SIZE_X; ++x) {
 		for (int z = 0; z < CHUNK_SIZE_Z; ++z) {
 			for (int y = 0; y < CHUNK_SIZE_Y; ++y) {
+				bool firstObstacle = (y == 4 || y == 5 || y == 6) && x == 11 && ((z == 2 || (z == 3 && y == 6) || z == 4));
+				bool secondObstacle = (y == 4 || y == 5 || y == 6) && (x >= 11 && x <= 14) && z == 14;
+				bool thirdObstacle = (y == 4 || y == 5 || y == 6) && x == 1 && (z >= 8 && z <= 11);
+				bool fourthObstacle = ((x == 6 && y == 4) || (x == 7 && y == 5) || (x == 8 && y == 6) || (x == 9 && y == 7)) && z == 9;
+
 				if (y < 4) {
 					SetBlock(x, y, z, BTYPE_HELL);
 				}
-				else if ((y == 4 || y == 5 || y == 6) && (x == 11) && (z == 2 || (z == 3 && y == 6) || z == 4) ||
-					((y == 4 || y == 5 || y == 6) && (x == 11 || x == 12 || x == 13 || x == 14) && (z == 14)) ||
-					((y == 4 || y == 5 || y == 6) && (x == 1) && (z == 8 || z == 9 || z == 10 || z == 11)) ||
-					(((x == 6 && y == 4) || (x == 7 && y == 5) || (x == 8 && y == 6) || (x == 9 && y == 7)) && (z == 9))) {
-					SetBlock(x, y, z, BTYPE_MARBLE);
+				else if (firstObstacle || secondObstacle || thirdObstacle || fourthObstacle) {
+					SetBlock(x, y, z, BTYPE_DIRT);
 				}
 			}
 		}
@@ -85,31 +87,31 @@ void Chunk::AddBlockToMesh(VertexBuffer::VertexData* vd, int& count, BlockType t
 	{
 		case FRONT:
 			BlockInfo::GetBlockTextureCoords(type, face, u, v, w, h);
-			vd[count++] = VertexBuffer::VertexData(globalX - 0.5f, y - 0.5f, globalZ + 0.5f, 1.0f, 1.0f, 1.0f, u, v);
-			vd[count++] = VertexBuffer::VertexData(globalX + 0.5f, y - 0.5f, globalZ + 0.5f, 1.0f, 1.0f, 1.0f, u + w, v);
-			vd[count++] = VertexBuffer::VertexData(globalX + 0.5f, y + 0.5f, globalZ + 0.5f, 1.0f, 1.0f, 1.0f, u + w, v + h);
-			vd[count++] = VertexBuffer::VertexData(globalX - 0.5f, y + 0.5f, globalZ + 0.5f, 1.0f, 1.0f, 1.0f, u, v + h);
+			vd[count++] = VertexBuffer::VertexData(globalX - 0.5f, y - 0.5f, globalZ + 0.5f, 0.9f, 0.9f, 0.9f, u, v);
+			vd[count++] = VertexBuffer::VertexData(globalX + 0.5f, y - 0.5f, globalZ + 0.5f, 0.9f, 0.9f, 0.9f, u + w, v);
+			vd[count++] = VertexBuffer::VertexData(globalX + 0.5f, y + 0.5f, globalZ + 0.5f, 0.9f, 0.9f, 0.9f, u + w, v + h);
+			vd[count++] = VertexBuffer::VertexData(globalX - 0.5f, y + 0.5f, globalZ + 0.5f, 0.9f, 0.9f, 0.9f, u, v + h);
 			break;
 		case RIGHT:
 			BlockInfo::GetBlockTextureCoords(type, face, u, v, w, h);
-			vd[count++] = VertexBuffer::VertexData(globalX + 0.5f, y - 0.5f, globalZ + 0.5f, 1.0f, 1.0f, 1.0f, u, v);
-			vd[count++] = VertexBuffer::VertexData(globalX + 0.5f, y - 0.5f, globalZ - 0.5f, 1.0f, 1.0f, 1.0f, u + w, v);
-			vd[count++] = VertexBuffer::VertexData(globalX + 0.5f, y + 0.5f, globalZ - 0.5f, 1.0f, 1.0f, 1.0f, u + w, v + h);
-			vd[count++] = VertexBuffer::VertexData(globalX + 0.5f, y + 0.5f, globalZ + 0.5f, 1.0f, 1.0f, 1.0f, u, v + h);
+			vd[count++] = VertexBuffer::VertexData(globalX + 0.5f, y - 0.5f, globalZ + 0.5f, 0.8f, 0.8f, 0.8f, u, v);
+			vd[count++] = VertexBuffer::VertexData(globalX + 0.5f, y - 0.5f, globalZ - 0.5f, 0.8f, 0.8f, 0.8f, u + w, v);
+			vd[count++] = VertexBuffer::VertexData(globalX + 0.5f, y + 0.5f, globalZ - 0.5f, 0.8f, 0.8f, 0.8f, u + w, v + h);
+			vd[count++] = VertexBuffer::VertexData(globalX + 0.5f, y + 0.5f, globalZ + 0.5f, 0.8f, 0.8f, 0.8f, u, v + h);
 			break;
 		case BACK:
 			BlockInfo::GetBlockTextureCoords(type, face, u, v, w, h);
-			vd[count++] = VertexBuffer::VertexData(globalX + 0.5f, y - 0.5f, globalZ - 0.5f, 1.0f, 1.0f, 1.0f, u, v);
-			vd[count++] = VertexBuffer::VertexData(globalX - 0.5f, y - 0.5f, globalZ - 0.5f, 1.0f, 1.0f, 1.0f, u + w, v);
-			vd[count++] = VertexBuffer::VertexData(globalX - 0.5f, y + 0.5f, globalZ - 0.5f, 1.0f, 1.0f, 1.0f, u + w, v + h);
-			vd[count++] = VertexBuffer::VertexData(globalX + 0.5f, y + 0.5f, globalZ - 0.5f, 1.0f, 1.0f, 1.0f, u, v + h);
+			vd[count++] = VertexBuffer::VertexData(globalX + 0.5f, y - 0.5f, globalZ - 0.5f, 0.9f, 0.9f, 0.9f, u, v);
+			vd[count++] = VertexBuffer::VertexData(globalX - 0.5f, y - 0.5f, globalZ - 0.5f, 0.9f, 0.9f, 0.9f, u + w, v);
+			vd[count++] = VertexBuffer::VertexData(globalX - 0.5f, y + 0.5f, globalZ - 0.5f, 0.9f, 0.9f, 0.9f, u + w, v + h);
+			vd[count++] = VertexBuffer::VertexData(globalX + 0.5f, y + 0.5f, globalZ - 0.5f, 0.9f, 0.9f, 0.9f, u, v + h);
 			break;
 		case LEFT:
 			BlockInfo::GetBlockTextureCoords(type, face, u, v, w, h);
-			vd[count++] = VertexBuffer::VertexData(globalX - 0.5f, y - 0.5f, globalZ - 0.5f, 1.0f, 1.0f, 1.0f, u, v);
-			vd[count++] = VertexBuffer::VertexData(globalX - 0.5f, y - 0.5f, globalZ + 0.5f, 1.0f, 1.0f, 1.0f, u + w, v);
-			vd[count++] = VertexBuffer::VertexData(globalX - 0.5f, y + 0.5f, globalZ + 0.5f, 1.0f, 1.0f, 1.0f, u + w, v + h);
-			vd[count++] = VertexBuffer::VertexData(globalX - 0.5f, y + 0.5f, globalZ - 0.5f, 1.0f, 1.0f, 1.0f, u, v + h);
+			vd[count++] = VertexBuffer::VertexData(globalX - 0.5f, y - 0.5f, globalZ - 0.5f, 0.8f, 0.8f, 0.8f, u, v);
+			vd[count++] = VertexBuffer::VertexData(globalX - 0.5f, y - 0.5f, globalZ + 0.5f, 0.8f, 0.8f, 0.8f, u + w, v);
+			vd[count++] = VertexBuffer::VertexData(globalX - 0.5f, y + 0.5f, globalZ + 0.5f, 0.8f, 0.8f, 0.8f, u + w, v + h);
+			vd[count++] = VertexBuffer::VertexData(globalX - 0.5f, y + 0.5f, globalZ - 0.5f, 0.8f, 0.8f, 0.8f, u, v + h);
 			break;
 		case BOTTOM:
 			BlockInfo::GetBlockTextureCoords(type, face, u, v, w, h);

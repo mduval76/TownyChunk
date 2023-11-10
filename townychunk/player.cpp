@@ -31,50 +31,69 @@ void Player::Move(bool front, bool back, bool left, bool right, bool up, float e
 	UpdatePosition(front, back, left, right, elapsedTime);
 }
 
-
 void Player::UpdateJump(bool up, float elapsedTime) {
-	m_jumpSpeed -= GRAVITY * elapsedTime;
+	m_velocity.y -= GRAVITY * elapsedTime;
 
-	if (up && !m_isJumping && m_position.y == 0) {
+	if (up && !m_isJumping && m_position.y <= 0) {
 		m_isJumping = true;
-		m_jumpSpeed = sqrt(2 * MAX_JUMP_HEIGHT * GRAVITY);
+		m_velocity.y = sqrt(2 * MAX_JUMP_HEIGHT * GRAVITY) * AIR_CONTROL;
 	}
 
-	m_position.y += m_jumpSpeed * elapsedTime;
+	m_position.y += m_velocity.y * elapsedTime;
+
 	if (m_position.y < 0) {
 		m_position.y = 0;
+		m_velocity.y = 0;
 		m_isJumping = false;
+		m_hasLanded = true;
 	}
 }
 
 void Player::UpdatePosition(bool front, bool back, bool left, bool right, float elapsedTime) {
-	float yrotrad = ((m_rotY / 180) * PI);
-	float velocity = 0.25f;
-
-	if ((front && left) || (front && right) || (back && left) || (back && right)) {
-		velocity /= sqrt(2); 
-	}
+	float speed = 0.25f;
 
 	if (m_isJumping) {
-		velocity *= AIR_CONTROL;
+		speed *= AIR_CONTROL;
 	}
 
+	if ((front && left) || (front && right) || (back && left) || (back && right)) {
+		speed /= sqrt(2);
+	}
+
+	Vector3f currentDirection = GetDirection();
+
 	if (front) {
-		m_position.x += float(sin(yrotrad)) * velocity;
-		m_position.z -= float(cos(yrotrad)) * velocity;
+		m_velocity.x += currentDirection.x * speed;
+		m_velocity.z += currentDirection.z * speed;
 	}
 	if (back) {
-		m_position.x -= float(sin(yrotrad)) * velocity;
-		m_position.z += float(cos(yrotrad)) * velocity;
+		m_velocity.x -= currentDirection.x * speed;
+		m_velocity.z -= currentDirection.z * speed;
 	}
+
+	Vector3f rightDirection = Vector3f(currentDirection.z, 0.0f, -currentDirection.x);
+
 	if (left) {
-		m_position.x -= float(cos(yrotrad)) * velocity;
-		m_position.z -= float(sin(yrotrad)) * velocity;
+		m_velocity.x += rightDirection.x * speed;
+		m_velocity.z += rightDirection.z * speed;
 	}
 	if (right) {
-		m_position.x += float(cos(yrotrad)) * velocity;
-		m_position.z += float(sin(yrotrad)) * velocity;
+		m_velocity.x -= rightDirection.x * speed;
+		m_velocity.z -= rightDirection.z * speed;
 	}
+
+	m_position += m_velocity * elapsedTime;
+
+	if (m_position.y == 0 && m_hasLanded) {
+		m_velocity.x *= pow(1.0f - (FRICTION * elapsedTime), 3.0f);
+		m_velocity.z *= pow(1.0f - (FRICTION * elapsedTime), 3.0f);
+		m_hasLanded = false;
+	}
+	else {
+		m_velocity.x *= 1.0f - (FRICTION * elapsedTime);
+		m_velocity.z *= 1.0f - (FRICTION * elapsedTime);
+	}
+
 }
 
 void Player::TurnLeftRight(float value) {

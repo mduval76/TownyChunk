@@ -5,6 +5,7 @@
 #include "vector3.h"
 
 #include <array>
+#include <cmath>
 
 class Player {
 public:
@@ -28,15 +29,16 @@ public:
 private:
 	Vector3f m_position = Vector3f(0.0f, 0.0f, 0.0f);
 	Vector3f m_direction = Vector3f(0.0f, 0.0f, 0.0f);
+	Vector3f m_velocity = Vector3f(0.0f, 0.0f, 0.0f);
 	std::array<float, 2> m_rotation = { 0.0f, 0.0f };
 
 	float m_rotX;
 	float m_rotY;
 	float m_gravity = 0.0f;
 	float m_height = 0.0f;
-	float m_jumpSpeed = 0.0f;
 
 	bool m_isJumping = false;
+	bool m_hasLanded = false;
 	bool m_jumpDirectionFront = false;
 	bool m_jumpDirectionBack = false;
 	bool m_jumpDirectionLeft = false;

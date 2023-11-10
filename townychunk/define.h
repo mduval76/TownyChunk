@@ -22,12 +22,11 @@
 #define WORLD_SIZE_Z   VIEW_DISTANCE / CHUNK_SIZE_Z
 #define GRAVITY 9.81f
 #define AIR_CONTROL 0.75f
+#define FRICTION 0.5f
 #define PI 3.1415926535897932384626433832795f
 
-#define INITIAL_JUMP_FORCE 5.0f
 #define VIEW_DISTANCE   128
 #define MAX_JUMP_HEIGHT 1.1f
-#define JUMP_TIME 0.2f
 #define PLAYER_HEIGHT   1.7f
 
 typedef uint8_t BlockType;
