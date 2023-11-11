@@ -27,8 +27,16 @@ void Player::SetPosition(const Vector3f& position) {
 }
 
 void Player::Move(bool front, bool back, bool left, bool right, bool up, float elapsedTime) {
+	// TODO: Find a better way to prevent elapsedTime spikes
+	if (elapsedTime > 0.1f) {
+		elapsedTime = 0.1f;
+	}
+
+	std::cout << "elapsedTime: " << elapsedTime << std::endl;
+	std::cout << "BEFORE MOVE: " << m_position.x << " " << m_position.y << " " << m_position.z << std::endl;
 	UpdateJump(up, elapsedTime);
 	UpdatePosition(front, back, left, right, elapsedTime);
+	std::cout << "AFTER MOVE: " << m_position.x << " " << m_position.y << " " << m_position.z << std::endl;
 }
 
 void Player::UpdateJump(bool up, float elapsedTime) {

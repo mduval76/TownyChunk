@@ -130,7 +130,7 @@ void Engine::Render(float elapsedTime) {
 	m_player.Move(m_keyW, m_keyS, m_keyA, m_keyD, m_keySpace, elapsedTime);
 	std::array<float, 2> rot = m_player.GetRotation();
 	m_player.ApplyTransformation(t);
-	t.ApplyTranslation(0.0f, -5.0f, 0.0f);
+	t.ApplyTranslation(0.5f, 0.5f, 0.5f);
 	t.Use();
 
 	// Chunk
