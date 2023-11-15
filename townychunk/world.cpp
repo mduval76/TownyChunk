@@ -22,9 +22,8 @@ Chunk* World::GetChunk(int x, int z) const {
 	return m_chunks.Get(x, z);
 }
 
-void World::CheckCollisions(Player& player, float elapsedTime) {
-	Vector3f currentPosition = player.GetPosition();
-	Vector3f delta = player.GetDirection() * elapsedTime;
+void World::CheckCollisions(Player& player, bool front, bool back, bool left, bool right, bool up, float elapsedTime) {
+	player.Move(front, back, left, right, up, elapsedTime);
 }
 
 void World::Update() {

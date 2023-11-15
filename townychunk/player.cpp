@@ -88,14 +88,14 @@ void Player::UpdatePosition(bool front, bool back, bool left, bool right, float 
 
 	m_position += m_velocity * elapsedTime;
 
-	if (m_position.y == 0 && m_hasLanded) {
-		m_velocity.x *= pow(1.0f - (FRICTION * elapsedTime), 3.0f);
-		m_velocity.z *= pow(1.0f - (FRICTION * elapsedTime), 3.0f);
-		m_hasLanded = false;
+	if (m_hasLanded) {
+		m_velocity.x *= pow(1.0f - (FRICTION * elapsedTime), 2.5f);
+		m_velocity.z *= pow(1.0f - (FRICTION * elapsedTime), 2.5f);
 	}
 	else {
 		m_velocity.x *= 1.0f - (FRICTION * elapsedTime);
-		m_velocity.z *= 1.0f - (FRICTION * elapsedTime);
+		m_velocity.z *= 1.0f - (FRICTION * elapsedTime); 
+		m_hasLanded = false;
 	}
 
 }

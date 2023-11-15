@@ -130,13 +130,12 @@ void Engine::Render(float elapsedTime) {
 	glLoadIdentity();
  
 	// Camera (Player)
-	//m_world->CheckCollisions(m_player, elapsedTime);
+	m_world->CheckCollisions(m_player, m_keyW, m_keyS, m_keyA, m_keyD, m_keySpace, elapsedTime);
 
 	Transformation t;
-	m_player.Move(m_keyW, m_keyS, m_keyA, m_keyD, m_keySpace, elapsedTime);
 	std::array<float, 2> rot = m_player.GetRotation();
 	m_player.ApplyTransformation(t);
-	t.ApplyTranslation(0.5f, 0.5f, 0.5f);
+	t.ApplyTranslation(0.5f, 0.5f - PLAYER_HEIGHT, 0.5f);
 	t.Use();
 
 	// Chunk

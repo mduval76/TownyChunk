@@ -13,7 +13,7 @@ public:
     ~World();
 
     Chunk* GetChunk(int x, int z) const override;
-    void CheckCollisions(Player& player, float elapsedTime);
+    void CheckCollisions(Player& player, bool front, bool back, bool left, bool right, bool up, float elapsedTime);
     void Update(); 
     void Render();
 
