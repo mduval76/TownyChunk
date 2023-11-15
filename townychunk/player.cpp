@@ -7,8 +7,7 @@ Player::Player(const Vector3f& position, float rotX, float rotY)
 		 m_rotation{ rotX, rotY },     
 		 m_rotX(rotX),
 		 m_rotY(rotY),
-		 m_isJumping(true),            
-		 m_hasLanded(false) {}
+		 m_isOnGround(false) {}
 
 std::array<float, 2> Player::GetRotation() const {
 	return m_rotation;
@@ -38,14 +37,20 @@ void Player::SetPosition(const Vector3f& position) {
 	m_position = position;
 }
 
+void Player::SetVelocity(const Vector3f& velocity) {
+	m_velocity = velocity;
+}
+
 Vector3f Player::SimulateMove(bool front, bool back, bool left, bool right, bool up, float elapsedTime) {
 	Vector3f originalPosition = m_position;
+	Vector3f originalVelocity = m_velocity;
 
 	UpdateJump(up, elapsedTime);
 	UpdatePosition(front, back, left, right, elapsedTime);
 
 	Vector3f delta = m_position - originalPosition;
 	m_position = originalPosition;
+	m_velocity = originalVelocity;
 
 	return delta;
 }
@@ -58,18 +63,17 @@ void Player::Move(bool front, bool back, bool left, bool right, bool up, float e
 void Player::UpdateJump(bool up, float elapsedTime) {
 	m_velocity.y -= GRAVITY * elapsedTime;
 
-	if (up && !m_isJumping) {
-		m_isJumping = true;
+	if (up && m_isOnGround) {
+		m_isOnGround = false;
 		m_velocity.y = sqrt(2 * MAX_JUMP_HEIGHT * GRAVITY) * AIR_CONTROL;
 	}
 
 	m_position.y += m_velocity.y * elapsedTime;
 
-	if (m_position.y < 0) {
-		m_position.y = 0;
+	if (m_position.y < PLAYER_HEIGHT) {
+		m_position.y = PLAYER_HEIGHT;
 		m_velocity.y = 0;
-		m_isJumping = false;
-		m_hasLanded = true;
+		m_isOnGround = true;
 	}
 }
 
@@ -105,16 +109,14 @@ void Player::UpdatePosition(bool front, bool back, bool left, bool right, float 
 	m_position += m_velocity * elapsedTime;
 
 	// Tweek these values to fine tune ground and air movement control
-	if (m_hasLanded) {
+	if (m_isOnGround) {
 		m_velocity.x *= pow(1.0f - (FRICTION * elapsedTime), 2.0f); 
 		m_velocity.z *= pow(1.0f - (FRICTION * elapsedTime), 2.0f);
 	}
 	else {
 		m_velocity.x *= pow(1.0f - (FRICTION * elapsedTime), 1.5f);
 		m_velocity.z *= pow(1.0f - (FRICTION * elapsedTime), 1.5f);
-		m_hasLanded = false;
 	}
-
 }
 
 void Player::TurnLeftRight(float value) {
@@ -137,14 +139,8 @@ void Player::TurnTopBottom(float value) {
 	m_rotation[1] = m_rotY;
 }
 
-
-
 void Player::ApplyTransformation(Transformation& transformation, bool includeRotation) {
 	transformation.ApplyRotation(-m_rotX, 1.0f, 0, 0);
 	transformation.ApplyRotation(-m_rotY, 0, 1.0f, 0);
 	transformation.ApplyTranslation(-m_position);
-}
-
-bool Player::IsJumping() const {
-	return m_isJumping;
 }

@@ -1,7 +1,7 @@
 #include "engine.h"
 
 
-Engine::Engine() : m_world(nullptr), m_player(Vector3f(SPAWN_X, SPAWN_Y, SPAWN_Z)) {}
+Engine::Engine() : m_world(nullptr), m_player(Vector3f(0.0f, 10.5f, 0.0f)) {}
 
 Engine::~Engine() {
 	delete m_world;
@@ -136,7 +136,7 @@ void Engine::Render(float elapsedTime) {
 	std::array<float, 2> rot = m_player.GetRotation();
 	//m_player.Move(m_keyW, m_keyS, m_keyA, m_keyD, m_keySpace, elapsedTime);
 	m_player.ApplyTransformation(t);
-	t.ApplyTranslation(0.5f, 0.5f - PLAYER_HEIGHT, 0.5f);
+	t.ApplyTranslation(0.0f, 0.5f, 0.0f);
 	t.Use();
 
 	// Chunk

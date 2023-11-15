@@ -16,6 +16,7 @@ public:
 	Vector3f GetVelocity() const;
 	Vector3f GetDirection();
 	void SetPosition(const Vector3f& position);
+	void SetVelocity(const Vector3f& velocity);
 
 	Vector3f SimulateMove(bool front, bool back, bool left, bool right, bool up, float elapsedTime);
 	void Move(bool front, bool back, bool left, bool right, bool up, float elapsedTime);
@@ -37,8 +38,7 @@ private:
 	float m_rotX;
 	float m_rotY;
 
-	bool m_isJumping;
-	bool m_hasLanded;
+	bool m_isOnGround;
 };
 
 #endif // PLAYER_H__
