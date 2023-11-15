@@ -258,10 +258,6 @@ bool Engine::LoadTexture(Texture& texture, const std::string& filename, bool sto
 }
 
 std::string Engine::DirectionToString(const Vector3f& direction) const {
-	const float x = direction.x;
-	const float y = direction.y;
-	const float z = direction.z;
-
 	std::string currentDirection;
 
 	if (std::abs(direction.x) > std::abs(direction.y) && std::abs(direction.x) > std::abs(direction.z)) {
@@ -392,22 +388,20 @@ void Engine::DrawHud(float elapsedTime) {
 	ss.str("");
 
 	Vector3f pos = m_player.GetPosition();
-	ss << (pos.x > 0 ? " CHUNK: ( X " : " CHUNK: ( X-") <<
-		abs((int)(pos.x / CHUNK_SIZE_X)) << (pos.z > 0 ? " | Z " : " | Z-") <<
-		abs((int)(pos.z / CHUNK_SIZE_Z)) << " )";
+	ss << (pos.x > 0 ? " CHUNK: ( X " : " CHUNK: ( X-") << (int)(pos.x / CHUNK_SIZE_X) << 
+		  (pos.z > 0 ? " | Z " : " | Z-") << (int)(pos.z / CHUNK_SIZE_Z) << " )";
 	PrintText(10, 80, ss.str());
 	ss.str("");
 
 	ss << (pos.x > 0 ? " BLOCK: ( X " : " BLOCK: ( X-") <<
-		abs((int)(pos.x) % CHUNK_SIZE_X) << " | Y " <<
+		abs((int)(pos.x) % CHUNK_SIZE_X) << (pos.y > 0 ? " | Y " : " | Y-") << 
 		abs((int)(pos.y) % CHUNK_SIZE_Y) << (pos.z > 0 ? " | Z " : " | Z-") <<
 		abs((int)(pos.z) % CHUNK_SIZE_Z) << ")";
 	PrintText(10, 50, ss.str());
 	ss.str("");
 
-	ss << (pos.x > 0 ? " GLOBAL: ( X " : " GLOBAL: ( X-") <<
-		std::fixed << std::setprecision(2) <<
-		abs(pos.x) << " | Y " <<
+	ss << (pos.x > 0 ? " GLOBAL: ( X " : " GLOBAL: ( X-") << std::fixed << std::setprecision(2) <<
+		abs(pos.x) << (pos.y > 0 ? " | Y " : " | Y-") <<
 		abs(pos.y) << (pos.z > 0 ? " | Z " : " | Z-") <<
 		abs(pos.z) << ")";
 	PrintText(10, 20, ss.str());
