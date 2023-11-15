@@ -1,6 +1,14 @@
 #include "player.h"
 
-Player::Player(const Vector3f& position, float rotX, float rotY) : m_position(position), m_rotX(rotX), m_rotY(rotY) {}
+Player::Player(const Vector3f& position, float rotX, float rotY)
+	   : m_position(position),
+		 m_direction(0.0f, 0.0f, 0.0f),
+		 m_velocity(0.0f, 0.0f, 0.0f), 
+		 m_rotation{ rotX, rotY },     
+		 m_rotX(rotX),
+		 m_rotY(rotY),
+		 m_isJumping(true),            
+		 m_hasLanded(false) {}
 
 std::array<float, 2> Player::GetRotation() const {
 	return m_rotation;
@@ -31,7 +39,15 @@ void Player::SetPosition(const Vector3f& position) {
 }
 
 Vector3f Player::SimulateMove(bool front, bool back, bool left, bool right, bool up, float elapsedTime) {
-	return Vector3f();
+	Vector3f originalPosition = m_position;
+
+	UpdateJump(up, elapsedTime);
+	UpdatePosition(front, back, left, right, elapsedTime);
+
+	Vector3f delta = m_position - originalPosition;
+	m_position = originalPosition;
+
+	return delta;
 }
 
 void Player::Move(bool front, bool back, bool left, bool right, bool up, float elapsedTime) {
@@ -88,13 +104,14 @@ void Player::UpdatePosition(bool front, bool back, bool left, bool right, float 
 
 	m_position += m_velocity * elapsedTime;
 
+	// Tweek these values to fine tune ground and air movement control
 	if (m_hasLanded) {
-		m_velocity.x *= pow(1.0f - (FRICTION * elapsedTime), 2.5f);
-		m_velocity.z *= pow(1.0f - (FRICTION * elapsedTime), 2.5f);
+		m_velocity.x *= pow(1.0f - (FRICTION * elapsedTime), 2.0f); 
+		m_velocity.z *= pow(1.0f - (FRICTION * elapsedTime), 2.0f);
 	}
 	else {
-		m_velocity.x *= 1.0f - (FRICTION * elapsedTime);
-		m_velocity.z *= 1.0f - (FRICTION * elapsedTime); 
+		m_velocity.x *= pow(1.0f - (FRICTION * elapsedTime), 1.5f);
+		m_velocity.z *= pow(1.0f - (FRICTION * elapsedTime), 1.5f);
 		m_hasLanded = false;
 	}
 

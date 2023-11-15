@@ -134,6 +134,7 @@ void Engine::Render(float elapsedTime) {
 
 	Transformation t;
 	std::array<float, 2> rot = m_player.GetRotation();
+	//m_player.Move(m_keyW, m_keyS, m_keyA, m_keyD, m_keySpace, elapsedTime);
 	m_player.ApplyTransformation(t);
 	t.ApplyTranslation(0.5f, 0.5f - PLAYER_HEIGHT, 0.5f);
 	t.Use();

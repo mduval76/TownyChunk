@@ -30,15 +30,15 @@ public:
 
 private:
 	Vector3f m_position;
-	Vector3f m_direction = Vector3f(0.0f, 0.0f, 0.0f);
-	Vector3f m_velocity = Vector3f(0.0f, 0.0f, 0.0f);
-	std::array<float, 2> m_rotation = { 0.0f, 0.0f };
+	Vector3f m_direction;
+	Vector3f m_velocity;
+	std::array<float, 2> m_rotation;
 
 	float m_rotX;
 	float m_rotY;
 
-	bool m_isJumping = true;
-	bool m_hasLanded = false;
+	bool m_isJumping;
+	bool m_hasLanded;
 };
 
 #endif // PLAYER_H__
