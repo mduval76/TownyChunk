@@ -41,6 +41,10 @@ void Player::SetVelocity(const Vector3f& velocity) {
 	m_velocity = velocity;
 }
 
+void Player::SetOnGround(bool isOnGround) {
+	m_isOnGround = isOnGround;
+}
+
 Vector3f Player::SimulateMove(bool front, bool back, bool left, bool right, bool up, float elapsedTime) {
 	Vector3f originalPosition = m_position;
 	Vector3f originalVelocity = m_velocity;

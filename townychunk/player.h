@@ -17,6 +17,7 @@ public:
 	Vector3f GetDirection();
 	void SetPosition(const Vector3f& position);
 	void SetVelocity(const Vector3f& velocity);
+	void SetOnGround(bool isOnGround);
 
 	Vector3f SimulateMove(bool front, bool back, bool left, bool right, bool up, float elapsedTime);
 	void Move(bool front, bool back, bool left, bool right, bool up, float elapsedTime);
@@ -27,7 +28,6 @@ public:
 	void TurnTopBottom(float value);
 
 	void ApplyTransformation(Transformation& transformation, bool includeRotation = true);
-	bool IsJumping() const;
 
 private:
 	Vector3f m_position;
