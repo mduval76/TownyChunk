@@ -1,7 +1,7 @@
 #include "engine.h"
 
 
-Engine::Engine() : m_world(nullptr), m_player(Vector3f(0.0f, 10.5f, 0.0f)) {}
+Engine::Engine() : m_world(nullptr), m_player(Vector3f(0.5f, 10.0f, 0.5f)) {}
 
 Engine::~Engine() {
 	delete m_world;

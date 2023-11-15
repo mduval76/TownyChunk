@@ -72,7 +72,7 @@ void Player::UpdateJump(bool up, float elapsedTime) {
 
 	if (m_position.y < PLAYER_HEIGHT) {
 		m_position.y = PLAYER_HEIGHT;
-		m_velocity.y = 0;
+		m_velocity.y = 0.0f;
 		m_isOnGround = true;
 	}
 }
