@@ -49,46 +49,8 @@ Vector3f Player::SimulateMove(bool front, bool back, bool left, bool right, bool
 	Vector3f originalPosition = m_position;
 	Vector3f originalVelocity = m_velocity;
 
-	UpdateJump(up, elapsedTime);
-	UpdatePosition(front, back, left, right, elapsedTime);
-
-	Vector3f delta = m_position - originalPosition;
-	m_position = originalPosition;
-	m_velocity = originalVelocity;
-
-	return delta;
-}
-
-void Player::Move(bool front, bool back, bool left, bool right, bool up, float elapsedTime) {
-	UpdateJump(up, elapsedTime);
-	UpdatePosition(front, back, left, right, elapsedTime);
-}
-
-void Player::UpdateJump(bool up, float elapsedTime) {
-	m_velocity.y -= GRAVITY * elapsedTime;
-
-	if (up && m_isOnGround) {
-		m_isOnGround = false;
-		m_velocity.y = sqrt(2 * MAX_JUMP_HEIGHT * GRAVITY) * AIR_CONTROL;
-	}
-
-	m_position.y += m_velocity.y * elapsedTime;
-
-	if (m_position.y < PLAYER_HEIGHT) {
-		m_position.y = PLAYER_HEIGHT;
-		m_velocity.y = 0.0f;
-		m_isOnGround = true;
-	}
-}
-
-void Player::UpdatePosition(bool front, bool back, bool left, bool right, float elapsedTime) {
-	float speed = 0.25f;
-
-	if ((front && left) || (front && right) || (back && left) || (back && right)) {
-		speed /= sqrt(2);
-	}
-
 	Vector3f currentDirection = GetDirection();
+	float speed = 10.0f;
 
 	if (front) {
 		m_velocity.x += currentDirection.x * speed;
@@ -110,17 +72,36 @@ void Player::UpdatePosition(bool front, bool back, bool left, bool right, float 
 		m_velocity.z -= rightDirection.z * speed;
 	}
 
-	m_position += m_velocity * elapsedTime;
+	float gravityFactor = 15.0f;
+	float jumpFactor = 25.0f;
 
-	// Tweek these values to fine tune ground and air movement control
-	if (m_isOnGround) {
-		m_velocity.x *= pow(1.0f - (FRICTION * elapsedTime), 2.0f); 
-		m_velocity.z *= pow(1.0f - (FRICTION * elapsedTime), 2.0f);
+	if (up && m_isOnGround) {
+		m_isOnGround = false;
+		m_velocity.y = sqrt(2 * MAX_JUMP_HEIGHT * GRAVITY) * jumpFactor;
 	}
 	else {
-		m_velocity.x *= pow(1.0f - (FRICTION * elapsedTime), 1.5f);
-		m_velocity.z *= pow(1.0f - (FRICTION * elapsedTime), 1.5f);
+		m_velocity.y -= GRAVITY * elapsedTime * gravityFactor;
 	}
+
+	m_position += m_velocity * elapsedTime;
+
+	if (m_position.y < PLAYER_HEIGHT) {
+		m_position.y = PLAYER_HEIGHT;
+		m_velocity.y = 0.0f;
+		m_isOnGround = true;
+	}
+
+	if (m_isOnGround) {
+		m_velocity.x *= 0.9f;
+		m_velocity.z *= 0.9f;
+	}
+
+	Vector3f deltaPosition = m_position - originalPosition;
+
+	m_position = originalPosition;
+	m_velocity = originalVelocity;
+	
+	return deltaPosition;
 }
 
 void Player::TurnLeftRight(float value) {

@@ -128,8 +128,11 @@ void Engine::Render(float elapsedTime) {
 	// Transformations initiales
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
- 
+
+	
 	// Camera (Player)
+	m_player.SimulateMove(m_keyW, m_keyS, m_keyA, m_keyD, m_keySpace, elapsedTime);
+
 	m_world->CheckCollisions(m_player, m_keyW, m_keyS, m_keyA, m_keyD, m_keySpace, elapsedTime);
 
 	Transformation t;

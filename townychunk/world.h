@@ -14,6 +14,10 @@ public:
 
     Chunk* GetChunk(int x, int z) const override;
     void CheckCollisions(Player& player, bool front, bool back, bool left, bool right, bool up, float elapsedTime);
+    bool IsBlocked(float x, float y, float z);
+    Chunk* ChunkAt(int x, int y, int z) const;
+    Chunk* ChunkAt(const Vector3<int>& pos) const;
+    BlockType BlockAt(int x, int y, int z, BlockType defaultBlockType) const;
     void Update(); 
     void Render();
 

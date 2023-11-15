@@ -20,9 +20,6 @@ public:
 	void SetOnGround(bool isOnGround);
 
 	Vector3f SimulateMove(bool front, bool back, bool left, bool right, bool up, float elapsedTime);
-	void Move(bool front, bool back, bool left, bool right, bool up, float elapsedTime);
-	void UpdatePosition(bool front, bool back, bool left, bool right, float elapsedTime);
-	void UpdateJump(bool up, float elapsedTime);
 
 	void TurnLeftRight(float value);
 	void TurnTopBottom(float value);
