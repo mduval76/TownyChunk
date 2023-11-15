@@ -13,9 +13,11 @@ public:
 
 	std::array<float, 2> GetRotation() const;
 	Vector3f GetPosition() const;
+	Vector3f GetVelocity() const;
 	Vector3f GetDirection();
 	void SetPosition(const Vector3f& position);
 
+	Vector3f SimulateMove(bool front, bool back, bool left, bool right, bool up, float elapsedTime);
 	void Move(bool front, bool back, bool left, bool right, bool up, float elapsedTime);
 	void UpdatePosition(bool front, bool back, bool left, bool right, float elapsedTime);
 	void UpdateJump(bool up, float elapsedTime);
@@ -27,7 +29,7 @@ public:
 	bool IsJumping() const;
 
 private:
-	Vector3f m_position = Vector3f(0.0f, 40.0f, 0.0f);
+	Vector3f m_position;
 	Vector3f m_direction = Vector3f(0.0f, 0.0f, 0.0f);
 	Vector3f m_velocity = Vector3f(0.0f, 0.0f, 0.0f);
 	std::array<float, 2> m_rotation = { 0.0f, 0.0f };
@@ -35,7 +37,7 @@ private:
 	float m_rotX;
 	float m_rotY;
 
-	bool m_isJumping = false;
+	bool m_isJumping = true;
 	bool m_hasLanded = false;
 };
 

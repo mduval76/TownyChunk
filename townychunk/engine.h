@@ -50,7 +50,7 @@ private:
 
     BlockInfo* m_blockInfo[BTYPE_LAST];
 
-    Player m_player = Player(Vector3f(0.0f, 40.0f, 0.0f));
+    Player m_player = Player(Vector3f(0.0f, 0.0f, 0.0f));
 
     sf::Music m_music;
 

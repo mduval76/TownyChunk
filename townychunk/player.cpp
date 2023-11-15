@@ -10,6 +10,10 @@ Vector3f Player::GetPosition() const {
 	return m_position;
 }
 
+Vector3f Player::GetVelocity() const {
+	return m_velocity;
+}
+
 Vector3f Player::GetDirection() {
 	float yrotrad = (m_rotY / 180.0f) * static_cast<float>(PI);
 	float xrotrad = (m_rotX / 180.0f) * static_cast<float>(PI);
@@ -26,23 +30,19 @@ void Player::SetPosition(const Vector3f& position) {
 	m_position = position;
 }
 
-void Player::Move(bool front, bool back, bool left, bool right, bool up, float elapsedTime) {
-	// TODO: Find a better way to prevent elapsedTime spikes
-	if (elapsedTime > 0.1f) {
-		elapsedTime = 0.1f;
-	}
+Vector3f Player::SimulateMove(bool front, bool back, bool left, bool right, bool up, float elapsedTime) {
+	return Vector3f();
+}
 
-	std::cout << "elapsedTime: " << elapsedTime << std::endl;
-	std::cout << "BEFORE MOVE: " << m_position.x << " " << m_position.y << " " << m_position.z << std::endl;
+void Player::Move(bool front, bool back, bool left, bool right, bool up, float elapsedTime) {
 	UpdateJump(up, elapsedTime);
 	UpdatePosition(front, back, left, right, elapsedTime);
-	std::cout << "AFTER MOVE: " << m_position.x << " " << m_position.y << " " << m_position.z << std::endl;
 }
 
 void Player::UpdateJump(bool up, float elapsedTime) {
 	m_velocity.y -= GRAVITY * elapsedTime;
 
-	if (up && !m_isJumping && m_position.y <= 0) {
+	if (up && !m_isJumping) {
 		m_isJumping = true;
 		m_velocity.y = sqrt(2 * MAX_JUMP_HEIGHT * GRAVITY) * AIR_CONTROL;
 	}
@@ -59,10 +59,6 @@ void Player::UpdateJump(bool up, float elapsedTime) {
 
 void Player::UpdatePosition(bool front, bool back, bool left, bool right, float elapsedTime) {
 	float speed = 0.25f;
-
-	if (m_isJumping) {
-		speed *= AIR_CONTROL;
-	}
 
 	if ((front && left) || (front && right) || (back && left) || (back && right)) {
 		speed /= sqrt(2);

@@ -1,7 +1,7 @@
 #include "engine.h"
 
 
-Engine::Engine() : m_world(nullptr) {}
+Engine::Engine() : m_world(nullptr), m_player(Vector3f(SPAWN_X, SPAWN_Y, SPAWN_Z)) {}
 
 Engine::~Engine() {
 	delete m_world;
@@ -116,6 +116,10 @@ void Engine::LoadResource() {
 void Engine::UnloadResource() {}
 
 void Engine::Render(float elapsedTime) {
+	if (elapsedTime > 1.0f / 60.0f) {
+		elapsedTime = 1.0f / 60.0f;
+	}
+
 	static float gameTime = elapsedTime; // Valeur conservée entre les appels car static
 	gameTime += elapsedTime;
 
@@ -126,6 +130,8 @@ void Engine::Render(float elapsedTime) {
 	glLoadIdentity();
  
 	// Camera (Player)
+	//m_world->CheckCollisions(m_player, elapsedTime);
+
 	Transformation t;
 	m_player.Move(m_keyW, m_keyS, m_keyA, m_keyD, m_keySpace, elapsedTime);
 	std::array<float, 2> rot = m_player.GetRotation();
