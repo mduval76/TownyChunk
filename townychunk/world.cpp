@@ -25,31 +25,29 @@ Chunk* World::GetChunk(int x, int z) const {
 void World::CheckCollisions(Player& player, bool front, bool back, bool left, bool right, bool up, float elapsedTime) {
 	Vector3f pos = player.GetPosition();
 	Vector3f delta = player.SimulateMove(front, back, left, right, up, elapsedTime);
-	Vector3f newPosition = player.GetPosition() + delta;
-
-	// Collision detection for X-axis
+	
+	// X collisions
 	if (IsBlocked(pos.x + delta.x, pos.y, pos.z) ||
-		IsBlocked(pos.x + delta.x, pos.y - 0.9f, pos.z) ||
-		IsBlocked(pos.x + delta.x, pos.y - 1.7f, pos.z)) {
+		IsBlocked(pos.x + delta.x, pos.y - PLAYER_MIDDLE, pos.z) ||
+		IsBlocked(pos.x + delta.x, pos.y - PLAYER_HEIGHT, pos.z)) {
 		delta.x = 0;
 	}
 
-	// Collision detection for Y-axis
+	// Y collisions
 	if (IsBlocked(pos.x, pos.y + delta.y, pos.z) ||
-		IsBlocked(pos.x, pos.y + delta.y - 0.9f, pos.z) ||
-		IsBlocked(pos.x, pos.y + delta.y - 1.7f, pos.z)) {
+		IsBlocked(pos.x, pos.y + delta.y - PLAYER_MIDDLE, pos.z) ||
+		IsBlocked(pos.x, pos.y + delta.y - PLAYER_HEIGHT, pos.z)) {
 		delta.y = 0;
-		player.SetOnGround(true);
+		player.SetOnGround();
 	}
 
-	// Collision detection for Z-axis
+	// Z collisions
 	if (IsBlocked(pos.x, pos.y, pos.z + delta.z) ||
-		IsBlocked(pos.x, pos.y - 0.9f, pos.z + delta.z) ||
-		IsBlocked(pos.x, pos.y - 1.7f, pos.z + delta.z)) {
+		IsBlocked(pos.x, pos.y - PLAYER_MIDDLE, pos.z + delta.z) ||
+		IsBlocked(pos.x, pos.y - PLAYER_HEIGHT, pos.z + delta.z)) {
 		delta.z = 0;
 	}
 
-	// Update player position
 	pos += delta;
 	player.SetPosition(pos);
 }

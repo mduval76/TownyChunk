@@ -6,6 +6,7 @@
 
 #include <array>
 #include <cmath>
+#include <iostream>
 
 class Player {
 public:
@@ -17,13 +18,17 @@ public:
 	Vector3f GetDirection();
 	void SetPosition(const Vector3f& position);
 	void SetVelocity(const Vector3f& velocity);
-	void SetOnGround(bool isOnGround);
+	void SetOnGround();
+	bool IsOnGround() const;
 
 	Vector3f SimulateMove(bool front, bool back, bool left, bool right, bool up, float elapsedTime);
+	void UpdatePosition(bool front, bool back, bool left, bool right, float elapsedTime);
+	void UpdateJump(bool up, float elapsedTime);
 
 	void TurnLeftRight(float value);
 	void TurnTopBottom(float value);
 
+	void ResetYVelocity();
 	void ApplyTransformation(Transformation& transformation, bool includeRotation = true);
 
 private:
@@ -32,10 +37,12 @@ private:
 	Vector3f m_velocity;
 	std::array<float, 2> m_rotation;
 
+	float m_jumpImpulse;	
 	float m_rotX;
 	float m_rotY;
 
 	bool m_isOnGround;
+	bool m_jumpKeyPressed;
 };
 
 #endif // PLAYER_H__

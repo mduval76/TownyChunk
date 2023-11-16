@@ -1,7 +1,6 @@
 #include "engine.h"
 
-
-Engine::Engine() : m_world(nullptr), m_player(Vector3f(0.5f, 10.0f, 0.5f)) {}
+Engine::Engine() : m_world(nullptr), m_player(Vector3f(SPAWN_X, SPAWN_Y, SPAWN_Z)) {}
 
 Engine::~Engine() {
 	delete m_world;
@@ -129,7 +128,6 @@ void Engine::Render(float elapsedTime) {
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
-	
 	// Camera (Player)
 	m_player.SimulateMove(m_keyW, m_keyS, m_keyA, m_keyD, m_keySpace, elapsedTime);
 
@@ -137,7 +135,6 @@ void Engine::Render(float elapsedTime) {
 
 	Transformation t;
 	std::array<float, 2> rot = m_player.GetRotation();
-	//m_player.Move(m_keyW, m_keyS, m_keyA, m_keyD, m_keySpace, elapsedTime);
 	m_player.ApplyTransformation(t);
 	t.ApplyTranslation(0.5f, 0.5f, 0.5f);
 	t.Use();
