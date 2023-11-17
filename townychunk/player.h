@@ -18,7 +18,7 @@ public:
 	Vector3f GetDirection();
 	void SetPosition(const Vector3f& position);
 	void SetVelocity(const Vector3f& velocity);
-	void SetOnGround();
+	void SetOnGround(bool grounded);
 	bool GetIsOnGround() const;
 
 	Vector3f Move(bool front, bool back, bool left, bool right, bool up, float elapsedTime);

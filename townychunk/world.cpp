@@ -38,8 +38,11 @@ void World::CheckCollisions(Player& player, Vector3f& delta, bool front, bool ba
 		IsBlocked(pos.x, pos.y + delta.y - PLAYER_MIDDLE, pos.z) ||
 		IsBlocked(pos.x, pos.y + delta.y - PLAYER_HEIGHT, pos.z)) {
 		delta.y = 0;
-		player.SetOnGround();
+		player.SetOnGround(true);
 		vel.y = 0.0f;
+	}
+	else {
+		player.SetOnGround(false);
 	}
 
 	// Z collisions
@@ -60,8 +63,8 @@ bool World::IsBlocked(float x, float y, float z) {
 }
 
 Chunk* World::ChunkAt(int x, int y, int z) const {
-	int cx = static_cast<int>(std::floor(x)) / CHUNK_SIZE_X;
-	int cz = static_cast<int>(std::floor(z)) / CHUNK_SIZE_Z;
+	int cx = x >= 0 ? x / CHUNK_SIZE_X : (x + 1) / CHUNK_SIZE_X - 1;
+	int cz = z >= 0 ? z / CHUNK_SIZE_Z : (z + 1) / CHUNK_SIZE_Z - 1;
 
 	if (cx < 0 || cx >= WORLD_SIZE_X || cz < 0 || cz >= WORLD_SIZE_Z) {
 		return nullptr;

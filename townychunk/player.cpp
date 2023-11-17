@@ -7,7 +7,7 @@ Player::Player(const Vector3f& position, float rotX, float rotY)
 		 m_rotation{ rotX, rotY },     
 		 m_rotX(rotX),
 		 m_rotY(rotY),
-		 m_jumpVelocity(5.0f),
+		 m_jumpVelocity(10.0f),
 		 m_isOnGround(false),
 		 m_isJumping(false) {}
 
@@ -43,8 +43,8 @@ void Player::SetVelocity(const Vector3f& velocity) {
 	m_velocity = velocity;
 }
 
-void Player::SetOnGround() {
-	m_isOnGround = true;
+void Player::SetOnGround(bool grounded) {
+	m_isOnGround = grounded;
 }
 
 bool Player::GetIsOnGround() const {
@@ -56,7 +56,7 @@ Vector3f Player::Move(bool front, bool back, bool left, bool right, bool up, flo
 	float speed = 0.2f;
 
 	if ((front && left) || (front && right) || (back && left) || (back && right)) {
-		speed /= sqrt(2);
+		speed /= 1.5f;
 	}
 
 	Vector3f delta(0.0f, 0.0f, 0.0f);
@@ -88,7 +88,9 @@ Vector3f Player::Move(bool front, bool back, bool left, bool right, bool up, flo
 		delta.y += m_velocity.y * elapsedTime;
 
 		if (m_position.y < -CHUNK_SIZE_Y) {
+			m_position.x = SPAWN_X;
 			m_position.y = SPAWN_Y;
+			m_position.z = SPAWN_Z;
 			m_velocity.y = 0.0f;
 			m_isOnGround = true;
 		}
@@ -96,88 +98,6 @@ Vector3f Player::Move(bool front, bool back, bool left, bool right, bool up, flo
 
 	return delta;
 }
-
-
-//Vector3f Player::SimulateMove(bool front, bool back, bool left, bool right, bool up, float elapsedTime) {
-//	Vector3f originalPosition = m_position;
-//	Vector3f originalVelocity = m_velocity;
-//	bool originalOnGround = m_isOnGround;
-//	bool originalJumping = m_isJumping;
-//
-//	UpdateJump(up, elapsedTime);
-//	UpdatePosition(front, back, left, right, elapsedTime);
-//
-//	Vector3f delta = m_position - originalPosition;
-//
-//	m_position = originalPosition;
-//	m_velocity = originalVelocity; 
-//	m_isOnGround = originalOnGround;
-//	m_isJumping = originalJumping;
-//
-//	return delta;
-//}
-
-//void Player::UpdateJump(bool up, float elapsedTime) {
-//	m_velocity.y += GRAVITY * elapsedTime;
-//
-//	if (m_isJumping) {
-//		if (up && m_isOnGround || !m_isJumping) {
-//			m_isJumping = true;
-//			m_isOnGround = false;
-//			m_velocity.y = sqrt(2 * fabs(GRAVITY) * MAX_JUMP_HEIGHT) * 40;
-//		}
-//	}
-//
-//	m_position.y += m_velocity.y * elapsedTime;
-//
-//	if (m_position.y < -CHUNK_SIZE_Y) {
-//		m_position.y = SPAWN_Y;
-//		m_velocity.y = 0.0f;
-//		m_isOnGround = true;
-//	}
-//}
-
-//void Player::UpdatePosition(bool front, bool back, bool left, bool right, float elapsedTime) {
-//	float speed = 10.0f;
-//
-//	if ((front && left) || (front && right) || (back && left) || (back && right)) {
-//		speed /= sqrt(2);
-//	}
-//
-//	Vector3f currentDirection = GetDirection();
-//
-//	if (front) {
-//		m_velocity.x += currentDirection.x * speed;
-//		m_velocity.z += currentDirection.z * speed;
-//	}
-//	if (back) {
-//		m_velocity.x -= currentDirection.x * speed;
-//		m_velocity.z -= currentDirection.z * speed;
-//	}
-//
-//	Vector3f rightDirection = Vector3f(currentDirection.z, 0.0f, -currentDirection.x);
-//
-//	if (left) {
-//		m_velocity.x += rightDirection.x * speed;
-//		m_velocity.z += rightDirection.z * speed;
-//	}
-//	if (right) {
-//		m_velocity.x -= rightDirection.x * speed;
-//		m_velocity.z -= rightDirection.z * speed;
-//	}
-//
-//	m_position += m_velocity * elapsedTime;
-//
-//	// Tweek these values to fine tune ground and air movement control
-//	if (m_isOnGround) {
-//		m_velocity.x *= pow(1.0f - (FRICTION * elapsedTime), 2.0f);
-//		m_velocity.z *= pow(1.0f - (FRICTION * elapsedTime), 2.0f);
-//	}
-//	else {
-//		m_velocity.x *= pow(1.0f - (FRICTION * elapsedTime), 1.5f);
-//		m_velocity.z *= pow(1.0f - (FRICTION * elapsedTime), 1.5f);
-//	}
-//}
 
 void Player::TurnLeftRight(float value) {
 	m_rotY += value;
