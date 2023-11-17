@@ -131,9 +131,6 @@ void Engine::Render(float elapsedTime) {
 	// Camera (Player)
 	Vector3f pos = m_player.GetPosition();
 	Vector3f delta = m_player.Move(m_keyW, m_keyS, m_keyA, m_keyD, m_keySpace, elapsedTime);
-
-	delta.y += GRAVITY * elapsedTime;
-	bool onGround = m_player.GetIsOnGround();
 	m_world->CheckCollisions(m_player, delta, m_keyW, m_keyS, m_keyA, m_keyD, m_keySpace, elapsedTime);
 	
 	Transformation t;
@@ -393,9 +390,6 @@ void Engine::DrawHud(float elapsedTime) {
 	PrintText(10, Height() - 30, ss.str());
 	ss.str("");
 	ss << " FPS : " << GetFps(elapsedTime);
-	PrintText(10, Height() - 60, ss.str());
-	ss.str("");
-	ss << " UP : " << GetFps(elapsedTime);
 	PrintText(10, Height() - 60, ss.str());
 	ss.str("");
 

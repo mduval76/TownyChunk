@@ -7,7 +7,7 @@ Player::Player(const Vector3f& position, float rotX, float rotY)
 		 m_rotation{ rotX, rotY },     
 		 m_rotX(rotX),
 		 m_rotY(rotY),
-		 m_jumpVelocity(100.0f),
+		 m_jumpVelocity(5.0f),
 		 m_isOnGround(false),
 		 m_isJumping(false) {}
 
@@ -53,7 +53,7 @@ bool Player::GetIsOnGround() const {
 
 Vector3f Player::Move(bool front, bool back, bool left, bool right, bool up, float elapsedTime) {
 	float yrotrad = (m_rotY / 180 * 3.141592654f);
-	float speed = 0.25f;
+	float speed = 0.2f;
 
 	if ((front && left) || (front && right) || (back && left) || (back && right)) {
 		speed /= sqrt(2);
@@ -77,11 +77,23 @@ Vector3f Player::Move(bool front, bool back, bool left, bool right, bool up, flo
 		delta.x += float(cos(yrotrad)) * speed;
 		delta.z += float(sin(yrotrad)) * speed;
 	}
+
 	if (up && m_isOnGround) {
 		m_isOnGround = false;
-		delta.y += m_jumpVelocity * elapsedTime;
+		m_velocity.y = m_jumpVelocity;
 	}
-	
+
+	if (!m_isOnGround) {
+		m_velocity.y += GRAVITY * elapsedTime;
+		delta.y += m_velocity.y * elapsedTime;
+
+		if (m_position.y < -CHUNK_SIZE_Y) {
+			m_position.y = SPAWN_Y;
+			m_velocity.y = 0.0f;
+			m_isOnGround = true;
+		}
+	}
+
 	return delta;
 }
 

@@ -24,6 +24,7 @@ Chunk* World::GetChunk(int x, int z) const {
 
 void World::CheckCollisions(Player& player, Vector3f& delta, bool front, bool back, bool left, bool right, bool up, float elapsedTime) {
 	Vector3f pos = player.GetPosition();
+	Vector3f vel = player.GetVelocity();
 	
 	// X collisions
 	if (IsBlocked(pos.x + delta.x, pos.y, pos.z) ||
@@ -38,6 +39,7 @@ void World::CheckCollisions(Player& player, Vector3f& delta, bool front, bool ba
 		IsBlocked(pos.x, pos.y + delta.y - PLAYER_HEIGHT, pos.z)) {
 		delta.y = 0;
 		player.SetOnGround();
+		vel.y = 0.0f;
 	}
 
 	// Z collisions
@@ -49,6 +51,7 @@ void World::CheckCollisions(Player& player, Vector3f& delta, bool front, bool ba
 
 	pos += delta;
 	player.SetPosition(pos);
+	player.SetVelocity(vel);
 }
 
 bool World::IsBlocked(float x, float y, float z) {
