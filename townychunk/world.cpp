@@ -22,9 +22,8 @@ Chunk* World::GetChunk(int x, int z) const {
 	return m_chunks.Get(x, z);
 }
 
-void World::CheckCollisions(Player& player, bool front, bool back, bool left, bool right, bool up, float elapsedTime) {
+void World::CheckCollisions(Player& player, Vector3f& delta, bool front, bool back, bool left, bool right, bool up, float elapsedTime) {
 	Vector3f pos = player.GetPosition();
-	Vector3f delta = player.SimulateMove(front, back, left, right, up, elapsedTime);
 	
 	// X collisions
 	if (IsBlocked(pos.x + delta.x, pos.y, pos.z) ||

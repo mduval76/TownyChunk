@@ -129,10 +129,13 @@ void Engine::Render(float elapsedTime) {
 	glLoadIdentity();
 
 	// Camera (Player)
-	m_player.SimulateMove(m_keyW, m_keyS, m_keyA, m_keyD, m_keySpace, elapsedTime);
+	Vector3f pos = m_player.GetPosition();
+	Vector3f delta = m_player.Move(m_keyW, m_keyS, m_keyA, m_keyD, m_keySpace, elapsedTime);
 
-	m_world->CheckCollisions(m_player, m_keyW, m_keyS, m_keyA, m_keyD, m_keySpace, elapsedTime);
-
+	delta.y += GRAVITY * elapsedTime;
+	bool onGround = m_player.GetIsOnGround();
+	m_world->CheckCollisions(m_player, delta, m_keyW, m_keyS, m_keyA, m_keyD, m_keySpace, elapsedTime);
+	
 	Transformation t;
 	std::array<float, 2> rot = m_player.GetRotation();
 	m_player.ApplyTransformation(t);
@@ -390,6 +393,9 @@ void Engine::DrawHud(float elapsedTime) {
 	PrintText(10, Height() - 30, ss.str());
 	ss.str("");
 	ss << " FPS : " << GetFps(elapsedTime);
+	PrintText(10, Height() - 60, ss.str());
+	ss.str("");
+	ss << " UP : " << GetFps(elapsedTime);
 	PrintText(10, Height() - 60, ss.str());
 	ss.str("");
 

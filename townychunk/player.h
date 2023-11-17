@@ -19,11 +19,9 @@ public:
 	void SetPosition(const Vector3f& position);
 	void SetVelocity(const Vector3f& velocity);
 	void SetOnGround();
-	bool IsOnGround() const;
+	bool GetIsOnGround() const;
 
-	Vector3f SimulateMove(bool front, bool back, bool left, bool right, bool up, float elapsedTime);
-	void UpdatePosition(bool front, bool back, bool left, bool right, float elapsedTime);
-	void UpdateJump(bool up, float elapsedTime);
+	Vector3f Move(bool front, bool back, bool left, bool right, bool up, float elapsedTime);
 
 	void TurnLeftRight(float value);
 	void TurnTopBottom(float value);
@@ -36,13 +34,13 @@ private:
 	Vector3f m_direction;
 	Vector3f m_velocity;
 	std::array<float, 2> m_rotation;
-
-	float m_jumpImpulse;	
+	
 	float m_rotX;
 	float m_rotY;
+	float m_jumpVelocity;
 
 	bool m_isOnGround;
-	bool m_jumpKeyPressed;
+	bool m_isJumping;
 };
 
 #endif // PLAYER_H__
