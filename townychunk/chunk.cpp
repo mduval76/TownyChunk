@@ -16,8 +16,11 @@ Chunk::Chunk(IWorld* world, int x, int z) : m_blocks(CHUNK_SIZE_X, CHUNK_SIZE_Y,
 				if (y < 4) {
 					SetBlock(x, y, z, BTYPE_HELL);
 				}
-				else if (firstObstacle || secondObstacle || thirdObstacle || fourthObstacle) {
+				else if (firstObstacle || fourthObstacle) {
 					SetBlock(x, y, z, BTYPE_DIRT);
+				}
+				else if (secondObstacle || thirdObstacle) {
+					SetBlock(x, y, z, BTYPE_STONE);
 				}
 			}
 		}
