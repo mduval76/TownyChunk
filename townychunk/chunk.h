@@ -7,6 +7,7 @@
 #include "array3d.h"
 #include "blockinfo.h"
 #include "vertexbuffer.h"
+#include "perlin.h"
 
 class Chunk {
 public:
@@ -29,6 +30,7 @@ public:
 
 private:
 	Array3d<BlockType> m_blocks;
+	Perlin perlin;
 	VertexBuffer m_vbo = VertexBuffer();
 
 	IWorld* m_world;

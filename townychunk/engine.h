@@ -40,6 +40,10 @@ private:
 
     unsigned int GetFps(float elapsedTime) const;
 
+    void GetBlockAtCursor();
+    static bool EqualWithEpsilon(const float& val1, const float& val2, float epsilon = 0.0001f);
+    static bool InRangeWithEpsilon(const float& val, const float& minVal, const float& maxVal, float epsilon = 0.0001f);
+
     void DrawHud(float elapsedTime);
     void DrawSkybox();
 
@@ -62,6 +66,9 @@ private:
     Texture m_textureMonster;
 
     TextureAtlas m_textureAtlas = TextureAtlas(BTYPE_LAST);
+
+    Vector3f m_currentBlock;
+    Vector3f m_currentFaceNormal;
 
     bool m_wireframe = false;
 

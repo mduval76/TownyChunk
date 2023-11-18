@@ -3,26 +3,22 @@
 
 #include "chunk.h"
 
-Chunk::Chunk(IWorld* world, int x, int z) : m_blocks(CHUNK_SIZE_X, CHUNK_SIZE_Y, CHUNK_SIZE_Z), m_world(world), m_chunkXCoord(x), m_chunkZCoord(z) {
+Chunk::Chunk(IWorld* world, int x, int z) : m_blocks(CHUNK_SIZE_X, CHUNK_SIZE_Y, CHUNK_SIZE_Z), m_world(world), m_chunkXCoord(x), m_chunkZCoord(z), perlin(16, 6, 1, 95) {
 	m_blocks.Reset(BTYPE_AIR);
 	for (int x = 0; x < CHUNK_SIZE_X; ++x) {
 		for (int z = 0; z < CHUNK_SIZE_Z; ++z) {
-			for (int y = 0; y < CHUNK_SIZE_Y; ++y) {
-				bool firstObstacle = (y == 4 || y == 5 || y == 6) && x == 11 && ((z == 2 || (z == 3 && y == 6) || z == 4));
-				bool secondObstacle = (y == 4 || y == 5 || y == 6) && (x >= 11 && x <= 14) && z == 14;
-				bool thirdObstacle = (y == 4 || y == 5 || y == 6) && x == 1 && (z >= 8 && z <= 11);
-				bool fourthObstacle = ((x == 6 && y == 4) || (x == 7 && y == 5) || (x == 8 && y == 6) || (x == 9 && y == 7)) && z == 9;
 
-				if (y < 4) {
+			float val = perlin.Get((float)(x * CHUNK_SIZE_X + x) / 2000.0f, (float)(z * CHUNK_SIZE_Z + z) / 2000.0f);
+
+			for (int y = 0; y < CHUNK_SIZE_Y; ++y) {
+				if (y < val) {
 					SetBlock(x, y, z, BTYPE_HELL);
 				}
-				else if (firstObstacle || fourthObstacle) {
-					SetBlock(x, y, z, BTYPE_DIRT);
-				}
-				else if (secondObstacle || thirdObstacle) {
-					SetBlock(x, y, z, BTYPE_STONE);
+				else {
+					SetBlock(x, y, z, BTYPE_AIR);
 				}
 			}
+		
 		}
 	}
 }
