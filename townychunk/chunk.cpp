@@ -3,19 +3,27 @@
 
 #include "chunk.h"
 
-Chunk::Chunk(IWorld* world, int x, int z) : m_blocks(CHUNK_SIZE_X, CHUNK_SIZE_Y, CHUNK_SIZE_Z), m_world(world), m_chunkXCoord(x), m_chunkZCoord(z), perlin(16, 6, 1, 95) {
+Chunk::Chunk(IWorld* world, int x, int z) : m_blocks(CHUNK_SIZE_X, CHUNK_SIZE_Y, CHUNK_SIZE_Z), m_world(world), m_chunkXCoord(x), m_chunkZCoord(z), perlin(11, 2, 2, 2) {
 	m_blocks.Reset(BTYPE_AIR);
+
+	float posX = x * CHUNK_SIZE_X;
+	float posZ = z * CHUNK_SIZE_Z;
+
 	for (int x = 0; x < CHUNK_SIZE_X; ++x) {
 		for (int z = 0; z < CHUNK_SIZE_Z; ++z) {
 
-			float val = perlin.Get((float)(x * CHUNK_SIZE_X + x) / 2000.0f, (float)(z * CHUNK_SIZE_Z + z) / 2000.0f);
+			float val = perlin.Get((float)(posX + x) / 1000.0f, (float)(posZ + z) / 1000.0f);
+			val *= CHUNK_SIZE_Y;
 
-			for (int y = 0; y < CHUNK_SIZE_Y; ++y) {
-				if (y < val) {
+			for (int y = 0; y < val; ++y) {
+				if (val < 20) {
 					SetBlock(x, y, z, BTYPE_HELL);
 				}
-				else {
-					SetBlock(x, y, z, BTYPE_AIR);
+				else if (val >= 20 && val < 40) {
+					SetBlock(x, y, z, BTYPE_DIRT);
+				}
+				else if (val >= 40 && val < 60) {
+					SetBlock(x, y, z, BTYPE_STONE);
 				}
 			}
 		

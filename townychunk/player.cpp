@@ -89,7 +89,7 @@ Vector3f Player::Move(bool front, bool back, bool left, bool right, bool up, flo
 
 		if (m_position.y < -CHUNK_SIZE_Y) {
 			m_position.x = SPAWN_X;
-			m_position.y = SPAWN_Y;
+			m_position.y = CHUNK_SIZE_Y;
 			m_position.z = SPAWN_Z;
 			m_velocity.y = 0.0f;
 			m_isOnGround = true;

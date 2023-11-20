@@ -44,6 +44,12 @@ private:
     static bool EqualWithEpsilon(const float& val1, const float& val2, float epsilon = 0.0001f);
     static bool InRangeWithEpsilon(const float& val, const float& minVal, const float& maxVal, float epsilon = 0.0001f);
 
+    void AddBlendFunction();
+    void RemoveBlendFunction();
+
+    void DrawArm();
+    void DrawCrosshair();
+    void DrawCurrentCube(float elapsedTime);
     void DrawHud(float elapsedTime);
     void DrawSkybox();
 
@@ -64,6 +70,7 @@ private:
     Texture m_textureDark;
     Texture m_textureFont;
     Texture m_textureMonster;
+    Texture m_textureArm;
 
     TextureAtlas m_textureAtlas = TextureAtlas(BTYPE_LAST);
 
@@ -73,6 +80,7 @@ private:
     bool m_wireframe = false;
 
     bool m_keyA = false;
+    bool m_keyC = false;
     bool m_keyD = false;
     bool m_keyI = false;
     bool m_keyS = false;

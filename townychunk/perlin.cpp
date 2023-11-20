@@ -194,7 +194,7 @@ void Perlin::init(void) {
 
 float Perlin::perlin_noise_2D(float vec[2]) {
 	int terms = mOctaves;
-	//float freq   = mFrequency;
+	float freq   = mFrequency;
 	float result = 0.0f;
 	float amp = mAmplitude;
 
@@ -214,7 +214,7 @@ float Perlin::perlin_noise_2D(float vec[2]) {
 
 float Perlin::perlin_noise_3D(float vec[3]) {
 	int terms = mOctaves;
-	//float freq   = mFrequency;
+	float freq   = mFrequency;
 	float result = 0.0f;
 	float amp = mAmplitude;
 
