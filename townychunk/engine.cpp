@@ -166,6 +166,7 @@ void Engine::Render(float elapsedTime) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	
 	AddBlendFunction();
+	DrawArm();
 
 	if (m_keyI) {
 		DrawHud(elapsedTime);
@@ -175,8 +176,6 @@ void Engine::Render(float elapsedTime) {
 		DrawCrosshair();
 	}
 
-	DrawArm();
-
 	RemoveBlendFunction();
 
 	float aspectRatio = static_cast<float>(Width()) / Height();
@@ -185,7 +184,7 @@ void Engine::Render(float elapsedTime) {
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
-	DrawCurrentCube(elapsedTime);
+	DrawBlock(elapsedTime);
 	if (m_wireframe) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	}
@@ -318,10 +317,6 @@ void Engine::GetBlockAtCursor() {
 						BlockType bt = m_world->BlockAt((float)x, (float)y, (float)z, BTYPE_AIR);
 						if (bt == BTYPE_AIR)
 							continue;
-
-						// Skip water blocs
-						//if(bloc->Type == BT_WATER)
-						//    continue;
 
 						m_currentBlock.x = x;
 						m_currentBlock.y = y;
@@ -503,18 +498,18 @@ void Engine::PrintText(unsigned int x, unsigned int y, const std::string& t) {
 			glTexCoord2f(left, top);	 glVertex2f(0, charHeight - 5);
 		glEnd();
 
-		glTranslated(charWidth, 0, 0);
+		glTranslated(charWidth * RESIZE_RATIO, 0, 0);
 	}
 }
 
 void Engine::DrawArm() {
 	float armWidth = Width() * 0.33f;
 	float armHeight = Height() * 0.5f;
-	float armPosX = Width() * 0.5f;
+	float armPosX = Width() * 0.95f;
 	float armPosY = 0.0f;
 
 	glLoadIdentity();
-	glTranslated(armPosX, armPosY, 0);
+	glTranslated(armPosX * RESIZE_RATIO, armPosY, 0);
 
 	m_textureArm.Bind();
 	GLint originalBlendSrc, originalBlendDst;
@@ -550,7 +545,7 @@ void Engine::DrawCrosshair() {
 	}
 }
 
-void Engine::DrawCurrentCube(float elapsedTime) {
+void Engine::DrawBlock(float elapsedTime) {
 	Transformation t;
 	static float angle = 0.0f;
 	angle += (elapsedTime * 100);
@@ -643,14 +638,14 @@ void Engine::DrawHud(float elapsedTime) {
 	ss << (pos.x > 0 ? " BLOCK: ( X " : " BLOCK: ( X-") <<
 		abs((int)(pos.x) % CHUNK_SIZE_X) << (pos.y > 0 ? " | Y " : " | Y-") << 
 		abs((int)(pos.y) % CHUNK_SIZE_Y) << (pos.z > 0 ? " | Z " : " | Z-") <<
-		abs((int)(pos.z) % CHUNK_SIZE_Z) << ")";
+		abs((int)(pos.z) % CHUNK_SIZE_Z) << " )";
 	PrintText(10, 50, ss.str());
 	ss.str("");
 
 	ss << (pos.x > 0 ? " GLOBAL: ( X " : " GLOBAL: ( X-") << std::fixed << std::setprecision(2) <<
 		abs(pos.x) << (pos.y > 0 ? " | Y " : " | Y-") <<
 		abs(pos.y) << (pos.z > 0 ? " | Z " : " | Z-") <<
-		abs(pos.z) << ")";
+		abs(pos.z) << " )";
 	PrintText(10, 20, ss.str());
 	ss.str("");
 }

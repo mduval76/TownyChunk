@@ -49,7 +49,7 @@ private:
 
     void DrawArm();
     void DrawCrosshair();
-    void DrawCurrentCube(float elapsedTime);
+    void DrawBlock(float elapsedTime);
     void DrawHud(float elapsedTime);
     void DrawSkybox();
 
@@ -80,7 +80,7 @@ private:
     bool m_wireframe = false;
 
     bool m_keyA = false;
-    bool m_keyC = false;
+    bool m_keyC = true;
     bool m_keyD = false;
     bool m_keyI = false;
     bool m_keyS = false;
