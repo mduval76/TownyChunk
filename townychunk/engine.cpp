@@ -179,9 +179,8 @@ void Engine::Render(float elapsedTime) {
 
 	RemoveBlendFunction();
 
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	gluPerspective(45.0f, (float)Width() / (float)Height(), 0.0001f, 1000.0f);
+	float aspectRatio = static_cast<float>(Width()) / Height();
+	gluPerspective(45.0f, aspectRatio, 0.0001f, 1000.0f);
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -509,9 +508,9 @@ void Engine::PrintText(unsigned int x, unsigned int y, const std::string& t) {
 }
 
 void Engine::DrawArm() {
-	float armWidth = Width() / 2.0f;
-	float armHeight = Height() / 2.0f;
-	float armPosX = Width() - (Width() / 2.0f);
+	float armWidth = Width() * 0.33f;
+	float armHeight = Height() * 0.5f;
+	float armPosX = Width() * 0.5f;
 	float armPosY = 0.0f;
 
 	glLoadIdentity();

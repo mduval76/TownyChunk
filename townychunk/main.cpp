@@ -5,5 +5,5 @@
 int main() {
 	Engine engine;
 	engine.SetMaxFps(60);
-	engine.Start("townychunk", 1200, 900, false);
+	engine.Start("townychunk", 800, 600, false);
 }
