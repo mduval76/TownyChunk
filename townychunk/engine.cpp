@@ -549,7 +549,7 @@ void Engine::DrawBlock(float elapsedTime) {
 	Transformation t;
 	static float angle = 0.0f;
 	angle += (elapsedTime * 100);
-	t.ApplyTranslation(1.1f, -0.2, -5.0f);
+	t.ApplyTranslation(1.135f, -0.25, -5.5f);
 	t.ApplyRotation(angle, 0.0f, 1.0f, 0.0f);
 	t.Use();
 
