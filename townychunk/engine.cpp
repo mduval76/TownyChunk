@@ -175,12 +175,13 @@ void Engine::Render(float elapsedTime) {
 		DrawCrosshair();
 	}
 
-	RemoveBlendFunction();
 	
+	RemoveBlendFunction();
+
+	DrawBlock(elapsedTime);
+
 	t.Pop();
 	t.Use();
-	//DrawBlock(elapsedTime);
-
 
 	if (m_wireframe) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -289,6 +290,8 @@ void Engine::DrawArm() {
 
 void Engine::DrawBlock(float elapsedTime) {
 	Transformation t;
+	t.Push();
+
 	static float angle = 0.0f;
 	angle += (elapsedTime * 100);
 	t.ApplyTranslation(1.135f, -0.25, -5.5f);
@@ -358,6 +361,8 @@ void Engine::DrawBlock(float elapsedTime) {
 	glEnd();
 
 	glDepthRange(0.0, 1.0);
+	t.Pop();
+	t.Use();
 }
 
 void Engine::DrawHud(float elapsedTime) {
@@ -556,13 +561,7 @@ void Engine::GetBlockAtCursor() {
 	int pz = (int)(posZ);
 
 	bool found = false;
-	bool grounded = m_player.GetIsOnGround();
 
-	std::cout << "(GetBlockAtCursor) Player Positions BEFORE if statement: " << m_player.GetPosition().x << " - " << m_player.GetPosition().y << " - " << m_player.GetPosition().z << std::endl;
-	std::cout << "(GetBlockAtCursor) posXYZ BEFORE if statement: " << posX << " - " << posY << " - " << posZ << std::endl;
-	std::cout << "(GetBlockAtCursor) winXYZ BEFORE if statement: " << winX << " - " << winY << " - " << winZ << std::endl;
-	std::cout << "Distance to block under CURSOR: " << (m_player.GetPosition() - Vector3f((float)posX, (float)posY, (float)posZ)).Length() << std::endl;
-	std::cout << "m_currentBlock BEFORE GetBlockAtCursor(): x=" << m_currentBlock.x << " - y=" << m_currentBlock.y << " - z=" << m_currentBlock.z << std::endl;
 	if ((m_player.GetPosition() - Vector3f((float)posX, (float)posY, (float)posZ)).Length() < MAX_SELECT_DISTANCE) {
 		// Apres avoir determine la position du bloc en utilisant la partie entiere du hit
 		// point retourne par opengl, on doit verifier de chaque cote du bloc trouve pour trouver
