@@ -155,9 +155,8 @@ void Engine::Render(float elapsedTime) {
 	Shader::Disable();
 
 	// Skybox
-	t.SetIdentity();
-	t.ApplyRotation(-rot[0], 1.0f, 0, 0);
-	t.ApplyRotation(-rot[1], 0, 1.0f, 0);
+	t.Push();
+	t.ApplyTranslation(m_player.GetPosition().x, m_player.GetPosition().y, m_player.GetPosition().z);
 	t.Use();
 
 	DrawSkybox();
@@ -178,21 +177,16 @@ void Engine::Render(float elapsedTime) {
 
 	RemoveBlendFunction();
 	
-	DrawBlock(elapsedTime);
-	//float aspectRatio = static_cast<float>(Width()) / Height();
-	//gluPerspective(45.0f, aspectRatio, 0.0001f, 1000.0f);
-
-	//glMatrixMode(GL_MODELVIEW);
-	//glLoadIdentity();
+	t.Pop();
+	t.Use();
+	//DrawBlock(elapsedTime);
 
 
 	if (m_wireframe) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	}
 
-	std::cout << "m_currentBlock BEFORE GetBlockAtCursor(): x=" << m_currentBlock.x << " - y=" << m_currentBlock.y << " - z=" << m_currentBlock.z << std::endl;
 	GetBlockAtCursor();
-	std::cout << "m_currentBlock AFTER GetBlockAtCursor(): x=" << m_currentBlock.x << " - y=" << m_currentBlock.y << " - z=" << m_currentBlock.z << std::endl;
 }
 
 void Engine::AddBlendFunction() {
@@ -200,7 +194,7 @@ void Engine::AddBlendFunction() {
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 	glEnable(GL_BLEND);
-	//glDisable(GL_DEPTH_TEST);
+	glDisable(GL_DEPTH_TEST);
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glLoadIdentity();
@@ -212,7 +206,7 @@ void Engine::AddBlendFunction() {
 void Engine::RemoveBlendFunction() {
 	glEnable(GL_LIGHTING);
 	glDisable(GL_BLEND);
-	//glEnable(GL_DEPTH_TEST);
+	glEnable(GL_DEPTH_TEST);
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
@@ -562,7 +556,13 @@ void Engine::GetBlockAtCursor() {
 	int pz = (int)(posZ);
 
 	bool found = false;
+	bool grounded = m_player.GetIsOnGround();
 
+	std::cout << "(GetBlockAtCursor) Player Positions BEFORE if statement: " << m_player.GetPosition().x << " - " << m_player.GetPosition().y << " - " << m_player.GetPosition().z << std::endl;
+	std::cout << "(GetBlockAtCursor) posXYZ BEFORE if statement: " << posX << " - " << posY << " - " << posZ << std::endl;
+	std::cout << "(GetBlockAtCursor) winXYZ BEFORE if statement: " << winX << " - " << winY << " - " << winZ << std::endl;
+	std::cout << "Distance to block under CURSOR: " << (m_player.GetPosition() - Vector3f((float)posX, (float)posY, (float)posZ)).Length() << std::endl;
+	std::cout << "m_currentBlock BEFORE GetBlockAtCursor(): x=" << m_currentBlock.x << " - y=" << m_currentBlock.y << " - z=" << m_currentBlock.z << std::endl;
 	if ((m_player.GetPosition() - Vector3f((float)posX, (float)posY, (float)posZ)).Length() < MAX_SELECT_DISTANCE) {
 		// Apres avoir determine la position du bloc en utilisant la partie entiere du hit
 		// point retourne par opengl, on doit verifier de chaque cote du bloc trouve pour trouver
