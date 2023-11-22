@@ -177,16 +177,277 @@ void Engine::Render(float elapsedTime) {
 	}
 
 	RemoveBlendFunction();
-
-	float aspectRatio = static_cast<float>(Width()) / Height();
-	gluPerspective(45.0f, aspectRatio, 0.0001f, 1000.0f);
-
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-
+	
 	DrawBlock(elapsedTime);
+	//float aspectRatio = static_cast<float>(Width()) / Height();
+	//gluPerspective(45.0f, aspectRatio, 0.0001f, 1000.0f);
+
+	//glMatrixMode(GL_MODELVIEW);
+	//glLoadIdentity();
+
+
 	if (m_wireframe) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	}
+
+	std::cout << "m_currentBlock BEFORE GetBlockAtCursor(): x=" << m_currentBlock.x << " - y=" << m_currentBlock.y << " - z=" << m_currentBlock.z << std::endl;
+	GetBlockAtCursor();
+	std::cout << "m_currentBlock AFTER GetBlockAtCursor(): x=" << m_currentBlock.x << " - y=" << m_currentBlock.y << " - z=" << m_currentBlock.z << std::endl;
+}
+
+void Engine::AddBlendFunction() {
+	glDisable(GL_LIGHTING);
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+	glEnable(GL_BLEND);
+	//glDisable(GL_DEPTH_TEST);
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	glOrtho(0, Width(), 0, Height(), -1, 1);
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+}
+
+void Engine::RemoveBlendFunction() {
+	glEnable(GL_LIGHTING);
+	glDisable(GL_BLEND);
+	//glEnable(GL_DEPTH_TEST);
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
+}
+
+void Engine::DrawSkybox() {
+	m_textureMonster.Bind();
+	glBegin(GL_QUADS); // FRONT 
+	glNormal3f(0, 0, 1);
+	glTexCoord2f(0, 0); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+	glTexCoord2f(1, 0); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+	glTexCoord2f(1, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+	glTexCoord2f(0, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+	glEnd();
+
+	m_textureDark.Bind();
+	glBegin(GL_QUADS); // RIGHT
+	glTexCoord2f(0, 0); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+	glTexCoord2f(1, 0); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+	glTexCoord2f(1, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+	glTexCoord2f(0, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+	glEnd();
+
+	glBegin(GL_QUADS); // BACK
+	glNormal3f(0, 0, 1);
+	glTexCoord2f(0, 0); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+	glTexCoord2f(0, 1); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+	glTexCoord2f(1, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+	glTexCoord2f(1, 0); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+	glEnd();
+
+	glBegin(GL_QUADS); // LEFT
+	glTexCoord2f(0, 0); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+	glTexCoord2f(1, 0); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+	glTexCoord2f(1, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+	glTexCoord2f(0, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+	glEnd();
+
+	glBegin(GL_QUADS); // TOP
+	glTexCoord2f(0, 0); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+	glTexCoord2f(1, 0); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+	glTexCoord2f(1, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+	glTexCoord2f(0, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+	glEnd();
+
+	glBegin(GL_QUADS); // BOTTOM
+	glTexCoord2f(0, 0); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+	glTexCoord2f(1, 0); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+	glTexCoord2f(1, 1); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+	glTexCoord2f(0, 1); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+	glEnd();
+}
+
+void Engine::DrawArm() {
+	float armWidth = Width() * 0.33f;
+	float armHeight = Height() * 0.5f;
+	float armPosX = Width() * 0.95f;
+	float armPosY = 0.0f;
+
+	glLoadIdentity();
+	glTranslated(armPosX * RESIZE_RATIO, armPosY, 0);
+
+	m_textureArm.Bind();
+	GLint originalBlendSrc, originalBlendDst;
+	glGetIntegerv(GL_BLEND_SRC_ALPHA, &originalBlendSrc);
+	glGetIntegerv(GL_BLEND_DST_ALPHA, &originalBlendDst);
+
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	glBegin(GL_QUADS);
+	glTexCoord2f(1, 0); glVertex2i(0, 0);
+	glTexCoord2f(0, 0); glVertex2i(armWidth, 0);
+	glTexCoord2f(0, 1); glVertex2i(armWidth, armHeight);
+	glTexCoord2f(1, 1); glVertex2i(0, armHeight);
+	glEnd();
+
+	glBlendFunc(originalBlendSrc, originalBlendDst);
+}
+
+void Engine::DrawBlock(float elapsedTime) {
+	Transformation t;
+	static float angle = 0.0f;
+	angle += (elapsedTime * 100);
+	t.ApplyTranslation(1.135f, -0.25, -5.5f);
+	t.ApplyRotation(angle, 0.0f, 1.0f, 0.0f);
+	t.Use();
+
+	m_textureAtlas.Bind();
+
+	glDepthRange(0.0, 0.1);
+	GLfloat cubeLightPos[4] = { 0.0f, 0.0f, 0.0f, 10.0f };
+	glLightfv(GL_LIGHT0, GL_POSITION, cubeLightPos);
+
+	float u, v, w, h;
+	BlockInfo::GetBlockTextureCoords(BTYPE_HELL, FRONT, u, v, w, h);
+
+	glBegin(GL_QUADS);		// FRONT
+	glNormal3f(0, 0, -1);	// Normal Z-
+	glTexCoord2f(u, v);	glVertex3f(-0.5, -0.5, 0.5);
+	glTexCoord2f(u + w, v);	glVertex3f(0.5, -0.5, 0.5);
+	glTexCoord2f(u + w, v + h);	glVertex3f(0.5, 0.5, 0.5);
+	glTexCoord2f(u, v + h);	glVertex3f(-0.5, 0.5, 0.5);
+	glEnd();
+
+	BlockInfo::GetBlockTextureCoords(BTYPE_HELL, BACK, u, v, w, h);
+	glBegin(GL_QUADS);		// BACK
+	glNormal3f(0, 0, 1);	// Normal Z+
+	glTexCoord2f(u, v); glVertex3f(0.5, -0.5, -0.5);
+	glTexCoord2f(u + w, v); glVertex3f(-0.5, -0.5, -0.5);
+	glTexCoord2f(u + w, v + h); glVertex3f(-0.5, 0.5, -0.5);
+	glTexCoord2f(u, v + h); glVertex3f(0.5, 0.5, -0.5);
+	glEnd();
+
+	BlockInfo::GetBlockTextureCoords(BTYPE_HELL, TOP, u, v, w, h);
+	glBegin(GL_QUADS);		// TOP	
+	glNormal3f(0, 1, 0);	// Normal Y+
+	glTexCoord2f(u, v);	glVertex3f(-0.5, 0.5, -0.5);
+	glTexCoord2f(u + w, v);	glVertex3f(0.5, 0.5, -0.5);
+	glTexCoord2f(u + w, v + h);	glVertex3f(0.5, 0.5, 0.5);
+	glTexCoord2f(u, v + h);	glVertex3f(-0.5, 0.5, 0.5);
+	glEnd();
+
+	BlockInfo::GetBlockTextureCoords(BTYPE_HELL, BOTTOM, u, v, w, h);
+	glBegin(GL_QUADS);		// BOTTOM
+	glNormal3f(0, -1, 0);	// Normal Y-
+	glTexCoord2f(u, v);	glVertex3f(-0.5, -0.5, -0.5);
+	glTexCoord2f(u + w, v);	glVertex3f(0.5, -0.5, -0.5);
+	glTexCoord2f(u + w, v + h);	glVertex3f(0.5, -0.5, 0.5);
+	glTexCoord2f(u, v + h);	glVertex3f(-0.5, -0.5, 0.5);
+	glEnd();
+
+	BlockInfo::GetBlockTextureCoords(BTYPE_HELL, LEFT, u, v, w, h);
+	glBegin(GL_QUADS);		// LEFT
+	glNormal3f(1, 0, 0);	// Normal X-
+	glTexCoord2f(u, v);	glVertex3f(-0.5, -0.5, -0.5);
+	glTexCoord2f(u + w, v);	glVertex3f(-0.5, -0.5, 0.5);
+	glTexCoord2f(u + w, v + h);	glVertex3f(-0.5, 0.5, 0.5);
+	glTexCoord2f(u, v + h);	glVertex3f(-0.5, 0.5, -0.5);
+	glEnd();
+
+	BlockInfo::GetBlockTextureCoords(BTYPE_HELL, RIGHT, u, v, w, h);
+	glBegin(GL_QUADS);		// RIGHT
+	glNormal3f(-1, 0, 0);	// Normal X+
+	glTexCoord2f(u, v);	glVertex3f(0.5, -0.5, 0.5);
+	glTexCoord2f(u + w, v);	glVertex3f(0.5, -0.5, -0.5);
+	glTexCoord2f(u + w, v + h);	glVertex3f(0.5, 0.5, -0.5);
+	glTexCoord2f(u, v + h);	glVertex3f(0.5, 0.5, 0.5);
+	glEnd();
+
+	glDepthRange(0.0, 1.0);
+}
+
+void Engine::DrawHud(float elapsedTime) {
+	m_textureFont.Bind();
+	std::ostringstream ss;
+
+	ss << " CURSOR : ( X " << m_currentBlock.x << " | Y " << m_currentBlock.y << " | Z " << m_currentBlock.z << " )";
+	PrintText(10, Height() - 30, ss.str());
+	ss.str("");
+	Vector3f currentDirection = m_player.GetDirection();
+	ss << " DIRECTION : " << DirectionToString(currentDirection);
+	PrintText(10, Height() - 60, ss.str());
+	ss.str("");
+	ss << " FPS : " << GetFps(elapsedTime);
+	PrintText(10, Height() - 90, ss.str());
+	ss.str("");
+
+	Vector3f pos = m_player.GetPosition();
+	ss << (pos.x > 0 ? " CHUNK: ( X " : " CHUNK: ( X-") << (int)(pos.x / CHUNK_SIZE_X) <<
+		(pos.z > 0 ? " | Z " : " | Z-") << (int)(pos.z / CHUNK_SIZE_Z) << " )";
+	PrintText(10, 80, ss.str());
+	ss.str("");
+
+	ss << (pos.x > 0 ? " BLOCK: ( X " : " BLOCK: ( X-") <<
+		abs((int)(pos.x) % CHUNK_SIZE_X) << (pos.y > 0 ? " | Y " : " | Y-") <<
+		abs((int)(pos.y) % CHUNK_SIZE_Y) << (pos.z > 0 ? " | Z " : " | Z-") <<
+		abs((int)(pos.z) % CHUNK_SIZE_Z) << " )";
+	PrintText(10, 50, ss.str());
+	ss.str("");
+
+	ss << (pos.x > 0 ? " GLOBAL: ( X " : " GLOBAL: ( X-") << std::fixed << std::setprecision(2) <<
+		abs(pos.x) << (pos.y > 0 ? " | Y " : " | Y-") <<
+		abs(pos.y) << (pos.z > 0 ? " | Z " : " | Z-") <<
+		abs(pos.z) << " )";
+	PrintText(10, 20, ss.str());
+	ss.str("");
+}
+
+void Engine::DrawCrosshair() {
+	if (m_keyC) {
+		m_textureCrosshair.Bind();
+		static const int crossSize = 32;
+
+		glLoadIdentity();
+		glTranslated(Width() / 2 - crossSize / 2, Height() / 2 - crossSize / 2, 0);
+
+		glBegin(GL_QUADS);
+		glTexCoord2f(0, 0); glVertex2i(0, 0);
+		glTexCoord2f(1, 0); glVertex2i(crossSize, 0);
+		glTexCoord2f(1, 1); glVertex2i(crossSize, crossSize);
+		glTexCoord2f(0, 1); glVertex2i(0, crossSize);
+		glEnd();
+	}
+}
+
+void Engine::PrintText(unsigned int x, unsigned int y, const std::string& t) {
+	glLoadIdentity();
+	glTranslated(x, y, 0);
+
+	const float atlasWidth = 400.0f;
+	const float atlasHeight = 400.0f;
+	const int numCols = 16;
+	const int numRows = 16;
+	const float charWidth = atlasWidth / numCols;
+	const float charHeight = atlasHeight / numRows;
+
+	for (unsigned int i = 0; i < t.length(); ++i) {
+		char c = t[i];
+		int col = (c - 32) % numCols;
+		int row = (c - 32) / numCols;
+
+		float left = col * charWidth / atlasWidth;
+		float right = left + charWidth / atlasWidth;
+		float top = 1.0f - (row * charHeight) / atlasHeight;
+		float bottom = top - charHeight / atlasHeight;
+
+		glBegin(GL_QUADS);
+		glTexCoord2f(left, bottom);  glVertex2f(0, 0);
+		glTexCoord2f(right, bottom); glVertex2f(charWidth - 5, 0);
+		glTexCoord2f(right, top);	 glVertex2f(charWidth - 5, charHeight - 5);
+		glTexCoord2f(left, top);	 glVertex2f(0, charHeight - 5);
+		glEnd();
+
+		glTranslated(charWidth * RESIZE_RATIO, 0, 0);
 	}
 }
 
@@ -356,6 +617,14 @@ void Engine::GetBlockAtCursor() {
 	}
 }
 
+bool Engine::EqualWithEpsilon(const float& val1, const float& val2, float epsilon) {
+	return (fabs(val2 - val1) < epsilon);
+}
+
+bool Engine::InRangeWithEpsilon(const float& val, const float& minVal, const float& maxVal, float epsilon) {
+	return (val >= minVal - epsilon && val <= maxVal + epsilon);
+}
+
 bool Engine::LoadTexture(Texture& texture, const std::string& filename, bool stopOnError) {
 	texture.Load(filename);
 	if (!texture.IsValid()) {
@@ -385,267 +654,6 @@ std::string Engine::DirectionToString(const Vector3f& direction) const {
 	return currentDirection;
 }
 
-bool Engine::EqualWithEpsilon(const float& val1, const float& val2, float epsilon) {
-	return (fabs(val2 - val1) < epsilon);
-}
-
-bool Engine::InRangeWithEpsilon(const float& val, const float& minVal, const float& maxVal, float epsilon) {
-	return (val >= minVal - epsilon && val <= maxVal + epsilon);
-}
-
-void Engine::AddBlendFunction() {
-	glDisable(GL_LIGHTING);
-	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-	glEnable(GL_BLEND);
-	glDisable(GL_DEPTH_TEST);
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadIdentity();
-	glOrtho(0, Width(), 0, Height(), -1, 1);
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
-}
-
-void Engine::RemoveBlendFunction() {
-	glEnable(GL_LIGHTING);
-	glDisable(GL_BLEND);
-	glEnable(GL_DEPTH_TEST);
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
-	glMatrixMode(GL_MODELVIEW);
-	glPopMatrix();
-}
-
 unsigned int Engine::GetFps(float elapsedTime) const {
 	return 1 / elapsedTime;
-}
-
-void Engine::DrawSkybox() {
-	m_textureMonster.Bind();
-	glBegin(GL_QUADS); // FRONT 
-		glNormal3f(0, 0, 1);
-		glTexCoord2f(0, 0); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
-		glTexCoord2f(1, 0); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
-		glTexCoord2f(1, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
-		glTexCoord2f(0, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
-	glEnd();
-
-	m_textureDark.Bind();
-		glBegin(GL_QUADS); // RIGHT
-		glTexCoord2f(0, 0); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
-		glTexCoord2f(1, 0); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
-		glTexCoord2f(1, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
-		glTexCoord2f(0, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
-	glEnd();
-
-	glBegin(GL_QUADS); // BACK
-		glNormal3f(0, 0, 1);
-		glTexCoord2f(0, 0); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
-		glTexCoord2f(0, 1); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
-		glTexCoord2f(1, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
-		glTexCoord2f(1, 0); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
-	glEnd();
-
-	glBegin(GL_QUADS); // LEFT
-		glTexCoord2f(0, 0); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
-		glTexCoord2f(1, 0); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
-		glTexCoord2f(1, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
-		glTexCoord2f(0, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
-	glEnd();
-
-	glBegin(GL_QUADS); // TOP
-		glTexCoord2f(0, 0); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
-		glTexCoord2f(1, 0); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
-		glTexCoord2f(1, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
-		glTexCoord2f(0, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
-	glEnd();
-
-	glBegin(GL_QUADS); // BOTTOM
-		glTexCoord2f(0, 0); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
-		glTexCoord2f(1, 0); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
-		glTexCoord2f(1, 1); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
-		glTexCoord2f(0, 1); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
-	glEnd();
-}
-
-void Engine::PrintText(unsigned int x, unsigned int y, const std::string& t) {
-	glLoadIdentity();
-	glTranslated(x, y, 0);
-
-	const float atlasWidth = 400.0f;
-	const float atlasHeight = 400.0f;
-	const int numCols = 16;
-	const int numRows = 16;
-	const float charWidth = atlasWidth / numCols;
-	const float charHeight = atlasHeight / numRows;
-
-	for (unsigned int i = 0; i < t.length(); ++i)
-	{
-		char c = t[i];
-		int col = (c - 32) % numCols;
-		int row = (c - 32) / numCols;
-
-		float left = col * charWidth / atlasWidth;
-		float right = left + charWidth / atlasWidth;
-		float top = 1.0f - (row * charHeight) / atlasHeight;
-		float bottom = top - charHeight / atlasHeight;
-
-		glBegin(GL_QUADS);
-			glTexCoord2f(left, bottom);  glVertex2f(0, 0);
-			glTexCoord2f(right, bottom); glVertex2f(charWidth - 5, 0);
-			glTexCoord2f(right, top);	 glVertex2f(charWidth - 5, charHeight - 5);
-			glTexCoord2f(left, top);	 glVertex2f(0, charHeight - 5);
-		glEnd();
-
-		glTranslated(charWidth * RESIZE_RATIO, 0, 0);
-	}
-}
-
-void Engine::DrawArm() {
-	float armWidth = Width() * 0.33f;
-	float armHeight = Height() * 0.5f;
-	float armPosX = Width() * 0.95f;
-	float armPosY = 0.0f;
-
-	glLoadIdentity();
-	glTranslated(armPosX * RESIZE_RATIO, armPosY, 0);
-
-	m_textureArm.Bind();
-	GLint originalBlendSrc, originalBlendDst;
-	glGetIntegerv(GL_BLEND_SRC_ALPHA, &originalBlendSrc);
-	glGetIntegerv(GL_BLEND_DST_ALPHA, &originalBlendDst);
-
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	glBegin(GL_QUADS);
-		glTexCoord2f(1, 0); glVertex2i(0, 0);
-		glTexCoord2f(0, 0); glVertex2i(armWidth, 0);
-		glTexCoord2f(0, 1); glVertex2i(armWidth, armHeight);
-		glTexCoord2f(1, 1); glVertex2i(0, armHeight);
-	glEnd();
-
-	glBlendFunc(originalBlendSrc, originalBlendDst);
-}
-
-void Engine::DrawCrosshair() {
-	if (m_keyC) {
-		m_textureCrosshair.Bind();
-		static const int crossSize = 32;
-
-		glLoadIdentity();
-		glTranslated(Width() / 2 - crossSize / 2, Height() / 2 - crossSize / 2, 0);
-
-		glBegin(GL_QUADS);
-			glTexCoord2f(0, 0); glVertex2i(0, 0);
-			glTexCoord2f(1, 0); glVertex2i(crossSize, 0);
-			glTexCoord2f(1, 1); glVertex2i(crossSize, crossSize);
-			glTexCoord2f(0, 1); glVertex2i(0, crossSize);
-		glEnd();
-	}
-}
-
-void Engine::DrawBlock(float elapsedTime) {
-	Transformation t;
-	static float angle = 0.0f;
-	angle += (elapsedTime * 100);
-	t.ApplyTranslation(1.135f, -0.25, -5.5f);
-	t.ApplyRotation(angle, 0.0f, 1.0f, 0.0f);
-	t.Use();
-
-	m_textureAtlas.Bind();
-
-	glDepthRange(0.0, 0.1);
-	GLfloat cubeLightPos[4] = { 0.0f, 0.0f, 0.0f, 10.0f };
-	glLightfv(GL_LIGHT0, GL_POSITION, cubeLightPos);
-
-	float u, v, w, h;
-	BlockInfo::GetBlockTextureCoords(BTYPE_HELL, FRONT, u, v, w, h);
-
-	glBegin(GL_QUADS);		// FRONT
-	glNormal3f(0, 0, -1);	// Normal Z-
-	glTexCoord2f(u, v);	glVertex3f(-0.5, -0.5, 0.5);
-	glTexCoord2f(u + w, v);	glVertex3f(0.5, -0.5, 0.5);
-	glTexCoord2f(u + w, v + h);	glVertex3f(0.5, 0.5, 0.5);
-	glTexCoord2f(u, v + h);	glVertex3f(-0.5, 0.5, 0.5);
-	glEnd();
-
-	BlockInfo::GetBlockTextureCoords(BTYPE_HELL, BACK, u, v, w, h);
-	glBegin(GL_QUADS);		// BACK
-	glNormal3f(0, 0, 1);	// Normal Z+
-	glTexCoord2f(u, v); glVertex3f(0.5, -0.5, -0.5);
-	glTexCoord2f(u + w, v); glVertex3f(-0.5, -0.5, -0.5);
-	glTexCoord2f(u + w, v + h); glVertex3f(-0.5, 0.5, -0.5);
-	glTexCoord2f(u, v + h); glVertex3f(0.5, 0.5, -0.5);
-	glEnd();
-
-	BlockInfo::GetBlockTextureCoords(BTYPE_HELL, TOP, u, v, w, h);
-	glBegin(GL_QUADS);		// TOP	
-	glNormal3f(0, 1, 0);	// Normal Y+
-	glTexCoord2f(u, v);	glVertex3f(-0.5, 0.5, -0.5);
-	glTexCoord2f(u + w, v);	glVertex3f(0.5, 0.5, -0.5);
-	glTexCoord2f(u + w, v + h);	glVertex3f(0.5, 0.5, 0.5);
-	glTexCoord2f(u, v + h);	glVertex3f(-0.5, 0.5, 0.5);
-	glEnd();
-
-	BlockInfo::GetBlockTextureCoords(BTYPE_HELL, BOTTOM, u, v, w, h);
-	glBegin(GL_QUADS);		// BOTTOM
-	glNormal3f(0, -1, 0);	// Normal Y-
-	glTexCoord2f(u, v);	glVertex3f(-0.5, -0.5, -0.5);
-	glTexCoord2f(u + w, v);	glVertex3f(0.5, -0.5, -0.5);
-	glTexCoord2f(u + w, v + h);	glVertex3f(0.5, -0.5, 0.5);
-	glTexCoord2f(u, v + h);	glVertex3f(-0.5, -0.5, 0.5);
-	glEnd();
-
-	BlockInfo::GetBlockTextureCoords(BTYPE_HELL, LEFT, u, v, w, h);
-	glBegin(GL_QUADS);		// LEFT
-	glNormal3f(1, 0, 0);	// Normal X-
-	glTexCoord2f(u, v);	glVertex3f(-0.5, -0.5, -0.5);
-	glTexCoord2f(u + w, v);	glVertex3f(-0.5, -0.5, 0.5);
-	glTexCoord2f(u + w, v + h);	glVertex3f(-0.5, 0.5, 0.5);
-	glTexCoord2f(u, v + h);	glVertex3f(-0.5, 0.5, -0.5);
-	glEnd();
-
-	BlockInfo::GetBlockTextureCoords(BTYPE_HELL, RIGHT, u, v, w, h);
-	glBegin(GL_QUADS);		// RIGHT
-	glNormal3f(-1, 0, 0);	// Normal X+
-	glTexCoord2f(u, v);	glVertex3f(0.5, -0.5, 0.5);
-	glTexCoord2f(u + w, v);	glVertex3f(0.5, -0.5, -0.5);
-	glTexCoord2f(u + w, v + h);	glVertex3f(0.5, 0.5, -0.5);
-	glTexCoord2f(u, v + h);	glVertex3f(0.5, 0.5, 0.5);
-	glEnd();
-
-	glDepthRange(0.0, 1.0);
-}
-
-void Engine::DrawHud(float elapsedTime) {
-	m_textureFont.Bind();
-	std::ostringstream ss;
-	Vector3f currentDirection = m_player.GetDirection();
-	ss << " DIRECTION : " << DirectionToString(currentDirection);
-	PrintText(10, Height() - 30, ss.str());
-	ss.str("");
-	ss << " FPS : " << GetFps(elapsedTime);
-	PrintText(10, Height() - 60, ss.str());
-	ss.str("");
-
-	Vector3f pos = m_player.GetPosition();
-	ss << (pos.x > 0 ? " CHUNK: ( X " : " CHUNK: ( X-") << (int)(pos.x / CHUNK_SIZE_X) << 
-		  (pos.z > 0 ? " | Z " : " | Z-") << (int)(pos.z / CHUNK_SIZE_Z) << " )";
-	PrintText(10, 80, ss.str());
-	ss.str("");
-
-	ss << (pos.x > 0 ? " BLOCK: ( X " : " BLOCK: ( X-") <<
-		abs((int)(pos.x) % CHUNK_SIZE_X) << (pos.y > 0 ? " | Y " : " | Y-") << 
-		abs((int)(pos.y) % CHUNK_SIZE_Y) << (pos.z > 0 ? " | Z " : " | Z-") <<
-		abs((int)(pos.z) % CHUNK_SIZE_Z) << " )";
-	PrintText(10, 50, ss.str());
-	ss.str("");
-
-	ss << (pos.x > 0 ? " GLOBAL: ( X " : " GLOBAL: ( X-") << std::fixed << std::setprecision(2) <<
-		abs(pos.x) << (pos.y > 0 ? " | Y " : " | Y-") <<
-		abs(pos.y) << (pos.z > 0 ? " | Z " : " | Z-") <<
-		abs(pos.z) << " )";
-	PrintText(10, 20, ss.str());
-	ss.str("");
 }
