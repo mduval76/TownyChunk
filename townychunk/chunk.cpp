@@ -3,7 +3,7 @@
 
 #include "chunk.h"
 
-Chunk::Chunk(IWorld* world, int x, int z) : m_blocks(CHUNK_SIZE_X, CHUNK_SIZE_Y, CHUNK_SIZE_Z), m_world(world), m_chunkXCoord(x), m_chunkZCoord(z), perlin(5, 4, 1, 2442) {
+Chunk::Chunk(IWorld* world, int x, int z) : m_blocks(CHUNK_SIZE_X, CHUNK_SIZE_Y, CHUNK_SIZE_Z), m_world(world), m_chunkXCoord(x), m_chunkZCoord(z), perlin(5, 4, 1, 3444443) {
 	m_blocks.Reset(BTYPE_AIR);
 
 	float posX = x * CHUNK_SIZE_X;

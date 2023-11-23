@@ -1,6 +1,6 @@
 #include "engine.h"
 
-Engine::Engine() : m_world(nullptr), m_player(Vector3f(SPAWN_X, CHUNK_SIZE_Y, SPAWN_Z)) {}
+Engine::Engine() : m_world(nullptr), m_player(Vector3f(SPAWN_X, CHUNK_SIZE_Y, SPAWN_Z)), m_currentBlock(Vector3f(0.0f, 0.0f, 0.0f)){}
 
 Engine::~Engine() {
 	delete m_world;
@@ -145,6 +145,7 @@ void Engine::Render(float elapsedTime) {
 	for (int i = 0; i < WORLD_SIZE_X; i++) {
 		for (int j = 0; j < WORLD_SIZE_Z; j++) {
 			Chunk* chunk = m_world->GetChunk(i, j);
+			bool dirty = chunk->IsDirty();
 			if (chunk->IsDirty()) {
 				chunk->Update();
 			}
@@ -528,17 +529,17 @@ void Engine::MouseMoveEvent(int x, int y) {
 }
 
 void Engine::MousePressEvent(const MOUSE_BUTTON& button, int x, int y) {
+	Chunk* currentChunk = m_world->ChunkAt((int)m_currentBlock.x, (int)m_currentBlock.y, (int)m_currentBlock.z);
+
 	switch (button) {
 		case MOUSE_BUTTON_LEFT:
 			if (m_currentBlock.x != -1) {
-				std::cout << "Current Block : " << m_currentBlock.x << " " << m_currentBlock.y << " " << m_currentBlock.z << std::endl;
-				Chunk* currentChunk = m_world->GetChunk(m_currentBlock.x / CHUNK_SIZE_X, m_currentBlock.z / CHUNK_SIZE_Z);
-				currentChunk->RemoveBlock(floor(m_currentBlock.x / CHUNK_SIZE_X),
-										  floor(m_currentBlock.y / CHUNK_SIZE_Y), 
-										  floor(m_currentBlock.z / CHUNK_SIZE_Z));
+				currentChunk->RemoveBlock((m_currentBlock.x / CHUNK_SIZE_X),
+										  (m_currentBlock.y / CHUNK_SIZE_Y), 
+										  (m_currentBlock.z / CHUNK_SIZE_Z));
 				currentChunk->Update();
 			}
-		break;
+			break;
 		default:
 			break;
 	}
@@ -579,6 +580,10 @@ void Engine::GetBlockAtCursor() {
 
 	bool found = false;
 
+	std::cout << "(GETBLOCKATCURSOR) Player Position : " << m_player.GetPosition().x << " " << m_player.GetPosition().y << " " << m_player.GetPosition().z << std::endl;
+	std::cout << "(GETBLOCKATCURSOR) Depth : " << winZ << std::endl;
+	std::cout << "(GETBLOCKATCURSOR) Hit Position : " << posX << " " << posY << " " << posZ << std::endl;
+
 	if ((m_player.GetPosition() - Vector3f((float)posX, (float)posY, (float)posZ)).Length() < MAX_SELECT_DISTANCE) {
 		// Apres avoir determine la position du bloc en utilisant la partie entiere du hit
 		// point retourne par opengl, on doit verifier de chaque cote du bloc trouve pour trouver
@@ -615,9 +620,10 @@ void Engine::GetBlockAtCursor() {
 		// Find on which face of the bloc we got an hit
 		m_currentFaceNormal.Zero();
 
-		const float epsilon = 0.01f;
+		const float epsilon = 0.005f;
 
 		// Front et back:
+		std::cout << "Player Y position : " << m_player.GetPosition().y << std::endl;
 		if (EqualWithEpsilon((float)posZ, (float)m_currentBlock.z, epsilon))
 			m_currentFaceNormal.z = -1;
 		else if (EqualWithEpsilon((float)posZ, (float)m_currentBlock.z + 1.f, epsilon))

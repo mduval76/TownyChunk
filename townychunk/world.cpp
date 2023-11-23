@@ -41,7 +41,7 @@ void World::CheckCollisions(Player& player, Vector3f& delta, bool front, bool ba
 		vel.y = 0.0f;
 		player.SetOnGround(true);
 	}
-	else {
+	else if (!IsBlocked(pos.x, pos.y - PLAYER_HEIGHT, pos.z)) {
 		player.SetOnGround(false);
 	}
 
@@ -52,9 +52,9 @@ void World::CheckCollisions(Player& player, Vector3f& delta, bool front, bool ba
 		delta.z = 0;
 	}
 
+	player.SetVelocity(vel);
 	pos += delta;
 	player.SetPosition(pos);
-	player.SetVelocity(vel);
 }
 
 bool World::IsBlocked(float x, float y, float z) {
@@ -88,7 +88,6 @@ BlockType World::BlockAt(int x, int y, int z, BlockType bt) const {
 	int by = static_cast<int>(std::floor(y)) % CHUNK_SIZE_Y;
 	int bz = static_cast<int>(std::floor(z)) % CHUNK_SIZE_Z;
 
-	// Correct for negative modulos
 	bx = (bx + CHUNK_SIZE_X) % CHUNK_SIZE_X;
 	by = (by + CHUNK_SIZE_Y) % CHUNK_SIZE_Y;
 	bz = (bz + CHUNK_SIZE_Z) % CHUNK_SIZE_Z;
