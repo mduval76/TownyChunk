@@ -148,6 +148,7 @@ bool Chunk::IsDirty() const {
 
 void Chunk::RemoveBlock(int x, int y, int z) {
 	m_blocks.Set(x, y, z, BTYPE_AIR);
+	m_isDirty = true;
 }
 
 int Chunk::GetChunkXCoord() const {

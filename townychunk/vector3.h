@@ -5,8 +5,7 @@
 #include <cmath>
 
 template <class T>
-class Vector3
-{
+class Vector3 {
 public:
 	Vector3();
 	Vector3(const T& x, const T& y, const T& z);
@@ -50,40 +49,30 @@ typedef Vector3<int> Vector3i;
 typedef Vector3<float> Vector3f;
 
 template <class T>
-inline std::ostream& operator<<(std::ostream& out, const Vector3<T>& v)
-{
+inline std::ostream& operator<<(std::ostream& out, const Vector3<T>& v) {
 	out << "[" << v.x << ", " << v.y << ", " << v.z << "]";
-    return out;
+	return out;
 }
 
 
 template <class T>
-Vector3<T>::Vector3()
-{
+Vector3<T>::Vector3() {}
+
+template <class T>
+Vector3<T>::Vector3(const T& x, const T& y, const T& z) : x(x), y(y), z(z) {}
+
+template <class T>
+Vector3<T>::~Vector3() {}
+
+template <class T>
+T Vector3<T>::Length() const {
+	return sqrt(x * x + y * y + z * z);
 }
 
 template <class T>
-Vector3<T>::Vector3(const T& x, const T& y, const T& z) : x(x), y(y), z(z)
-{
-}
-
-template <class T>
-Vector3<T>::~Vector3()
-{
-}
-
-template <class T>
-T Vector3<T>::Length() const
-{
-	return sqrt(x*x + y*y + z*z);
-}
-
-template <class T>
-void Vector3<T>::Normalize()
-{
+void Vector3<T>::Normalize() {
 	T len = Length();
-	if (len != 0)
-	{
+	if (len != 0) {
 		x /= len;
 		y /= len;
 		z /= len;
@@ -91,20 +80,17 @@ void Vector3<T>::Normalize()
 }
 
 template <class T>
-void Vector3<T>::Zero()
-{
+void Vector3<T>::Zero() {
 	x = y = z = 0;
 }
 
 template <class T>
-T Vector3<T>::Dot(const Vector3<T>& v) const
-{
+T Vector3<T>::Dot(const Vector3<T>& v) const {
 	return (x * v.x) + (y * v.y) + (z * v.z);
 }
 
 template <class T>
-Vector3<T> Vector3<T>::Cross(const Vector3<T>& v) const
-{
+Vector3<T> Vector3<T>::Cross(const Vector3<T>& v) const {
 	return Vector3<T>(
 		y * v.z - v.y * z,
 		z * v.x - v.z * x,
@@ -112,50 +98,42 @@ Vector3<T> Vector3<T>::Cross(const Vector3<T>& v) const
 }
 
 template <class T>
-Vector3<T> Vector3<T>::operator+(const Vector3<T>& v) const
-{
+Vector3<T> Vector3<T>::operator+(const Vector3<T>& v) const {
 	return Vector3<T>(x + v.x, y + v.y, z + v.z);
 }
 
 template <class T>
-Vector3<T> Vector3<T>::operator-(const Vector3<T>& v) const
-{
+Vector3<T> Vector3<T>::operator-(const Vector3<T>& v) const {
 	return Vector3<T>(x - v.x, y - v.y, z - v.z);
 }
 
 template <class T>
-Vector3<T> Vector3<T>::operator-() const
-{
+Vector3<T> Vector3<T>::operator-() const {
 	return Vector3<T>(-x, -y, -z);
 }
 
 template <class T>
-Vector3<T> Vector3<T>::operator+(const T& v) const
-{
+Vector3<T> Vector3<T>::operator+(const T& v) const {
 	return Vector3<T>(x + v, y + v, z + v);
 }
 
 template <class T>
-Vector3<T> Vector3<T>::operator-(const T& v) const
-{
+Vector3<T> Vector3<T>::operator-(const T& v) const {
 	return Vector3<T>(x - v, y - v, z - v);
 }
 
 template <class T>
-Vector3<T> Vector3<T>::operator/(const T& v) const
-{
+Vector3<T> Vector3<T>::operator/(const T& v) const {
 	return Vector3<T>(x / v, y / v, z / v);
 }
 
 template <class T>
-Vector3<T> Vector3<T>::operator*(const T& v) const
-{
+Vector3<T> Vector3<T>::operator*(const T& v) const {
 	return Vector3<T>(x * v, y * v, z * v);
 }
 
 template <class T>
-Vector3<T>& Vector3<T>::operator=(const Vector3<T>& v)
-{
+Vector3<T>& Vector3<T>::operator=(const Vector3<T>& v) {
 	if (this == &v) {
 		return *this;
 	}
@@ -166,56 +144,47 @@ Vector3<T>& Vector3<T>::operator=(const Vector3<T>& v)
 }
 
 template <class T>
-Vector3<T>& Vector3<T>::operator+=(const Vector3<T>& v)
-{
+Vector3<T>& Vector3<T>::operator+=(const Vector3<T>& v) {
 	return (*this = *this + v);
 }
 
 template <class T>
-Vector3<T>& Vector3<T>::operator-=(const Vector3<T>& v)
-{
+Vector3<T>& Vector3<T>::operator-=(const Vector3<T>& v) {
 	return (*this = *this - v);
 }
 
 template <class T>
-Vector3<T>& Vector3<T>::operator+=(const T& v)
-{
+Vector3<T>& Vector3<T>::operator+=(const T& v) {
 	return (*this = *this + v);
 }
 
 template <class T>
-Vector3<T>& Vector3<T>::operator-=(const T& v)
-{
+Vector3<T>& Vector3<T>::operator-=(const T& v) {
 	return (*this = *this - v);
 }
 
 template <class T>
-Vector3<T>& Vector3<T>::operator/=(const T& v)
-{
+Vector3<T>& Vector3<T>::operator/=(const T& v) {
 	return (*this = *this / v);
 }
 
 template <class T>
-Vector3<T>& Vector3<T>::operator*=(const T& v)
-{
+Vector3<T>& Vector3<T>::operator*=(const T& v) {
 	return (*this = *this * v);
 }
 
 template <class T>
-bool Vector3<T>::operator==(const Vector3<T>& v) const
-{
+bool Vector3<T>::operator==(const Vector3<T>& v) const {
 	return (x == v.x && y == v.y && z == v.z);
 }
 
 template <class T>
-bool Vector3<T>::operator!=(const Vector3<T>& v) const
-{
+bool Vector3<T>::operator!=(const Vector3<T>& v) const {
 	return !(*this == v);
 }
 
 template <class T>
-void Vector3<T>::Afficher() const
-{
+void Vector3<T>::Afficher() const {
 	std::cout << "[" << x << ", " << y << ", " << z << "]" << std::endl;
 }
 

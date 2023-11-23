@@ -35,11 +35,11 @@ void World::CheckCollisions(Player& player, Vector3f& delta, bool front, bool ba
 
 	// Y collisions
 	if (IsBlocked(pos.x, pos.y + delta.y, pos.z) ||
-		IsBlocked(pos.x, pos.y + delta.y - PLAYER_MIDDLE, pos.z) ||
-		IsBlocked(pos.x, pos.y + delta.y - PLAYER_HEIGHT, pos.z)) {
+		IsBlocked(pos.x, pos.y - PLAYER_MIDDLE + delta.y, pos.z) ||
+		IsBlocked(pos.x, pos.y - PLAYER_HEIGHT + delta.y, pos.z)) {
 		delta.y = 0;
-		player.SetOnGround(true);
 		vel.y = 0.0f;
+		player.SetOnGround(true);
 	}
 	else {
 		player.SetOnGround(false);

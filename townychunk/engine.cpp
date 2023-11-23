@@ -32,7 +32,6 @@ void Engine::Init() {
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LINE_SMOOTH);
 	glEnable(GL_CULL_FACE);
-	glEnable(GL_MULTISAMPLE);
 
 	// Light
 	GLfloat light0Pos[4] = { 0.0f, CHUNK_SIZE_Y, 0.0f, 1.0f };
@@ -175,7 +174,6 @@ void Engine::Render(float elapsedTime) {
 		DrawCrosshair();
 	}
 
-	
 	RemoveBlendFunction();
 
 	DrawBlock(elapsedTime);
@@ -291,11 +289,13 @@ void Engine::DrawArm() {
 void Engine::DrawBlock(float elapsedTime) {
 	Transformation t;
 	t.Push();
-
-	static float angle = 0.0f;
-	angle += (elapsedTime * 100);
+	static float angleX = 0.0f;
+	static float angleY = 0.0f;
+	angleX += (elapsedTime * 100);
+	angleY += (elapsedTime * 100);
 	t.ApplyTranslation(1.135f, -0.25, -5.5f);
-	t.ApplyRotation(angle, 0.0f, 1.0f, 0.0f);
+	t.ApplyRotation(angleX, 1.0f, 0.0f, 0.0f);
+	t.ApplyRotation(angleY, 0.0f, 1.0f, 0.0f);
 	t.Use();
 
 	m_textureAtlas.Bind();
@@ -327,19 +327,19 @@ void Engine::DrawBlock(float elapsedTime) {
 	BlockInfo::GetBlockTextureCoords(BTYPE_HELL, TOP, u, v, w, h);
 	glBegin(GL_QUADS);		// TOP	
 	glNormal3f(0, 1, 0);	// Normal Y+
-	glTexCoord2f(u, v);	glVertex3f(-0.5, 0.5, -0.5);
-	glTexCoord2f(u + w, v);	glVertex3f(0.5, 0.5, -0.5);
-	glTexCoord2f(u + w, v + h);	glVertex3f(0.5, 0.5, 0.5);
-	glTexCoord2f(u, v + h);	glVertex3f(-0.5, 0.5, 0.5);
+	glTexCoord2f(u, v);	glVertex3f(-0.5, -0.5, -0.5);
+	glTexCoord2f(u + w, v);	glVertex3f(0.5, -0.5, -0.5);
+	glTexCoord2f(u + w, v + h);	glVertex3f(0.5, -0.5, 0.5);
+	glTexCoord2f(u, v + h);	glVertex3f(-0.5, -0.5, 0.5);
 	glEnd();
 
 	BlockInfo::GetBlockTextureCoords(BTYPE_HELL, BOTTOM, u, v, w, h);
 	glBegin(GL_QUADS);		// BOTTOM
 	glNormal3f(0, -1, 0);	// Normal Y-
-	glTexCoord2f(u, v);	glVertex3f(-0.5, -0.5, -0.5);
-	glTexCoord2f(u + w, v);	glVertex3f(0.5, -0.5, -0.5);
-	glTexCoord2f(u + w, v + h);	glVertex3f(0.5, -0.5, 0.5);
-	glTexCoord2f(u, v + h);	glVertex3f(-0.5, -0.5, 0.5);
+	glTexCoord2f(u, v);	glVertex3f(-0.5, 0.5, -0.5);
+	glTexCoord2f(u + w, v);	glVertex3f(-0.5, 0.5, 0.5);
+	glTexCoord2f(u + w, v + h);	glVertex3f(0.5, 0.5, 0.5);
+	glTexCoord2f(u, v + h);	glVertex3f(0.5, 0.5, -0.5);
 	glEnd();
 
 	BlockInfo::GetBlockTextureCoords(BTYPE_HELL, LEFT, u, v, w, h);
@@ -361,6 +361,7 @@ void Engine::DrawBlock(float elapsedTime) {
 	glEnd();
 
 	glDepthRange(0.0, 1.0);
+
 	t.Pop();
 	t.Use();
 }
@@ -526,11 +527,27 @@ void Engine::MouseMoveEvent(int x, int y) {
 	CenterMouse();
 }
 
-void Engine::MousePressEvent(const MOUSE_BUTTON& button, int x, int y) {}
+void Engine::MousePressEvent(const MOUSE_BUTTON& button, int x, int y) {
+	switch (button) {
+		case MOUSE_BUTTON_LEFT:
+			if (m_currentBlock.x != -1) {
+				std::cout << "Current Block : " << m_currentBlock.x << " " << m_currentBlock.y << " " << m_currentBlock.z << std::endl;
+				Chunk* currentChunk = m_world->GetChunk(m_currentBlock.x / CHUNK_SIZE_X, m_currentBlock.z / CHUNK_SIZE_Z);
+				currentChunk->RemoveBlock(floor(m_currentBlock.x / CHUNK_SIZE_X),
+										  floor(m_currentBlock.y / CHUNK_SIZE_Y), 
+										  floor(m_currentBlock.z / CHUNK_SIZE_Z));
+				currentChunk->Update();
+			}
+		break;
+		default:
+			break;
+	}
+}
 
 void Engine::MouseReleaseEvent(const MOUSE_BUTTON& button, int x, int y) {}
 
 void Engine::GetBlockAtCursor() {
+	bool grounded = m_player.GetIsOnGround();
 	int x = Width() / 2;
 	int y = Height() / 2;
 
@@ -582,7 +599,7 @@ void Engine::GetBlockAtCursor() {
 						m_currentBlock.y = y;
 						m_currentBlock.z = z;
 
-						if (InRangeWithEpsilon((float)posX, (float)x, (float)x + 1.f, 0.05f) && InRangeWithEpsilon((float)posY, (float)y, (float)y + 1.f, 0.05f) && InRangeWithEpsilon((float)posZ, (float)z, (float)z + 1.f, 0.05f)) {
+						if (InRangeWithEpsilon((float)posX, (float)x, (float)x + 1.f, 0.005f) && InRangeWithEpsilon((float)posY, (float)y, (float)y + 1.f, 0.005f) && InRangeWithEpsilon((float)posZ, (float)z, (float)z + 1.f, 0.005f)) {
 							found = true;
 						}
 					}
@@ -598,7 +615,7 @@ void Engine::GetBlockAtCursor() {
 		// Find on which face of the bloc we got an hit
 		m_currentFaceNormal.Zero();
 
-		const float epsilon = 0.005f;
+		const float epsilon = 0.01f;
 
 		// Front et back:
 		if (EqualWithEpsilon((float)posZ, (float)m_currentBlock.z, epsilon))
