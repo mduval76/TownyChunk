@@ -207,6 +207,7 @@ bool Chunk::IsBlockFaceVisible(int x, int y, int z, BlockFace face) {
 
 void Chunk::SetBlock(int x, int y, int z, BlockType type) {
 	m_blocks.Set(x, y, z, type);
+	m_isDirty = true;
 }
 
 BlockType Chunk::GetBlock(int x, int y, int z) {

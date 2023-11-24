@@ -531,17 +531,26 @@ void Engine::MouseMoveEvent(int x, int y) {
 }
 
 void Engine::MousePressEvent(const MOUSE_BUTTON& button, int x, int y) {
+	if (m_currentBlock.x < 0)
+		return;
+
 	Chunk* currentChunk = m_world->ChunkAt((int)m_currentBlock.x, (int)m_currentBlock.y, (int)m_currentBlock.z);
+	BlockType bt = currentChunk->GetBlock((static_cast<int>(m_currentBlock.x) % CHUNK_SIZE_X) + m_currentFaceNormal.x,
+										  (static_cast<int>(m_currentBlock.y) % CHUNK_SIZE_Y) + m_currentFaceNormal.y,
+										  (static_cast<int>(m_currentBlock.z) % CHUNK_SIZE_Z) + m_currentFaceNormal.z);
 
 	switch (button) {
 		case MOUSE_BUTTON_LEFT:
-			if (m_currentBlock.x != -1) {
-				std::cout << "Trying to remove block at : " << m_currentBlock.x << " " << m_currentBlock.y << " " << m_currentBlock.z << std::endl;
-				currentChunk->RemoveBlock(static_cast<int>(m_currentBlock.x) % CHUNK_SIZE_X,
-										  static_cast<int>(m_currentBlock.y) % CHUNK_SIZE_Y,
-										  static_cast<int>(m_currentBlock.z) % CHUNK_SIZE_Z);
-				m_world->Update();
-			}
+			std::cout << "Trying to remove block at : " << m_currentBlock.x << " " << m_currentBlock.y << " " << m_currentBlock.z << std::endl;
+			currentChunk->RemoveBlock(static_cast<int>(m_currentBlock.x) % CHUNK_SIZE_X,
+				static_cast<int>(m_currentBlock.y) % CHUNK_SIZE_Y,
+				static_cast<int>(m_currentBlock.z) % CHUNK_SIZE_Z);
+			break;
+		case MOUSE_BUTTON_RIGHT:
+			std::cout << "Trying to add block at : " << m_currentBlock.x + m_currentFaceNormal.x << " " << m_currentBlock.y + m_currentFaceNormal.y << " " << m_currentBlock.z + m_currentFaceNormal.z << std::endl;
+			currentChunk->SetBlock((static_cast<int>(m_currentBlock.x) % CHUNK_SIZE_X) + m_currentFaceNormal.x,
+				(static_cast<int>(m_currentBlock.y) % CHUNK_SIZE_Y) + m_currentFaceNormal.y,
+				(static_cast<int>(m_currentBlock.z) % CHUNK_SIZE_Z) + m_currentFaceNormal.z, BTYPE_DIRT);
 			break;
 		default:
 			break;
@@ -619,7 +628,7 @@ void Engine::GetBlockAtCursor() {
 		// Find on which face of the bloc we got an hit
 		m_currentFaceNormal.Zero();
 
-		const float epsilon = 0.005f;
+		const float epsilon = 0.05f;
 
 		// Front et back:
 		if (EqualWithEpsilon((float)posZ, (float)m_currentBlock.z, epsilon))
