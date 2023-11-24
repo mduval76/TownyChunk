@@ -334,9 +334,10 @@ void Engine::DrawBlock(float elapsedTime) {
 	GLfloat cubeLightPos[4] = { 0.0f, 0.0f, 0.0f, 10.0f };
 	glLightfv(GL_LIGHT0, GL_POSITION, cubeLightPos);
 
-	float u, v, w, h;
-	BlockInfo::GetBlockTextureCoords(BTYPE_HELL, FRONT, u, v, w, h);
+	BlockType equippedItem = m_player.GetEquippedItem();
 
+	float u, v, w, h;
+	BlockInfo::GetBlockTextureCoords(equippedItem, FRONT, u, v, w, h);
 	glBegin(GL_QUADS);		// FRONT
 	glNormal3f(0, 0, -1);	// Normal Z-
 	glTexCoord2f(u, v);	glVertex3f(-0.5, -0.5, 0.5);
@@ -345,7 +346,7 @@ void Engine::DrawBlock(float elapsedTime) {
 	glTexCoord2f(u, v + h);	glVertex3f(-0.5, 0.5, 0.5);
 	glEnd();
 
-	BlockInfo::GetBlockTextureCoords(BTYPE_HELL, BACK, u, v, w, h);
+	BlockInfo::GetBlockTextureCoords(equippedItem, BACK, u, v, w, h);
 	glBegin(GL_QUADS);		// BACK
 	glNormal3f(0, 0, 1);	// Normal Z+
 	glTexCoord2f(u, v); glVertex3f(0.5, -0.5, -0.5);
@@ -354,7 +355,7 @@ void Engine::DrawBlock(float elapsedTime) {
 	glTexCoord2f(u, v + h); glVertex3f(0.5, 0.5, -0.5);
 	glEnd();
 
-	BlockInfo::GetBlockTextureCoords(BTYPE_HELL, TOP, u, v, w, h);
+	BlockInfo::GetBlockTextureCoords(equippedItem, TOP, u, v, w, h);
 	glBegin(GL_QUADS);		// TOP	
 	glNormal3f(0, 1, 0);	// Normal Y+
 	glTexCoord2f(u, v);	glVertex3f(-0.5, -0.5, -0.5);
@@ -363,7 +364,7 @@ void Engine::DrawBlock(float elapsedTime) {
 	glTexCoord2f(u, v + h);	glVertex3f(-0.5, -0.5, 0.5);
 	glEnd();
 
-	BlockInfo::GetBlockTextureCoords(BTYPE_HELL, BOTTOM, u, v, w, h);
+	BlockInfo::GetBlockTextureCoords(equippedItem, BOTTOM, u, v, w, h);
 	glBegin(GL_QUADS);		// BOTTOM
 	glNormal3f(0, -1, 0);	// Normal Y-
 	glTexCoord2f(u, v);	glVertex3f(-0.5, 0.5, -0.5);
@@ -372,7 +373,7 @@ void Engine::DrawBlock(float elapsedTime) {
 	glTexCoord2f(u, v + h);	glVertex3f(0.5, 0.5, -0.5);
 	glEnd();
 
-	BlockInfo::GetBlockTextureCoords(BTYPE_HELL, LEFT, u, v, w, h);
+	BlockInfo::GetBlockTextureCoords(equippedItem, LEFT, u, v, w, h);
 	glBegin(GL_QUADS);		// LEFT
 	glNormal3f(1, 0, 0);	// Normal X-
 	glTexCoord2f(u, v);	glVertex3f(-0.5, -0.5, -0.5);
@@ -381,7 +382,7 @@ void Engine::DrawBlock(float elapsedTime) {
 	glTexCoord2f(u, v + h);	glVertex3f(-0.5, 0.5, -0.5);
 	glEnd();
 
-	BlockInfo::GetBlockTextureCoords(BTYPE_HELL, RIGHT, u, v, w, h);
+	BlockInfo::GetBlockTextureCoords(equippedItem, RIGHT, u, v, w, h);
 	glBegin(GL_QUADS);		// RIGHT
 	glNormal3f(-1, 0, 0);	// Normal X+
 	glTexCoord2f(u, v);	glVertex3f(0.5, -0.5, 0.5);
@@ -558,6 +559,19 @@ void Engine::MouseMoveEvent(int x, int y) {
 }
 
 void Engine::MousePressEvent(const MOUSE_BUTTON& button, int x, int y) {
+	switch (button) {
+	case MOUSE_BUTTON_WHEEL_UP:
+		if (m_player.GetEquippedItem() < BTYPE_LAST - 1) {
+			m_player.SetEquippedItem(static_cast<BlockType>(m_player.GetEquippedItem() + 1));
+		}
+		return; 
+	case MOUSE_BUTTON_WHEEL_DOWN:
+		if (m_player.GetEquippedItem() > BTYPE_AIR + 1) {
+			m_player.SetEquippedItem(static_cast<BlockType>(m_player.GetEquippedItem() - 1));
+		}
+		return;
+	}
+
 	if (m_currentBlock.x < 0) {
 		std::cout << "X was < 0" << std::endl;
 		return;
@@ -569,13 +583,12 @@ void Engine::MousePressEvent(const MOUSE_BUTTON& button, int x, int y) {
 	int targetY = (static_cast<int>(m_currentBlock.y) % CHUNK_SIZE_Y) + m_currentFaceNormal.y;
 	int targetZ = (static_cast<int>(m_currentBlock.z) % CHUNK_SIZE_Z) + m_currentFaceNormal.z;
 
+	BlockType bt = currentChunk->GetBlock(targetX, targetY, targetZ);
+
 	int playerBlockX = static_cast<int>(m_player.GetPosition().x) % CHUNK_SIZE_X;
 	int playerBlockZ = static_cast<int>(m_player.GetPosition().z) % CHUNK_SIZE_Z;
 
-	BlockType bt = currentChunk->GetBlock(targetX, targetY, targetZ);
-
-
-	m_mouseTest = true;
+	BlockType equippedItem = m_player.GetEquippedItem();
 
 	switch (button) {
 		case MOUSE_BUTTON_LEFT:
@@ -590,7 +603,7 @@ void Engine::MousePressEvent(const MOUSE_BUTTON& button, int x, int y) {
 				std::cout << "Target block and Player block are on the same X or Z axis" << std::endl;
 				return;
 			}
-			currentChunk->SetBlock(targetX, targetY, targetZ, BTYPE_HELL);
+			currentChunk->SetBlock(targetX, targetY, targetZ, equippedItem);
 			std::cout << "Tried to add block at (" << targetX << ", " << targetY << ", " << targetZ << ")" << std::endl;
 			std::cout << "Block at this position was : " << static_cast<int>(bt) << std::endl;
 			break;
@@ -686,20 +699,19 @@ void Engine::GetBlockAtCursor() {
 		else if (EqualWithEpsilon((float)posY, (float)m_currentBlock.y + 1.f, epsilon))
 			m_currentFaceNormal.y = 1;
 	}
-	m_mouseTest = false;
 }
 
 bool Engine::EqualWithEpsilon(const float& val1, const float& val2, float epsilon) {
 	bool result = (fabs(val2 - val1) < epsilon);
 
-	std::cout << "EqualWithEpsilon result : " << result <<  " | fabs(val2 - val1) = " << fabs(val2 - val1) << std::endl;
+	//std::cout << "EqualWithEpsilon result : " << result <<  " | fabs(val2 - val1) = " << fabs(val2 - val1) << std::endl;
 	return result;
 }
 
 bool Engine::InRangeWithEpsilon(const float& val, const float& minVal, const float& maxVal, float epsilon) {
 	bool result = (val >= minVal - epsilon && val <= maxVal + epsilon);
 
-	std::cout << "InRangeWithEpsilon result : " << result << " | val = " << val << " | minVal = " << minVal << " | maxVal = " << maxVal << std::endl;
+	//std::cout << "InRangeWithEpsilon result : " << result << " | val = " << val << " | minVal = " << minVal << " | maxVal = " << maxVal << std::endl;
 	return result;
 }
 

@@ -51,8 +51,16 @@ void Player::SetOnGround(bool grounded) {
 	m_isOnGround = grounded;
 }
 
-void Player::SetEquippedItem(BlockType blockType) {
-	m_equippedItem = blockType;
+void Player::SetEquippedItem(BlockType targetType) {
+	if (targetType <= BTYPE_AIR) {
+		m_equippedItem = static_cast<BlockType>(BTYPE_AIR + 1);
+	}
+	else if (targetType >= BTYPE_LAST) {
+		m_equippedItem = static_cast<BlockType>(BTYPE_LAST - 1);
+	}
+	else {
+		m_equippedItem = targetType;
+	}
 }
 
 bool Player::GetIsOnGround() const {

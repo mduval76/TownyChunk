@@ -21,7 +21,7 @@ public:
 	void SetPosition(const Vector3f& position);
 	void SetVelocity(const Vector3f& velocity);
 	void SetOnGround(bool grounded);
-	void SetEquippedItem(BlockType blockType);
+	void SetEquippedItem(BlockType targetType);
 
 	Vector3f Move(bool front, bool back, bool left, bool right, bool up, float elapsedTime);
 
