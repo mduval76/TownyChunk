@@ -66,6 +66,7 @@ void Engine::LoadResource() {
 	TextureAtlas::TextureIndex texIdxHellZ = m_textureAtlas.AddTexture(TEXTURE_PATH "hell_z.png");
 	TextureAtlas::TextureIndex texIdxMarble = m_textureAtlas.AddTexture(TEXTURE_PATH "marble.png");
 	TextureAtlas::TextureIndex texIdxStone = m_textureAtlas.AddTexture(TEXTURE_PATH "stone.png");
+	TextureAtlas::TextureIndex texIdxGreen = m_textureAtlas.AddTexture(TEXTURE_PATH "green.png");
 
 	if (!m_textureAtlas.Generate(256, false)) {
 		std::cerr << "Unable to generate texture atlas..." << std::endl;
@@ -74,6 +75,7 @@ void Engine::LoadResource() {
 
 	std::map<BlockType, TextureAtlas::TextureIndex> btIndices;
 	btIndices[BTYPE_DIRT] = texIdxDirt;
+	btIndices[BTYPE_GREEN] = texIdxGreen;
 	btIndices[BTYPE_MARBLE] = texIdxMarble;
 	btIndices[BTYPE_STONE] = texIdxStone;
 
@@ -534,10 +536,11 @@ void Engine::MousePressEvent(const MOUSE_BUTTON& button, int x, int y) {
 	switch (button) {
 		case MOUSE_BUTTON_LEFT:
 			if (m_currentBlock.x != -1) {
-				currentChunk->RemoveBlock((m_currentBlock.x / CHUNK_SIZE_X),
-										  (m_currentBlock.y / CHUNK_SIZE_Y), 
-										  (m_currentBlock.z / CHUNK_SIZE_Z));
-				currentChunk->Update();
+				std::cout << "Trying to remove block at : " << m_currentBlock.x << " " << m_currentBlock.y << " " << m_currentBlock.z << std::endl;
+				currentChunk->RemoveBlock(static_cast<int>(m_currentBlock.x) % CHUNK_SIZE_X,
+										  static_cast<int>(m_currentBlock.y) % CHUNK_SIZE_Y,
+										  static_cast<int>(m_currentBlock.z) % CHUNK_SIZE_Z);
+				m_world->Update();
 			}
 			break;
 		default:
@@ -580,10 +583,6 @@ void Engine::GetBlockAtCursor() {
 
 	bool found = false;
 
-	std::cout << "(GETBLOCKATCURSOR) Player Position : " << m_player.GetPosition().x << " " << m_player.GetPosition().y << " " << m_player.GetPosition().z << std::endl;
-	std::cout << "(GETBLOCKATCURSOR) Depth : " << winZ << std::endl;
-	std::cout << "(GETBLOCKATCURSOR) Hit Position : " << posX << " " << posY << " " << posZ << std::endl;
-
 	if ((m_player.GetPosition() - Vector3f((float)posX, (float)posY, (float)posZ)).Length() < MAX_SELECT_DISTANCE) {
 		// Apres avoir determine la position du bloc en utilisant la partie entiere du hit
 		// point retourne par opengl, on doit verifier de chaque cote du bloc trouve pour trouver
@@ -623,7 +622,6 @@ void Engine::GetBlockAtCursor() {
 		const float epsilon = 0.005f;
 
 		// Front et back:
-		std::cout << "Player Y position : " << m_player.GetPosition().y << std::endl;
 		if (EqualWithEpsilon((float)posZ, (float)m_currentBlock.z, epsilon))
 			m_currentFaceNormal.z = -1;
 		else if (EqualWithEpsilon((float)posZ, (float)m_currentBlock.z + 1.f, epsilon))

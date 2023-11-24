@@ -40,6 +40,7 @@ void World::CheckCollisions(Player& player, Vector3f& delta, bool front, bool ba
 		delta.y = 0;
 		vel.y = 0.0f;
 		player.SetOnGround(true);
+		player.SetVelocity(vel);
 	}
 	else if (!IsBlocked(pos.x, pos.y - PLAYER_HEIGHT, pos.z)) {
 		player.SetOnGround(false);
