@@ -4,12 +4,12 @@ Player::Player(const Vector3f& position, float rotX, float rotY)
 	   : m_position(position),
 		 m_direction(0.0f, 0.0f, 0.0f),
 		 m_velocity(0.0f, 0.0f, 0.0f),
-		 m_rotation{ rotX, rotY },     
+		 m_rotation{ rotX, rotY },      
 		 m_rotX(rotX),
 		 m_rotY(rotY),
-		 m_jumpVelocity(10.0f),
+		 m_jumpVelocity(8.5f),
 		 m_isOnGround(false),
-		 m_isJumping(false) {}
+		 m_equippedItem(BTYPE_HELL) {}
 
 std::array<float, 2> Player::GetRotation() const {
 	return m_rotation;
@@ -35,6 +35,10 @@ Vector3f Player::GetDirection() {
 	return m_direction;
 }
 
+BlockType Player::GetEquippedItem() const {
+	return m_equippedItem;
+}
+
 void Player::SetPosition(const Vector3f& position) {
 	m_position = position;
 }
@@ -45,6 +49,10 @@ void Player::SetVelocity(const Vector3f& velocity) {
 
 void Player::SetOnGround(bool grounded) {
 	m_isOnGround = grounded;
+}
+
+void Player::SetEquippedItem(BlockType blockType) {
+	m_equippedItem = blockType;
 }
 
 bool Player::GetIsOnGround() const {
@@ -117,10 +125,6 @@ void Player::TurnTopBottom(float value) {
 
 	m_rotation[0] = m_rotX;
 	m_rotation[1] = m_rotY;
-}
-
-void Player::ResetYVelocity() {
-	m_velocity.y = 0.0f;
 }
 
 void Player::ApplyTransformation(Transformation& transformation, bool includeRotation) {

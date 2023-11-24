@@ -1,6 +1,11 @@
 #include "engine.h"
 
-Engine::Engine() : m_world(nullptr), m_player(Vector3f(SPAWN_X, CHUNK_SIZE_Y, SPAWN_Z)), m_currentBlock(Vector3f(0.0f, 0.0f, 0.0f)){}
+Engine::Engine() : 
+	m_world(nullptr), 
+	m_player(Vector3f(SPAWN_X, CHUNK_SIZE_Y, SPAWN_Z)), 
+	m_currentBlock(Vector3f(0.0f, 0.0f, 0.0f)),
+	m_monsterFace(1),
+	m_lastMonsterFaceChange(0.0f) {}
 
 Engine::~Engine() {
 	delete m_world;
@@ -46,6 +51,7 @@ void Engine::Init() {
 	glLightfv(GL_LIGHT0, GL_SPECULAR, light0Spec);
 
 	m_world = new World();
+	srand(static_cast<unsigned int>(time(0)));
 
 	CenterMouse();
 	HideCursor();
@@ -188,6 +194,7 @@ void Engine::Render(float elapsedTime) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	}
 
+	UpdateMonsterFace(elapsedTime);
 	GetBlockAtCursor();
 }
 
@@ -216,38 +223,49 @@ void Engine::RemoveBlendFunction() {
 }
 
 void Engine::DrawSkybox() {
-	m_textureMonster.Bind();
-	glBegin(GL_QUADS); // FRONT 
-	glNormal3f(0, 0, 1);
-	glTexCoord2f(0, 0); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
-	glTexCoord2f(1, 0); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
-	glTexCoord2f(1, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
-	glTexCoord2f(0, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
-	glEnd();
+	for (int face = 1; face <= 4; ++face) {
+		if (face == m_monsterFace) {
+			m_textureMonster.Bind();
+		}
+		else {
+			m_textureDark.Bind();
+		}
+
+		glBegin(GL_QUADS);
+		switch (face) {
+		case 1: // FRONT
+			glNormal3f(0, 0, 1);
+			glTexCoord2f(0, 0); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+			glTexCoord2f(1, 0); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+			glTexCoord2f(1, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+			glTexCoord2f(0, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+			break;
+		case 2: // RIGHT
+			glNormal3f(-1, 0, 0);
+			glTexCoord2f(0, 0); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+			glTexCoord2f(1, 0); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+			glTexCoord2f(1, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+			glTexCoord2f(0, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+			break;
+		case 3: // BACK
+			glNormal3f(0, 0, -1);
+			glTexCoord2f(0, 0); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+			glTexCoord2f(1, 0); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+			glTexCoord2f(1, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+			glTexCoord2f(0, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+			break;
+		case 4: // LEFT
+			glNormal3f(1, 0, 0);
+			glTexCoord2f(0, 0); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+			glTexCoord2f(1, 0); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+			glTexCoord2f(1, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+			glTexCoord2f(0, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+			break;
+		}
+		glEnd();
+	}
 
 	m_textureDark.Bind();
-	glBegin(GL_QUADS); // RIGHT
-	glTexCoord2f(0, 0); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
-	glTexCoord2f(1, 0); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
-	glTexCoord2f(1, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
-	glTexCoord2f(0, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
-	glEnd();
-
-	glBegin(GL_QUADS); // BACK
-	glNormal3f(0, 0, 1);
-	glTexCoord2f(0, 0); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
-	glTexCoord2f(0, 1); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
-	glTexCoord2f(1, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
-	glTexCoord2f(1, 0); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
-	glEnd();
-
-	glBegin(GL_QUADS); // LEFT
-	glTexCoord2f(0, 0); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
-	glTexCoord2f(1, 0); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
-	glTexCoord2f(1, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
-	glTexCoord2f(0, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
-	glEnd();
-
 	glBegin(GL_QUADS); // TOP
 	glTexCoord2f(0, 0); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
 	glTexCoord2f(1, 0); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
@@ -261,6 +279,15 @@ void Engine::DrawSkybox() {
 	glTexCoord2f(1, 1); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
 	glTexCoord2f(0, 1); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
 	glEnd();
+}
+
+void Engine::UpdateMonsterFace(float elapsedTime) {
+	m_lastMonsterFaceChange += elapsedTime;
+
+	if (m_lastMonsterFaceChange > 10.0f) {
+		m_lastMonsterFaceChange = 0.0f;
+		m_monsterFace = rand() % 4 + 1;
+	}
 }
 
 void Engine::DrawArm() {
@@ -531,26 +558,41 @@ void Engine::MouseMoveEvent(int x, int y) {
 }
 
 void Engine::MousePressEvent(const MOUSE_BUTTON& button, int x, int y) {
-	if (m_currentBlock.x < 0)
+	if (m_currentBlock.x < 0) {
+		std::cout << "X was < 0" << std::endl;
 		return;
+	}
 
 	Chunk* currentChunk = m_world->ChunkAt((int)m_currentBlock.x, (int)m_currentBlock.y, (int)m_currentBlock.z);
-	BlockType bt = currentChunk->GetBlock((static_cast<int>(m_currentBlock.x) % CHUNK_SIZE_X) + m_currentFaceNormal.x,
-										  (static_cast<int>(m_currentBlock.y) % CHUNK_SIZE_Y) + m_currentFaceNormal.y,
-										  (static_cast<int>(m_currentBlock.z) % CHUNK_SIZE_Z) + m_currentFaceNormal.z);
+
+	int targetX = (static_cast<int>(m_currentBlock.x) % CHUNK_SIZE_X) + m_currentFaceNormal.x;
+	int targetY = (static_cast<int>(m_currentBlock.y) % CHUNK_SIZE_Y) + m_currentFaceNormal.y;
+	int targetZ = (static_cast<int>(m_currentBlock.z) % CHUNK_SIZE_Z) + m_currentFaceNormal.z;
+
+	int playerBlockX = static_cast<int>(m_player.GetPosition().x) % CHUNK_SIZE_X;
+	int playerBlockZ = static_cast<int>(m_player.GetPosition().z) % CHUNK_SIZE_Z;
+
+	BlockType bt = currentChunk->GetBlock(targetX, targetY, targetZ);
+
+
+	m_mouseTest = true;
 
 	switch (button) {
 		case MOUSE_BUTTON_LEFT:
-			std::cout << "Trying to remove block at : " << m_currentBlock.x << " " << m_currentBlock.y << " " << m_currentBlock.z << std::endl;
 			currentChunk->RemoveBlock(static_cast<int>(m_currentBlock.x) % CHUNK_SIZE_X,
-				static_cast<int>(m_currentBlock.y) % CHUNK_SIZE_Y,
-				static_cast<int>(m_currentBlock.z) % CHUNK_SIZE_Z);
+									  static_cast<int>(m_currentBlock.y) % CHUNK_SIZE_Y,
+									  static_cast<int>(m_currentBlock.z) % CHUNK_SIZE_Z);
+
+			std::cout << "Tried to remove block at (" << m_currentBlock.x << ", " << m_currentBlock.y << ", " << m_currentBlock.z << ")" << std::endl;
 			break;
 		case MOUSE_BUTTON_RIGHT:
-			std::cout << "Trying to add block at : " << m_currentBlock.x + m_currentFaceNormal.x << " " << m_currentBlock.y + m_currentFaceNormal.y << " " << m_currentBlock.z + m_currentFaceNormal.z << std::endl;
-			currentChunk->SetBlock((static_cast<int>(m_currentBlock.x) % CHUNK_SIZE_X) + m_currentFaceNormal.x,
-				(static_cast<int>(m_currentBlock.y) % CHUNK_SIZE_Y) + m_currentFaceNormal.y,
-				(static_cast<int>(m_currentBlock.z) % CHUNK_SIZE_Z) + m_currentFaceNormal.z, BTYPE_DIRT);
+			if (bt != BTYPE_AIR || (targetX == playerBlockX && targetZ == playerBlockZ)) {
+				std::cout << "Target block and Player block are on the same X or Z axis" << std::endl;
+				return;
+			}
+			currentChunk->SetBlock(targetX, targetY, targetZ, BTYPE_HELL);
+			std::cout << "Tried to add block at (" << targetX << ", " << targetY << ", " << targetZ << ")" << std::endl;
+			std::cout << "Block at this position was : " << static_cast<int>(bt) << std::endl;
 			break;
 		default:
 			break;
@@ -612,7 +654,7 @@ void Engine::GetBlockAtCursor() {
 						m_currentBlock.y = y;
 						m_currentBlock.z = z;
 
-						if (InRangeWithEpsilon((float)posX, (float)x, (float)x + 1.f, 0.005f) && InRangeWithEpsilon((float)posY, (float)y, (float)y + 1.f, 0.005f) && InRangeWithEpsilon((float)posZ, (float)z, (float)z + 1.f, 0.005f)) {
+						if (InRangeWithEpsilon((float)posX, (float)x, (float)x + 1.f, 0.05f) && InRangeWithEpsilon((float)posY, (float)y, (float)y + 1.f, 0.05f) && InRangeWithEpsilon((float)posZ, (float)z, (float)z + 1.f, 0.05f)) {
 							found = true;
 						}
 					}
@@ -625,7 +667,7 @@ void Engine::GetBlockAtCursor() {
 		m_currentBlock.x = -1;
 	}
 	else {
-		// Find on which face of the bloc we got an hit
+		// Find on which face of the bloc we got a hit
 		m_currentFaceNormal.Zero();
 
 		const float epsilon = 0.05f;
@@ -644,14 +686,21 @@ void Engine::GetBlockAtCursor() {
 		else if (EqualWithEpsilon((float)posY, (float)m_currentBlock.y + 1.f, epsilon))
 			m_currentFaceNormal.y = 1;
 	}
+	m_mouseTest = false;
 }
 
 bool Engine::EqualWithEpsilon(const float& val1, const float& val2, float epsilon) {
-	return (fabs(val2 - val1) < epsilon);
+	bool result = (fabs(val2 - val1) < epsilon);
+
+	std::cout << "EqualWithEpsilon result : " << result <<  " | fabs(val2 - val1) = " << fabs(val2 - val1) << std::endl;
+	return result;
 }
 
 bool Engine::InRangeWithEpsilon(const float& val, const float& minVal, const float& maxVal, float epsilon) {
-	return (val >= minVal - epsilon && val <= maxVal + epsilon);
+	bool result = (val >= minVal - epsilon && val <= maxVal + epsilon);
+
+	std::cout << "InRangeWithEpsilon result : " << result << " | val = " << val << " | minVal = " << minVal << " | maxVal = " << maxVal << std::endl;
+	return result;
 }
 
 bool Engine::LoadTexture(Texture& texture, const std::string& filename, bool stopOnError) {

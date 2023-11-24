@@ -53,6 +53,8 @@ private:
     void DrawHud(float elapsedTime);
     void DrawSkybox();
 
+    void UpdateMonsterFace(float elapsedTime);
+
     void PrintText(unsigned int x, unsigned int y, const std::string& t);
 
 private:
@@ -60,7 +62,7 @@ private:
 
     BlockInfo* m_blockInfo[BTYPE_LAST];
 
-    Player m_player = Player(Vector3f(0.0f, 0.0f, 0.0f));
+    Player m_player;
 
     sf::Music m_music;
 
@@ -77,6 +79,9 @@ private:
     Vector3f m_currentBlock;
     Vector3f m_currentFaceNormal;
 
+    int m_monsterFace;
+    float m_lastMonsterFaceChange;
+
     bool m_wireframe = false;
 
     bool m_keyA = false;
@@ -86,6 +91,8 @@ private:
     bool m_keyS = false;
     bool m_keySpace = false;
     bool m_keyW = false;
+
+    bool m_mouseTest;
 };
 
 #endif // ENGINE_H__

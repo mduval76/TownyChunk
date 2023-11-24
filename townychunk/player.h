@@ -13,23 +13,26 @@ public:
 	Player(const Vector3f& position, float rotX = 0, float rotY = 0);
 
 	std::array<float, 2> GetRotation() const;
+	Vector3f GetDirection();
 	Vector3f GetPosition() const;
 	Vector3f GetVelocity() const;
-	Vector3f GetDirection();
+	BlockType GetEquippedItem() const;
+	bool GetIsOnGround() const;
 	void SetPosition(const Vector3f& position);
 	void SetVelocity(const Vector3f& velocity);
 	void SetOnGround(bool grounded);
-	bool GetIsOnGround() const;
+	void SetEquippedItem(BlockType blockType);
 
 	Vector3f Move(bool front, bool back, bool left, bool right, bool up, float elapsedTime);
 
 	void TurnLeftRight(float value);
 	void TurnTopBottom(float value);
 
-	void ResetYVelocity();
 	void ApplyTransformation(Transformation& transformation, bool includeRotation = true);
 
 private:
+	BlockType m_equippedItem;
+
 	Vector3f m_position;
 	Vector3f m_direction;
 	Vector3f m_velocity;
@@ -40,7 +43,6 @@ private:
 	float m_jumpVelocity;
 
 	bool m_isOnGround;
-	bool m_isJumping;
 };
 
 #endif // PLAYER_H__
