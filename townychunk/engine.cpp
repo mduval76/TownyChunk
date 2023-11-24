@@ -66,13 +66,29 @@ void Engine::LoadResource() {
 	LoadTexture(m_textureFont, TEXTURE_PATH "font.bmp");
 	LoadTexture(m_textureCrosshair, TEXTURE_PATH "cross.bmp");
 
-	TextureAtlas::TextureIndex texIdxDirt = m_textureAtlas.AddTexture(TEXTURE_PATH "dirt.png");
+	TextureAtlas::TextureIndex texIdxEmbossedBrown = m_textureAtlas.AddTexture(TEXTURE_PATH "embossed_brown.png");
+	TextureAtlas::TextureIndex texIdxEmbossedWhite = m_textureAtlas.AddTexture(TEXTURE_PATH "embossed_white.png");
+	TextureAtlas::TextureIndex texIdxCircle = m_textureAtlas.AddTexture(TEXTURE_PATH "circle.png");
+	TextureAtlas::TextureIndex texIdxDecoration = m_textureAtlas.AddTexture(TEXTURE_PATH "decoration.png");
+	TextureAtlas::TextureIndex texIdxMosaic = m_textureAtlas.AddTexture(TEXTURE_PATH "mosaic.png");
 	TextureAtlas::TextureIndex texIdxHellX = m_textureAtlas.AddTexture(TEXTURE_PATH "hell_x.png");
 	TextureAtlas::TextureIndex texIdxHellY = m_textureAtlas.AddTexture(TEXTURE_PATH "hell_y.png");
 	TextureAtlas::TextureIndex texIdxHellZ = m_textureAtlas.AddTexture(TEXTURE_PATH "hell_z.png");
-	TextureAtlas::TextureIndex texIdxMarble = m_textureAtlas.AddTexture(TEXTURE_PATH "marble.png");
-	TextureAtlas::TextureIndex texIdxStone = m_textureAtlas.AddTexture(TEXTURE_PATH "stone.png");
-	TextureAtlas::TextureIndex texIdxGreen = m_textureAtlas.AddTexture(TEXTURE_PATH "green.png");
+	TextureAtlas::TextureIndex texIdxBlack = m_textureAtlas.AddTexture(TEXTURE_PATH "black.png");
+	TextureAtlas::TextureIndex texIdxBrown = m_textureAtlas.AddTexture(TEXTURE_PATH "brown.png");
+	TextureAtlas::TextureIndex texIdxDarkBlue = m_textureAtlas.AddTexture(TEXTURE_PATH "dark_blue.png");
+	TextureAtlas::TextureIndex texIdxDarkGreen = m_textureAtlas.AddTexture(TEXTURE_PATH "dark_green.png");
+	TextureAtlas::TextureIndex texIdxDarkGrey = m_textureAtlas.AddTexture(TEXTURE_PATH "dark_grey.png");
+	TextureAtlas::TextureIndex texIdxLightBlue = m_textureAtlas.AddTexture(TEXTURE_PATH "light_blue.png");
+	TextureAtlas::TextureIndex texIdxLightGreen = m_textureAtlas.AddTexture(TEXTURE_PATH "light_green.png");
+	TextureAtlas::TextureIndex texIdxLightGrey = m_textureAtlas.AddTexture(TEXTURE_PATH "light_grey.png");
+	TextureAtlas::TextureIndex texIdxMagenta = m_textureAtlas.AddTexture(TEXTURE_PATH "magenta.png");
+	TextureAtlas::TextureIndex texIdxOrange = m_textureAtlas.AddTexture(TEXTURE_PATH "orange.png");
+	TextureAtlas::TextureIndex texIdxPink = m_textureAtlas.AddTexture(TEXTURE_PATH "pink.png");
+	TextureAtlas::TextureIndex texIdxPurple = m_textureAtlas.AddTexture(TEXTURE_PATH "purple.png");
+	TextureAtlas::TextureIndex texIdxRed = m_textureAtlas.AddTexture(TEXTURE_PATH "red.png");
+	TextureAtlas::TextureIndex texIdxWhite = m_textureAtlas.AddTexture(TEXTURE_PATH "white.png");
+	TextureAtlas::TextureIndex texIdxYellow = m_textureAtlas.AddTexture(TEXTURE_PATH "yellow.png");
 
 	if (!m_textureAtlas.Generate(256, false)) {
 		std::cerr << "Unable to generate texture atlas..." << std::endl;
@@ -80,10 +96,26 @@ void Engine::LoadResource() {
 	}
 
 	std::map<BlockType, TextureAtlas::TextureIndex> btIndices;
-	btIndices[BTYPE_DIRT] = texIdxDirt;
-	btIndices[BTYPE_GREEN] = texIdxGreen;
-	btIndices[BTYPE_MARBLE] = texIdxMarble;
-	btIndices[BTYPE_STONE] = texIdxStone;
+	btIndices[BTYPE_EMBOSSED_BROWN] = texIdxEmbossedBrown;
+	btIndices[BTYPE_EMBOSSED_WHITE] = texIdxEmbossedWhite;
+	btIndices[BTYPE_CIRCLE] = texIdxCircle;
+	btIndices[BTYPE_DECORATION] = texIdxDecoration;
+	btIndices[BTYPE_MOSAIC] = texIdxMosaic;
+	btIndices[BTYPE_BLACK] = texIdxBlack;
+	btIndices[BTYPE_BROWN] = texIdxBrown;
+	btIndices[BTYPE_DARKBLUE] = texIdxDarkBlue;
+	btIndices[BTYPE_DARKGREEN] = texIdxDarkGreen;
+	btIndices[BTYPE_DARKGREY] = texIdxDarkGrey;
+	btIndices[BTYPE_LIGHTBLUE] = texIdxLightBlue;
+	btIndices[BTYPE_LIGHTGREEN] = texIdxLightGreen;
+	btIndices[BTYPE_LIGHTGREY] = texIdxLightGrey;
+	btIndices[BTYPE_MAGENTA] = texIdxMagenta;
+	btIndices[BTYPE_ORANGE] = texIdxOrange;
+	btIndices[BTYPE_PINK] = texIdxPink;
+	btIndices[BTYPE_PURPLE] = texIdxPurple;
+	btIndices[BTYPE_RED] = texIdxRed;
+	btIndices[BTYPE_WHITE] = texIdxWhite;
+	btIndices[BTYPE_YELLOW] = texIdxYellow;
 
 	// Single texture for all faces
 	for (auto& pair : btIndices) {
@@ -173,7 +205,10 @@ void Engine::Render(float elapsedTime) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	
 	AddBlendFunction();
-	DrawArm();
+
+	if (m_keyR) {
+		DrawArm();
+	}
 
 	if (m_keyI) {
 		DrawHud(elapsedTime);
@@ -185,7 +220,9 @@ void Engine::Render(float elapsedTime) {
 
 	RemoveBlendFunction();
 
-	DrawBlock(elapsedTime);
+	if (m_keyR) {
+		DrawBlock(elapsedTime);
+	}
 
 	t.Pop();
 	t.Use();
@@ -496,6 +533,9 @@ void Engine::KeyPressEvent(unsigned char key) {
 	case 8: // ( INFO ) I
 		m_keyI = !m_keyI;
 		break;
+	case 17: // ( ARM ) R
+		m_keyR = !m_keyR;
+		break;
 	case 18: // ( RIGHT ) S
 		m_keyS = true;
 		break;
@@ -577,13 +617,16 @@ void Engine::MousePressEvent(const MOUSE_BUTTON& button, int x, int y) {
 		return;
 	}
 
-	Chunk* currentChunk = m_world->ChunkAt((int)m_currentBlock.x, (int)m_currentBlock.y, (int)m_currentBlock.z);
+	Chunk* currentChunk = m_world->ChunkAt(static_cast<int>(m_currentBlock.x), static_cast<int>(m_currentBlock.y), static_cast<int>(m_currentBlock.z));
 
 	int targetX = (static_cast<int>(m_currentBlock.x) % CHUNK_SIZE_X) + m_currentFaceNormal.x;
 	int targetY = (static_cast<int>(m_currentBlock.y) % CHUNK_SIZE_Y) + m_currentFaceNormal.y;
 	int targetZ = (static_cast<int>(m_currentBlock.z) % CHUNK_SIZE_Z) + m_currentFaceNormal.z;
 
-	BlockType bt = currentChunk->GetBlock(targetX, targetY, targetZ);
+	BlockType addBt = currentChunk->GetBlock(targetX, targetY, targetZ);
+	BlockType removeBt = currentChunk->GetBlock(static_cast<int>(m_currentBlock.x) % CHUNK_SIZE_X,
+												static_cast<int>(m_currentBlock.y) % CHUNK_SIZE_Y, 
+												static_cast<int>(m_currentBlock.z) % CHUNK_SIZE_Z);
 
 	int playerBlockX = static_cast<int>(m_player.GetPosition().x) % CHUNK_SIZE_X;
 	int playerBlockZ = static_cast<int>(m_player.GetPosition().z) % CHUNK_SIZE_Z;
@@ -592,20 +635,23 @@ void Engine::MousePressEvent(const MOUSE_BUTTON& button, int x, int y) {
 
 	switch (button) {
 		case MOUSE_BUTTON_LEFT:
-			currentChunk->RemoveBlock(static_cast<int>(m_currentBlock.x) % CHUNK_SIZE_X,
-									  static_cast<int>(m_currentBlock.y) % CHUNK_SIZE_Y,
-									  static_cast<int>(m_currentBlock.z) % CHUNK_SIZE_Z);
+			if (removeBt != BTYPE_AIR) {
+				currentChunk->RemoveBlock(static_cast<int>(m_currentBlock.x) % CHUNK_SIZE_X,
+										  static_cast<int>(m_currentBlock.y) % CHUNK_SIZE_Y,
+										  static_cast<int>(m_currentBlock.z) % CHUNK_SIZE_Z);
+			}
 
-			std::cout << "Tried to remove block at (" << m_currentBlock.x << ", " << m_currentBlock.y << ", " << m_currentBlock.z << ")" << std::endl;
+			std::cout << "Tried removing block at (" << m_currentBlock.x << ", " << m_currentBlock.y << ", " << m_currentBlock.z << ")" << std::endl;
+			std::cout << "Block at removing position was : " << static_cast<int>(removeBt) << std::endl;
 			break;
 		case MOUSE_BUTTON_RIGHT:
-			if (bt != BTYPE_AIR || (targetX == playerBlockX && targetZ == playerBlockZ)) {
+			if (addBt != BTYPE_AIR || (targetX == playerBlockX && targetZ == playerBlockZ)) {
 				std::cout << "Target block and Player block are on the same X or Z axis" << std::endl;
 				return;
 			}
 			currentChunk->SetBlock(targetX, targetY, targetZ, equippedItem);
-			std::cout << "Tried to add block at (" << targetX << ", " << targetY << ", " << targetZ << ")" << std::endl;
-			std::cout << "Block at this position was : " << static_cast<int>(bt) << std::endl;
+			std::cout << "Tried adding block at (" << targetX << ", " << targetY << ", " << targetZ << ")" << std::endl;
+			std::cout << "Block at adding position was : " << static_cast<int>(addBt) << std::endl;
 			break;
 		default:
 			break;
