@@ -44,8 +44,8 @@ private:
     static bool EqualWithEpsilon(const float& val1, const float& val2, float epsilon = 0.0001f);
     static bool InRangeWithEpsilon(const float& val, const float& minVal, const float& maxVal, float epsilon = 0.0001f);
 
-    void AddBlendFunction();
-    void RemoveBlendFunction();
+    void AddBlendFunction(bool isOrtho);
+    void RemoveBlendFunction(bool isOrtho);
 
     void DrawArm();
     void DrawCrosshair();
@@ -79,10 +79,17 @@ private:
     Vector3f m_currentBlock;
     Vector3f m_currentFaceNormal;
 
+    bool m_monsterFadeIn = false;
+    bool m_monsterFadeOut = false;
     int m_monsterFace;
+    float m_monsterAlpha;
+    float m_monsterFadeTime;
+    float m_monsterVisibleTime;
+    float m_monsterInvisibleTime;
     float m_lastMonsterFaceChange;
 
     bool m_wireframe = false;
+    bool m_isOrtho = false;
 
     bool m_keyA = false;
     bool m_keyC = true;

@@ -22,6 +22,32 @@ Chunk* World::GetChunk(int x, int z) const {
 	return m_chunks.Get(x, z);
 }
 
+void World::SetDirtyChunk(Chunk* chunk, int blockX, int blockY, int blockZ) {
+	int localX = blockX % CHUNK_SIZE_X;
+	int localZ = blockZ % CHUNK_SIZE_Z;
+
+	int chunkX = chunk->GetChunkXCoord();
+	int chunkZ = chunk->GetChunkZCoord();
+
+	if (localX == 0 && chunkX > 0) {
+		Chunk* adjacentChunk = GetChunk(chunkX - 1, chunkZ);
+		if (adjacentChunk) adjacentChunk->SetIsDirty();
+	}
+	if (localX == CHUNK_SIZE_X - 1) {
+		Chunk* adjacentChunk = GetChunk(chunkX + 1, chunkZ);
+		if (adjacentChunk) adjacentChunk->SetIsDirty();
+	}
+
+	if (localZ == 0 && chunkZ > 0) {
+		Chunk* adjacentChunk = GetChunk(chunkX, chunkZ - 1);
+		if (adjacentChunk) adjacentChunk->SetIsDirty();
+	}
+	if (localZ == CHUNK_SIZE_Z - 1) {
+		Chunk* adjacentChunk = GetChunk(chunkX, chunkZ + 1);
+		if (adjacentChunk) adjacentChunk->SetIsDirty();
+	}
+}
+
 void World::CheckCollisions(Player& player, Vector3f& delta, bool front, bool back, bool left, bool right, bool up, float elapsedTime) {
 	Vector3f pos = player.GetPosition();
 	Vector3f vel = player.GetVelocity();

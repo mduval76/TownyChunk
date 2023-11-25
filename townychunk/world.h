@@ -14,6 +14,7 @@ public:
     ~World();
 
     Chunk* GetChunk(int x, int z) const override;
+    void SetDirtyChunk(Chunk* chunk, int blockX, int blockY, int blockZ);
     void CheckCollisions(Player& player, Vector3f& delta, bool front, bool back, bool left, bool right, bool up, float elapsedTime);
     bool IsBlocked(float x, float y, float z);
     Chunk* ChunkAt(int x, int y, int z) const;

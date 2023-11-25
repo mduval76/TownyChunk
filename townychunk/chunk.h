@@ -16,6 +16,7 @@ public:
 
 	BlockType GetBlock(int x, int y, int z);
 	void SetBlock(int x, int y, int z, BlockType type);
+	void SetIsDirty();
 	void RemoveBlock(int x, int y, int z);
 
 	int GetChunkXCoord() const;

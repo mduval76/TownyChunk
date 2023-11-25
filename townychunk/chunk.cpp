@@ -16,10 +16,10 @@ Chunk::Chunk(IWorld* world, int x, int z) : m_blocks(CHUNK_SIZE_X, CHUNK_SIZE_Y,
 
 			for (int y = 0; y < val; ++y) {
 				if (val < 15) {
-					SetBlock(x, y, z, BTYPE_CIRCLE);
+					SetBlock(x, y, z, BTYPE_EMBOSSED_BROWN);
 				}
 				else if (val >= 15 && val < 30) {
-					SetBlock(x, y, z, BTYPE_EMBOSSED_BROWN);
+					SetBlock(x, y, z, BTYPE_CIRCLE);
 				}
 				else if (val >= 30 && val < 45) {
 					SetBlock(x, y, z, BTYPE_HELL);
@@ -144,6 +144,10 @@ void Chunk::Render() const {
 
 bool Chunk::IsDirty() const {
 	return m_isDirty;
+}
+
+void Chunk::SetIsDirty() {
+	m_isDirty = true;
 }
 
 void Chunk::RemoveBlock(int x, int y, int z) {

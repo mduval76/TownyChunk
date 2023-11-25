@@ -5,7 +5,11 @@ Engine::Engine() :
 	m_player(Vector3f(SPAWN_X, CHUNK_SIZE_Y, SPAWN_Z)), 
 	m_currentBlock(Vector3f(0.0f, 0.0f, 0.0f)),
 	m_monsterFace(1),
-	m_lastMonsterFaceChange(0.0f) {}
+	m_monsterAlpha(0.0f),
+	m_monsterFadeTime(3.0f),
+	m_monsterVisibleTime(10.0f),
+	m_monsterInvisibleTime(0.0f),
+	m_lastMonsterFaceChange(0.0f){}
 
 Engine::~Engine() {
 	delete m_world;
@@ -61,7 +65,7 @@ void Engine::DeInit() {}
 
 void Engine::LoadResource() {
 	LoadTexture(m_textureArm, TEXTURE_PATH "arm.png");
-	LoadTexture(m_textureMonster, TEXTURE_PATH "monster.jpg");
+	LoadTexture(m_textureMonster, TEXTURE_PATH "monster.png");
 	LoadTexture(m_textureDark, TEXTURE_PATH "darkness.jpg");
 	LoadTexture(m_textureFont, TEXTURE_PATH "font.bmp");
 	LoadTexture(m_textureCrosshair, TEXTURE_PATH "cross.bmp");
@@ -70,6 +74,7 @@ void Engine::LoadResource() {
 	TextureAtlas::TextureIndex texIdxEmbossedWhite = m_textureAtlas.AddTexture(TEXTURE_PATH "embossed_white.png");
 	TextureAtlas::TextureIndex texIdxCircle = m_textureAtlas.AddTexture(TEXTURE_PATH "circle.png");
 	TextureAtlas::TextureIndex texIdxDecoration = m_textureAtlas.AddTexture(TEXTURE_PATH "decoration.png");
+	TextureAtlas::TextureIndex texIdxDirt = m_textureAtlas.AddTexture(TEXTURE_PATH "dirt.png");
 	TextureAtlas::TextureIndex texIdxMosaic = m_textureAtlas.AddTexture(TEXTURE_PATH "mosaic.png");
 	TextureAtlas::TextureIndex texIdxHellX = m_textureAtlas.AddTexture(TEXTURE_PATH "hell_x.png");
 	TextureAtlas::TextureIndex texIdxHellY = m_textureAtlas.AddTexture(TEXTURE_PATH "hell_y.png");
@@ -100,6 +105,7 @@ void Engine::LoadResource() {
 	btIndices[BTYPE_EMBOSSED_WHITE] = texIdxEmbossedWhite;
 	btIndices[BTYPE_CIRCLE] = texIdxCircle;
 	btIndices[BTYPE_DECORATION] = texIdxDecoration;
+	btIndices[BTYPE_DIRT] = texIdxDirt;
 	btIndices[BTYPE_MOSAIC] = texIdxMosaic;
 	btIndices[BTYPE_BLACK] = texIdxBlack;
 	btIndices[BTYPE_BROWN] = texIdxBrown;
@@ -199,12 +205,17 @@ void Engine::Render(float elapsedTime) {
 	t.ApplyTranslation(m_player.GetPosition().x, m_player.GetPosition().y, m_player.GetPosition().z);
 	t.Use();
 
+	AddBlendFunction(false);
+
+	UpdateMonsterFace(elapsedTime);
 	DrawSkybox();
+
+	RemoveBlendFunction(false);
 
 	if (m_wireframe)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	
-	AddBlendFunction();
+
+	AddBlendFunction(true);
 
 	if (m_keyR) {
 		DrawArm();
@@ -218,7 +229,7 @@ void Engine::Render(float elapsedTime) {
 		DrawCrosshair();
 	}
 
-	RemoveBlendFunction();
+	RemoveBlendFunction(true);
 
 	if (m_keyR) {
 		DrawBlock(elapsedTime);
@@ -230,29 +241,45 @@ void Engine::Render(float elapsedTime) {
 	if (m_wireframe) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	}
-
-	UpdateMonsterFace(elapsedTime);
 	GetBlockAtCursor();
 }
 
-void Engine::AddBlendFunction() {
+void Engine::AddBlendFunction(bool isOrtho) {
 	glDisable(GL_LIGHTING);
-	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 	glEnable(GL_BLEND);
-	glDisable(GL_DEPTH_TEST);
+
+	if (!isOrtho) {
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
+	else {
+		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+		glDisable(GL_DEPTH_TEST);
+	}
+
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glLoadIdentity();
-	glOrtho(0, Width(), 0, Height(), -1, 1);
+
+	if (!isOrtho) {
+		gluPerspective(45.0f, (float)Width() / (float)Height(), 0.0001f, 1000.0f);
+	}
+	else {
+		glOrtho(0, Width(), 0, Height(), -1, 1);
+	}
+
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 }
 
-void Engine::RemoveBlendFunction() {
+void Engine::RemoveBlendFunction(bool isOrtho) {
 	glEnable(GL_LIGHTING);
 	glDisable(GL_BLEND);
-	glEnable(GL_DEPTH_TEST);
+
+	if (isOrtho) {
+		glEnable(GL_DEPTH_TEST);
+	}
+
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
@@ -260,45 +287,49 @@ void Engine::RemoveBlendFunction() {
 }
 
 void Engine::DrawSkybox() {
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	for (int face = 1; face <= 4; ++face) {
 		if (face == m_monsterFace) {
-			m_textureMonster.Bind();
+			m_textureMonster.Bind(); 
 		}
 		else {
 			m_textureDark.Bind();
 		}
 
+		glColor4f(1.0, 1.0, 1.0, m_monsterAlpha);
 		glBegin(GL_QUADS);
 		switch (face) {
-		case 1: // FRONT
-			glNormal3f(0, 0, 1);
-			glTexCoord2f(0, 0); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
-			glTexCoord2f(1, 0); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
-			glTexCoord2f(1, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
-			glTexCoord2f(0, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
-			break;
-		case 2: // RIGHT
-			glNormal3f(-1, 0, 0);
-			glTexCoord2f(0, 0); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
-			glTexCoord2f(1, 0); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
-			glTexCoord2f(1, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
-			glTexCoord2f(0, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
-			break;
-		case 3: // BACK
-			glNormal3f(0, 0, -1);
-			glTexCoord2f(0, 0); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
-			glTexCoord2f(1, 0); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
-			glTexCoord2f(1, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
-			glTexCoord2f(0, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
-			break;
-		case 4: // LEFT
-			glNormal3f(1, 0, 0);
-			glTexCoord2f(0, 0); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
-			glTexCoord2f(1, 0); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
-			glTexCoord2f(1, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
-			glTexCoord2f(0, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
-			break;
-		}
+			case 1: // FRONT
+				glNormal3f(0, 0, 1);
+				glTexCoord2f(0, 0); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+				glTexCoord2f(1, 0); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+				glTexCoord2f(1, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+				glTexCoord2f(0, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+				break;
+			case 2: // RIGHT
+				glNormal3f(-1, 0, 0);
+				glTexCoord2f(0, 0); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+				glTexCoord2f(1, 0); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+				glTexCoord2f(1, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+				glTexCoord2f(0, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+				break;
+			case 3: // BACK
+				glNormal3f(0, 0, -1);
+				glTexCoord2f(0, 0); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+				glTexCoord2f(1, 0); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+				glTexCoord2f(1, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+				glTexCoord2f(0, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+				break;
+			case 4: // LEFT
+				glNormal3f(1, 0, 0);
+				glTexCoord2f(0, 0); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+				glTexCoord2f(1, 0); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+				glTexCoord2f(1, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+				glTexCoord2f(0, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+				break;
+			}
 		glEnd();
 	}
 
@@ -316,16 +347,45 @@ void Engine::DrawSkybox() {
 	glTexCoord2f(1, 1); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
 	glTexCoord2f(0, 1); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
 	glEnd();
+
+	glDisable(GL_BLEND);
 }
-
 void Engine::UpdateMonsterFace(float elapsedTime) {
-	m_lastMonsterFaceChange += elapsedTime;
-
-	if (m_lastMonsterFaceChange > 10.0f) {
-		m_lastMonsterFaceChange = 0.0f;
-		m_monsterFace = rand() % 4 + 1;
+	if (m_monsterFadeIn) {
+		m_monsterAlpha += elapsedTime / m_monsterFadeTime;
+		if (m_monsterAlpha >= 1.0f) {
+			m_monsterAlpha = 1.0f;
+			m_monsterFadeIn = false;
+			m_monsterVisibleTime = 10.0f;
+		}
+	}
+	else if (m_monsterVisibleTime > 0.0f) {
+		m_monsterVisibleTime -= elapsedTime;
+		if (m_monsterVisibleTime <= 0.0f) {
+			m_monsterFadeOut = true;
+		}
+	}
+	else if (m_monsterFadeOut) {
+		m_monsterAlpha -= elapsedTime / m_monsterFadeTime;
+		if (m_monsterAlpha <= 0.0f) {
+			m_monsterAlpha = 0.0f;
+			m_monsterFadeOut = false;
+			m_monsterInvisibleTime = 5 + rand() % 16;
+		}
+	}
+	else if (m_monsterInvisibleTime > 0.0f) {
+		m_monsterInvisibleTime -= elapsedTime;
+		if (m_monsterInvisibleTime <= 0.0f) {
+			int newFace;
+			do {
+				newFace = rand() % 4 + 1;
+			} while (newFace == m_monsterFace);
+			m_monsterFace = newFace;
+			m_monsterFadeIn = true;
+		}
 	}
 }
+
 
 void Engine::DrawArm() {
 	float armWidth = Width() * 0.33f;
@@ -639,6 +699,8 @@ void Engine::MousePressEvent(const MOUSE_BUTTON& button, int x, int y) {
 				currentChunk->RemoveBlock(static_cast<int>(m_currentBlock.x) % CHUNK_SIZE_X,
 										  static_cast<int>(m_currentBlock.y) % CHUNK_SIZE_Y,
 										  static_cast<int>(m_currentBlock.z) % CHUNK_SIZE_Z);
+
+				m_world->SetDirtyChunk(currentChunk, m_currentBlock.x, m_currentBlock.y, m_currentBlock.z);
 			}
 
 			std::cout << "Tried removing block at (" << m_currentBlock.x << ", " << m_currentBlock.y << ", " << m_currentBlock.z << ")" << std::endl;
