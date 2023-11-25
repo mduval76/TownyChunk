@@ -6,7 +6,7 @@ Engine::Engine() :
 	m_currentBlock(Vector3f(0.0f, 0.0f, 0.0f)),
 	m_monsterFace(1),
 	m_monsterAlpha(0.0f),
-	m_monsterFadeTime(3.0f),
+	m_monsterFadeTime(1.0f),
 	m_monsterVisibleTime(10.0f),
 	m_monsterInvisibleTime(0.0f),
 	m_lastMonsterFaceChange(0.0f){}
@@ -66,6 +66,7 @@ void Engine::DeInit() {}
 void Engine::LoadResource() {
 	LoadTexture(m_textureArm, TEXTURE_PATH "arm.png");
 	LoadTexture(m_textureMonster, TEXTURE_PATH "monster.png");
+	LoadTexture(m_textureMonsterEyes, TEXTURE_PATH "monster_eyes.png");
 	LoadTexture(m_textureDark, TEXTURE_PATH "darkness.jpg");
 	LoadTexture(m_textureFont, TEXTURE_PATH "font.bmp");
 	LoadTexture(m_textureCrosshair, TEXTURE_PATH "cross.bmp");
@@ -709,6 +710,9 @@ void Engine::MousePressEvent(const MOUSE_BUTTON& button, int x, int y) {
 		case MOUSE_BUTTON_RIGHT:
 			if (addBt != BTYPE_AIR || (targetX == playerBlockX && targetZ == playerBlockZ)) {
 				std::cout << "Target block and Player block are on the same X or Z axis" << std::endl;
+				std::cout << "Target block positions were : (" << targetX << ", " << targetY << ", " << targetZ << ")" << std::endl;
+				std::cout << "Player position was : (" << m_player.GetPosition().x << ", " << m_player.GetPosition().y << ", " << m_player.GetPosition().z << ")" << std::endl;
+				std::cout << "Player block positions were : (" << playerBlockX << ", " << playerBlockZ << ")" << std::endl;
 				return;
 			}
 			currentChunk->SetBlock(targetX, targetY, targetZ, equippedItem);
