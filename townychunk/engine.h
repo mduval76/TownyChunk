@@ -67,6 +67,7 @@ private:
     sf::Music m_music;
 
     Shader m_shader01;
+    Shader m_particleShader;
 
     Texture m_textureCrosshair;
     Texture m_textureDark;
