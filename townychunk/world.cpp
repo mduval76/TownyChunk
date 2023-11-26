@@ -23,8 +23,6 @@ Chunk* World::GetChunk(int x, int z) const {
 }
 
 void World::SetDirtyChunk(Chunk* chunk, int blockX, int blockY, int blockZ) {
-
-
 	if (blockX == 0 || blockX == (WORLD_SIZE_X * CHUNK_SIZE_X) - 1 || blockZ == 0 || blockZ == (WORLD_SIZE_Z * CHUNK_SIZE_Z) - 1) {
 		return;
 	}

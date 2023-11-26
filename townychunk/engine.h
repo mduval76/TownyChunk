@@ -7,6 +7,7 @@
 #include "chunk.h"
 #include "openglcontext.h"
 #include "player.h"
+#include "monster.h"
 #include "shader.h"
 #include "texture.h"
 #include "textureatlas.h"
@@ -53,8 +54,6 @@ private:
     void DrawFaceWithMonster(int face);
     void DrawSkybox();
 
-    void UpdateMonsterFace(float elapsedTime);
-
     void PrintText(unsigned int x, unsigned int y, const std::string& t);
 
 private:
@@ -63,6 +62,8 @@ private:
     BlockInfo* m_blockInfo[BTYPE_LAST];
 
     Player m_player;
+
+    Monster m_monster;
 
     sf::Music m_music;
 
@@ -81,23 +82,6 @@ private:
     Vector3f m_currentBlock;
     Vector3f m_currentFaceNormal;
 
-    bool m_monsterFadeIn = false;
-    bool m_monsterFadeOut = false;
-    bool m_monsterEyesFadeIn = false;
-    bool m_monsterEyesFadeOut = false;
-
-    int m_monsterFace;
-
-    float m_monsterAlpha;
-    float m_monsterFadeTime;
-    float m_monsterVisibleTime;
-    float m_monsterInvisibleTime;
-
-    float m_monsterEyesAlpha;
-    float m_monsterEyesFadeTime;
-    float m_monsterEyesVisibleTime;
-    float m_monsterEyesInvisibleTime;
-
     bool m_wireframe = false;
     bool m_isOrtho = false;
 
@@ -109,8 +93,6 @@ private:
     bool m_keyS = false;
     bool m_keySpace = false;
     bool m_keyW = false;
-
-    bool m_mouseTest;
 };
 
 #endif // ENGINE_H__

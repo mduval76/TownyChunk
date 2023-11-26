@@ -4,14 +4,7 @@ Engine::Engine() :
 	m_world(nullptr),
 	m_player(Vector3f(SPAWN_X, CHUNK_SIZE_Y, SPAWN_Z)),
 	m_currentBlock(Vector3f(0.0f, 0.0f, 0.0f)),
-	m_monsterFace(1),
-	m_monsterAlpha(0.0f),
-	m_monsterFadeTime(2.5f),
-	m_monsterVisibleTime(5.0f),
-	m_monsterInvisibleTime(0.0f),
-	m_monsterEyesAlpha(0.0f),
-	m_monsterEyesFadeTime(2.5f),
-	m_monsterEyesVisibleTime(5.0f) {}
+	m_monster() {}
 
 Engine::~Engine() {
 	delete m_world;
@@ -62,7 +55,6 @@ void Engine::Init() {
 	glLightfv(GL_LIGHT0, GL_SPECULAR, light0Spec);
 
 	m_world = new World();
-	srand(static_cast<unsigned int>(time(0)));
 
 	CenterMouse();
 	HideCursor();
@@ -215,7 +207,7 @@ void Engine::Render(float elapsedTime) {
 
 	AddBlendFunction(false);
 
-	UpdateMonsterFace(elapsedTime);
+	m_monster.UpdateMonsterFace(elapsedTime);
 	DrawSkybox();
 
 	RemoveBlendFunction(false);
@@ -299,14 +291,14 @@ void Engine::DrawSkybox() {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	for (int face = 1; face <= 4; ++face) {
-		if (face == m_monsterFace) {
+		if (face == m_monster.GetMonsterFace()) {
 			glDepthMask(GL_FALSE);
 			m_textureMonster.Bind();
-			glColor4f(1.0, 1.0, 1.0, m_monsterAlpha);
+			glColor4f(1.0, 1.0, 1.0, m_monster.GetMonsterAlpha());
 			DrawFaceWithMonster(face);
 
 			m_textureMonsterEyes.Bind();
-			glColor4f(1.0, 1.0, 1.0, m_monsterEyesAlpha);
+			glColor4f(1.0, 1.0, 1.0, m_monster.GetMonsterEyesAlpha());
 			DrawFaceWithMonster(face);
 			glDepthMask(GL_TRUE);
 		}
@@ -367,72 +359,6 @@ void Engine::DrawFaceWithMonster(int face) {
 	}
 	glEnd();
 }
-
-void Engine::UpdateMonsterFace(float elapsedTime) {
-	if (m_monsterFadeIn) {
-		m_monsterAlpha += elapsedTime / m_monsterFadeTime;
-
-		if (m_monsterAlpha >= 1.0f) {
-			m_monsterAlpha = 1.0f;
-			m_monsterFadeIn = false;
-			m_monsterEyesFadeIn = true;
-			m_monsterVisibleTime = 10.0f;
-		}
-	}
-	else if (m_monsterVisibleTime > 0.0f) {
-		m_monsterVisibleTime -= elapsedTime;
-
-		if (m_monsterEyesFadeIn) {
-			m_monsterEyesAlpha += elapsedTime / m_monsterEyesFadeTime;
-
-			if (m_monsterEyesAlpha >= 1.0f) {
-				m_monsterEyesAlpha = 1.0f;
-				m_monsterEyesFadeIn = false;
-				m_monsterEyesVisibleTime = 5.0f;
-			}
-		}
-		else if (m_monsterEyesVisibleTime > 0.0f) {
-			m_monsterEyesVisibleTime -= elapsedTime;
-
-			if (m_monsterEyesVisibleTime <= 0.0f) {
-				m_monsterEyesFadeOut = true;
-			}
-		}
-		else if (m_monsterEyesFadeOut) {
-			m_monsterEyesAlpha -= elapsedTime / m_monsterEyesFadeTime;
-
-			if (m_monsterEyesAlpha <= 0.0f) {
-				m_monsterEyesAlpha = 0.0f;
-				m_monsterEyesFadeOut = false;
-			}
-		}
-
-		if (m_monsterVisibleTime <= 0.0f) {
-			m_monsterFadeOut = true;
-		}
-	}
-	else if (m_monsterFadeOut) {
-		m_monsterAlpha -= elapsedTime / m_monsterFadeTime;
-
-		if (m_monsterAlpha <= 0.0f) {
-			m_monsterAlpha = 0.0f;
-			m_monsterFadeOut = false;
-			m_monsterInvisibleTime = 5 + rand() % 16;
-		}
-	}
-	else if (m_monsterInvisibleTime > 0.0f) {
-		m_monsterInvisibleTime -= elapsedTime;
-		if (m_monsterInvisibleTime <= 0.0f) {
-			int newFace;
-			do {
-				newFace = rand() % 4 + 1;
-			} while (newFace == m_monsterFace);
-			m_monsterFace = newFace;
-			m_monsterFadeIn = true;
-		}
-	}
-}
-
 
 void Engine::DrawArm() {
 	float armWidth = Width() * 0.33f;

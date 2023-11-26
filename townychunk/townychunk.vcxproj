@@ -19,6 +19,7 @@
     <ClInclude Include="engine.h" />
     <ClInclude Include="iworld.h" />
     <ClInclude Include="matrix4.h" />
+    <ClInclude Include="monster.h" />
     <ClInclude Include="openglcontext.h" />
     <ClInclude Include="perlin.h" />
     <ClInclude Include="player.h" />
@@ -36,6 +37,7 @@
     <ClCompile Include="chunk.cpp" />
     <ClCompile Include="engine.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="monster.cpp" />
     <ClCompile Include="openglcontext.cpp" />
     <ClCompile Include="perlin.cpp" />
     <ClCompile Include="player.cpp" />
