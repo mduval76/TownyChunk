@@ -745,8 +745,6 @@ void Engine::MousePressEvent(const MOUSE_BUTTON& button, int x, int y) {
 
 	int targetChunkX;
 	int targetChunkZ;
-	int playerChunkX;
-	int playerChunkZ;
 
 	switch (button) {
 	case MOUSE_BUTTON_LEFT:
@@ -769,16 +767,15 @@ void Engine::MousePressEvent(const MOUSE_BUTTON& button, int x, int y) {
 		playerY = static_cast<int>(m_player.GetPosition().y);
 		playerZ = static_cast<int>(m_player.GetPosition().z);
 
+		targetChunkX = targetX / CHUNK_SIZE_X;
+		targetChunkZ = targetZ / CHUNK_SIZE_Z;
+
+		if (targetChunkX < 0 || targetChunkX > WORLD_SIZE_X - 1 ||
+			targetChunkZ < 0 || targetChunkZ > WORLD_SIZE_Z - 1) {
+			break;
+		}
+
 		targetChunk = m_world->ChunkAt(targetX, targetY, targetZ);
-		playerChunk = m_world->ChunkAt(static_cast<int>(m_player.GetPosition().x),
-									   static_cast<int>(m_player.GetPosition().y),
-									   static_cast<int>(m_player.GetPosition().z));
-
-		targetChunkX = targetChunk->GetChunkXCoord();
-		targetChunkZ = targetChunk->GetChunkZCoord();
-		playerChunkX = playerChunk->GetChunkXCoord();
-		playerChunkZ = playerChunk->GetChunkZCoord();
-
 		addBt = m_world->BlockAt(targetX, targetY, targetZ, BTYPE_AIR);
 		// std::cout << "Checking block at target position: " << targetX << " | " << targetY << " | " << targetZ << std::endl;
 		// std::cout << "BlockType at target: " << static_cast<int>(addBt) << std::endl;
@@ -790,6 +787,7 @@ void Engine::MousePressEvent(const MOUSE_BUTTON& button, int x, int y) {
 			// std::cout << "Target position is currently occupied by the player." << std::endl;
 		}
 		else {
+			equippedItem = m_player.GetEquippedItem();
 			targetChunk->SetBlock(targetX % CHUNK_SIZE_X, targetY % CHUNK_SIZE_Y, targetZ % CHUNK_SIZE_Z, equippedItem);
 			m_world->SetDirtyChunk(targetChunk, targetX, targetY, targetZ);
 		}
