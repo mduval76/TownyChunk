@@ -725,28 +725,16 @@ void Engine::MousePressEvent(const MOUSE_BUTTON& button, int x, int y) {
 		return;
 	}
 
-	Chunk* currentChunk = m_world->ChunkAt(static_cast<int>(m_currentBlock.x), 
-										   static_cast<int>(m_currentBlock.y), 
-										   static_cast<int>(m_currentBlock.z));
+	Chunk* currentChunk = m_world->ChunkAt(static_cast<int>(m_currentBlock.x), static_cast<int>(m_currentBlock.y), static_cast<int>(m_currentBlock.z));
 
-	int globalTargetX = static_cast<int>(m_currentBlock.x) + m_currentFaceNormal.x;
-	int globalTargetY = static_cast<int>(m_currentBlock.y) + m_currentFaceNormal.y;
-	int globalTargetZ = static_cast<int>(m_currentBlock.z) + m_currentFaceNormal.z;
+	int targetX = (static_cast<int>(m_currentBlock.x) % CHUNK_SIZE_X) + m_currentFaceNormal.x;
+	int targetY = (static_cast<int>(m_currentBlock.y) % CHUNK_SIZE_Y) + m_currentFaceNormal.y;
+	int targetZ = (static_cast<int>(m_currentBlock.z) % CHUNK_SIZE_Z) + m_currentFaceNormal.z;
 
-	Chunk* targetChunk = m_world->ChunkAt(globalTargetX, globalTargetY, globalTargetZ);
-
-	int localTargetX = globalTargetX % CHUNK_SIZE_X;
-	int localTargetY = globalTargetY % CHUNK_SIZE_Y;
-	int localTargetZ = globalTargetZ % CHUNK_SIZE_Z;
-
-	if (localTargetX < 0) localTargetX += CHUNK_SIZE_X;
-	if (localTargetY < 0) localTargetY += CHUNK_SIZE_Y;
-	if (localTargetZ < 0) localTargetZ += CHUNK_SIZE_Z;
-
-	BlockType addBt = targetChunk->GetBlock(localTargetX, localTargetY, localTargetZ);
+	BlockType addBt = currentChunk->GetBlock(targetX, targetY, targetZ);
 	BlockType removeBt = currentChunk->GetBlock(static_cast<int>(m_currentBlock.x) % CHUNK_SIZE_X,
-												static_cast<int>(m_currentBlock.y) % CHUNK_SIZE_Y, 
-												static_cast<int>(m_currentBlock.z) % CHUNK_SIZE_Z);
+		static_cast<int>(m_currentBlock.y) % CHUNK_SIZE_Y,
+		static_cast<int>(m_currentBlock.z) % CHUNK_SIZE_Z);
 
 	int playerBlockX = static_cast<int>(m_player.GetPosition().x) % CHUNK_SIZE_X;
 	int playerBlockZ = static_cast<int>(m_player.GetPosition().z) % CHUNK_SIZE_Z;
@@ -754,25 +742,32 @@ void Engine::MousePressEvent(const MOUSE_BUTTON& button, int x, int y) {
 	BlockType equippedItem = m_player.GetEquippedItem();
 
 	switch (button) {
-		case MOUSE_BUTTON_LEFT:
-			if (removeBt != BTYPE_AIR) {
-				currentChunk->RemoveBlock(static_cast<int>(m_currentBlock.x) % CHUNK_SIZE_X,
-										  static_cast<int>(m_currentBlock.y) % CHUNK_SIZE_Y,
-										  static_cast<int>(m_currentBlock.z) % CHUNK_SIZE_Z);
+	case MOUSE_BUTTON_LEFT:
+		if (removeBt != BTYPE_AIR) {
+			currentChunk->RemoveBlock(static_cast<int>(m_currentBlock.x) % CHUNK_SIZE_X,
+									  static_cast<int>(m_currentBlock.y) % CHUNK_SIZE_Y,
+									  static_cast<int>(m_currentBlock.z) % CHUNK_SIZE_Z);
 
-				m_world->SetDirtyChunk(currentChunk, m_currentBlock.x, m_currentBlock.y, m_currentBlock.z);
-			}
+			m_world->SetDirtyChunk(currentChunk, m_currentBlock.x, m_currentBlock.y, m_currentBlock.z);
+		}
 
-			std::cout << "Tried removing block at (" << m_currentBlock.x << ", " << m_currentBlock.y << ", " << m_currentBlock.z << ")" << std::endl;
-			std::cout << "Block at removing position was : " << static_cast<int>(removeBt) << std::endl;
-			break;
-		case MOUSE_BUTTON_RIGHT:
-			if (addBt == BTYPE_AIR && !(localTargetX == playerBlockX && localTargetZ == playerBlockZ)) {
-				targetChunk->SetBlock(localTargetX, localTargetY, localTargetZ, equippedItem);
-			}
-			break;
-		default:
-			break;
+		std::cout << "Tried removing block at (" << m_currentBlock.x << ", " << m_currentBlock.y << ", " << m_currentBlock.z << ")" << std::endl;
+		std::cout << "Block at removing position was : " << static_cast<int>(removeBt) << std::endl;
+		break;
+	case MOUSE_BUTTON_RIGHT:
+		if (addBt != BTYPE_AIR || (targetX == playerBlockX && targetZ == playerBlockZ)) {
+			std::cout << "Target block and Player block are on the same X or Z axis" << std::endl;
+			std::cout << "Target block positions were : (" << targetX << ", " << targetY << ", " << targetZ << ")" << std::endl;
+			std::cout << "Player position was : (" << m_player.GetPosition().x << ", " << m_player.GetPosition().y << ", " << m_player.GetPosition().z << ")" << std::endl;
+			std::cout << "Player block positions were : (" << playerBlockX << ", " << playerBlockZ << ")" << std::endl;
+			return;
+		}
+		currentChunk->SetBlock(targetX, targetY, targetZ, equippedItem);
+		std::cout << "Tried adding block at (" << targetX << ", " << targetY << ", " << targetZ << ")" << std::endl;
+		std::cout << "Block at adding position was : " << static_cast<int>(addBt) << std::endl;
+		break;
+	default:
+		break;
 	}
 }
 
