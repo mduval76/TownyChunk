@@ -6,10 +6,12 @@ Engine::Engine() :
 	m_currentBlock(Vector3f(0.0f, 0.0f, 0.0f)),
 	m_monsterFace(1),
 	m_monsterAlpha(0.0f),
-	m_monsterFadeTime(1.0f),
-	m_monsterVisibleTime(10.0f),
+	m_monsterFadeTime(2.5f),
+	m_monsterVisibleTime(5.0f),
 	m_monsterInvisibleTime(0.0f),
-	m_lastMonsterFaceChange(0.0f){}
+	m_monsterEyesAlpha(0.0f),
+	m_monsterEyesFadeTime(2.5f),
+	m_monsterEyesVisibleTime(5.0f) {}
 
 Engine::~Engine() {
 	delete m_world;
@@ -293,45 +295,19 @@ void Engine::DrawSkybox() {
 
 	for (int face = 1; face <= 4; ++face) {
 		if (face == m_monsterFace) {
-			m_textureMonster.Bind(); 
+			glDepthMask(GL_FALSE);
+			m_textureMonster.Bind();
+			glColor4f(1.0, 1.0, 1.0, m_monsterAlpha);
+			DrawFaceWithMonster(face);
+
+			m_textureMonsterEyes.Bind();
+			glColor4f(1.0, 1.0, 1.0, m_monsterEyesAlpha);
+			DrawFaceWithMonster(face);
+			glDepthMask(GL_TRUE);
 		}
 		else {
 			m_textureDark.Bind();
 		}
-
-		glColor4f(1.0, 1.0, 1.0, m_monsterAlpha);
-		glBegin(GL_QUADS);
-		switch (face) {
-			case 1: // FRONT
-				glNormal3f(0, 0, 1);
-				glTexCoord2f(0, 0); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
-				glTexCoord2f(1, 0); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
-				glTexCoord2f(1, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
-				glTexCoord2f(0, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
-				break;
-			case 2: // RIGHT
-				glNormal3f(-1, 0, 0);
-				glTexCoord2f(0, 0); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
-				glTexCoord2f(1, 0); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
-				glTexCoord2f(1, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
-				glTexCoord2f(0, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
-				break;
-			case 3: // BACK
-				glNormal3f(0, 0, -1);
-				glTexCoord2f(0, 0); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
-				glTexCoord2f(1, 0); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
-				glTexCoord2f(1, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
-				glTexCoord2f(0, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
-				break;
-			case 4: // LEFT
-				glNormal3f(1, 0, 0);
-				glTexCoord2f(0, 0); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
-				glTexCoord2f(1, 0); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
-				glTexCoord2f(1, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
-				glTexCoord2f(0, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
-				break;
-			}
-		glEnd();
 	}
 
 	m_textureDark.Bind();
@@ -351,23 +327,88 @@ void Engine::DrawSkybox() {
 
 	glDisable(GL_BLEND);
 }
+
+void Engine::DrawFaceWithMonster(int face) {
+	glBegin(GL_QUADS);
+	switch (face) {
+	case 1: // FRONT
+		glNormal3f(0, 0, 1);
+		glTexCoord2f(0, 0); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+		glTexCoord2f(1, 0); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+		glTexCoord2f(1, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+		glTexCoord2f(0, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+		break;
+	case 2: // RIGHT
+		glNormal3f(-1, 0, 0);
+		glTexCoord2f(0, 0); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+		glTexCoord2f(1, 0); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+		glTexCoord2f(1, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+		glTexCoord2f(0, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+		break;
+	case 3: // BACK
+		glNormal3f(0, 0, -1);
+		glTexCoord2f(0, 0); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+		glTexCoord2f(1, 0); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+		glTexCoord2f(1, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+		glTexCoord2f(0, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+		break;
+	case 4: // LEFT
+		glNormal3f(1, 0, 0);
+		glTexCoord2f(0, 0); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+		glTexCoord2f(1, 0); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+		glTexCoord2f(1, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+		glTexCoord2f(0, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+		break;
+	}
+	glEnd();
+}
+
 void Engine::UpdateMonsterFace(float elapsedTime) {
 	if (m_monsterFadeIn) {
 		m_monsterAlpha += elapsedTime / m_monsterFadeTime;
+
 		if (m_monsterAlpha >= 1.0f) {
 			m_monsterAlpha = 1.0f;
 			m_monsterFadeIn = false;
+			m_monsterEyesFadeIn = true;
 			m_monsterVisibleTime = 10.0f;
 		}
 	}
 	else if (m_monsterVisibleTime > 0.0f) {
 		m_monsterVisibleTime -= elapsedTime;
+
+		if (m_monsterEyesFadeIn) {
+			m_monsterEyesAlpha += elapsedTime / m_monsterEyesFadeTime;
+
+			if (m_monsterEyesAlpha >= 1.0f) {
+				m_monsterEyesAlpha = 1.0f;
+				m_monsterEyesFadeIn = false;
+				m_monsterEyesVisibleTime = 5.0f;
+			}
+		}
+		else if (m_monsterEyesVisibleTime > 0.0f) {
+			m_monsterEyesVisibleTime -= elapsedTime;
+
+			if (m_monsterEyesVisibleTime <= 0.0f) {
+				m_monsterEyesFadeOut = true;
+			}
+		}
+		else if (m_monsterEyesFadeOut) {
+			m_monsterEyesAlpha -= elapsedTime / m_monsterEyesFadeTime;
+
+			if (m_monsterEyesAlpha <= 0.0f) {
+				m_monsterEyesAlpha = 0.0f;
+				m_monsterEyesFadeOut = false;
+			}
+		}
+
 		if (m_monsterVisibleTime <= 0.0f) {
 			m_monsterFadeOut = true;
 		}
 	}
 	else if (m_monsterFadeOut) {
 		m_monsterAlpha -= elapsedTime / m_monsterFadeTime;
+
 		if (m_monsterAlpha <= 0.0f) {
 			m_monsterAlpha = 0.0f;
 			m_monsterFadeOut = false;
@@ -665,10 +706,16 @@ void Engine::MousePressEvent(const MOUSE_BUTTON& button, int x, int y) {
 		if (m_player.GetEquippedItem() < BTYPE_LAST - 1) {
 			m_player.SetEquippedItem(static_cast<BlockType>(m_player.GetEquippedItem() + 1));
 		}
+		else {
+			m_player.SetEquippedItem(static_cast<BlockType>(BTYPE_AIR + 1));
+		}
 		return; 
 	case MOUSE_BUTTON_WHEEL_DOWN:
 		if (m_player.GetEquippedItem() > BTYPE_AIR + 1) {
 			m_player.SetEquippedItem(static_cast<BlockType>(m_player.GetEquippedItem() - 1));
+		}
+		else {
+			m_player.SetEquippedItem(static_cast<BlockType>(BTYPE_LAST - 1));
 		}
 		return;
 	}
@@ -678,13 +725,25 @@ void Engine::MousePressEvent(const MOUSE_BUTTON& button, int x, int y) {
 		return;
 	}
 
-	Chunk* currentChunk = m_world->ChunkAt(static_cast<int>(m_currentBlock.x), static_cast<int>(m_currentBlock.y), static_cast<int>(m_currentBlock.z));
+	Chunk* currentChunk = m_world->ChunkAt(static_cast<int>(m_currentBlock.x), 
+										   static_cast<int>(m_currentBlock.y), 
+										   static_cast<int>(m_currentBlock.z));
 
-	int targetX = (static_cast<int>(m_currentBlock.x) % CHUNK_SIZE_X) + m_currentFaceNormal.x;
-	int targetY = (static_cast<int>(m_currentBlock.y) % CHUNK_SIZE_Y) + m_currentFaceNormal.y;
-	int targetZ = (static_cast<int>(m_currentBlock.z) % CHUNK_SIZE_Z) + m_currentFaceNormal.z;
+	int globalTargetX = static_cast<int>(m_currentBlock.x) + m_currentFaceNormal.x;
+	int globalTargetY = static_cast<int>(m_currentBlock.y) + m_currentFaceNormal.y;
+	int globalTargetZ = static_cast<int>(m_currentBlock.z) + m_currentFaceNormal.z;
 
-	BlockType addBt = currentChunk->GetBlock(targetX, targetY, targetZ);
+	Chunk* targetChunk = m_world->ChunkAt(globalTargetX, globalTargetY, globalTargetZ);
+
+	int localTargetX = globalTargetX % CHUNK_SIZE_X;
+	int localTargetY = globalTargetY % CHUNK_SIZE_Y;
+	int localTargetZ = globalTargetZ % CHUNK_SIZE_Z;
+
+	if (localTargetX < 0) localTargetX += CHUNK_SIZE_X;
+	if (localTargetY < 0) localTargetY += CHUNK_SIZE_Y;
+	if (localTargetZ < 0) localTargetZ += CHUNK_SIZE_Z;
+
+	BlockType addBt = targetChunk->GetBlock(localTargetX, localTargetY, localTargetZ);
 	BlockType removeBt = currentChunk->GetBlock(static_cast<int>(m_currentBlock.x) % CHUNK_SIZE_X,
 												static_cast<int>(m_currentBlock.y) % CHUNK_SIZE_Y, 
 												static_cast<int>(m_currentBlock.z) % CHUNK_SIZE_Z);
@@ -708,16 +767,9 @@ void Engine::MousePressEvent(const MOUSE_BUTTON& button, int x, int y) {
 			std::cout << "Block at removing position was : " << static_cast<int>(removeBt) << std::endl;
 			break;
 		case MOUSE_BUTTON_RIGHT:
-			if (addBt != BTYPE_AIR || (targetX == playerBlockX && targetZ == playerBlockZ)) {
-				std::cout << "Target block and Player block are on the same X or Z axis" << std::endl;
-				std::cout << "Target block positions were : (" << targetX << ", " << targetY << ", " << targetZ << ")" << std::endl;
-				std::cout << "Player position was : (" << m_player.GetPosition().x << ", " << m_player.GetPosition().y << ", " << m_player.GetPosition().z << ")" << std::endl;
-				std::cout << "Player block positions were : (" << playerBlockX << ", " << playerBlockZ << ")" << std::endl;
-				return;
+			if (addBt == BTYPE_AIR && !(localTargetX == playerBlockX && localTargetZ == playerBlockZ)) {
+				targetChunk->SetBlock(localTargetX, localTargetY, localTargetZ, equippedItem);
 			}
-			currentChunk->SetBlock(targetX, targetY, targetZ, equippedItem);
-			std::cout << "Tried adding block at (" << targetX << ", " << targetY << ", " << targetZ << ")" << std::endl;
-			std::cout << "Block at adding position was : " << static_cast<int>(addBt) << std::endl;
 			break;
 		default:
 			break;
