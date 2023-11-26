@@ -36,7 +36,7 @@ void Engine::Init() {
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(45.0f, (float)Width() / (float)Height(), 0.1f, 1000.0f);
+	gluPerspective(45.0f, (float)Width() / (float)Height(), 0.001f, 1000.0f);
 	glEnable(GL_DEPTH_TEST);
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 	glShadeModel(GL_SMOOTH);
@@ -265,7 +265,7 @@ void Engine::AddBlendFunction(bool isOrtho) {
 	glLoadIdentity();
 
 	if (!isOrtho) {
-		gluPerspective(45.0f, (float)Width() / (float)Height(), 0.1f, 1000.0f);
+		gluPerspective(45.0f, (float)Width() / (float)Height(), 0.001f, 1000.0f);
 	}
 	else {
 		glOrtho(0, Width(), 0, Height(), -1, 1);
@@ -721,7 +721,6 @@ void Engine::MousePressEvent(const MOUSE_BUTTON& button, int x, int y) {
 	}
 
 	if (m_currentBlock.x < 0) {
-		// std::cout << "X was < 0" << std::endl;
 		return;
 	}
 
@@ -777,31 +776,18 @@ void Engine::MousePressEvent(const MOUSE_BUTTON& button, int x, int y) {
 
 		targetChunk = m_world->ChunkAt(targetX, targetY, targetZ);
 		addBt = m_world->BlockAt(targetX, targetY, targetZ, BTYPE_AIR);
-		// std::cout << "Checking block at target position: " << targetX << " | " << targetY << " | " << targetZ << std::endl;
-		// std::cout << "BlockType at target: " << static_cast<int>(addBt) << std::endl;
 		if (addBt != BTYPE_AIR) {
-			// std::cout << "Target position already occupied by BlockType: " << static_cast<int>(addBt) << std::endl;
+			return;
 		}
 		else if ((targetX == playerX && targetY == playerY && targetZ == playerZ) ||
 				 (targetX == playerX && targetY == playerY - 1 && targetZ == playerZ)) {
-			// std::cout << "Target position is currently occupied by the player." << std::endl;
+			return;
 		}
 		else {
 			equippedItem = m_player.GetEquippedItem();
 			targetChunk->SetBlock(targetX % CHUNK_SIZE_X, targetY % CHUNK_SIZE_Y, targetZ % CHUNK_SIZE_Z, equippedItem);
 			m_world->SetDirtyChunk(targetChunk, targetX, targetY, targetZ);
 		}
-		// std::cout << "m_currentBlock global position : " << m_currentBlock.x << " | " << m_currentBlock.y << " | " << m_currentBlock.z << std::endl;
-		// std::cout << "m_currentBlock local position : " << static_cast<int>(m_currentBlock.x) % CHUNK_SIZE_X << " | " << static_cast<int>(m_currentBlock.y) % CHUNK_SIZE_Y << " | " << static_cast<int>(m_currentBlock.z) % CHUNK_SIZE_Z << std::endl;
-		// std::cout << "m_currentFaceNormal values : " << m_currentFaceNormal.x << " | " << m_currentFaceNormal.y << " | " << m_currentFaceNormal.z << std::endl;
-		// std::cout << "Target global position : " << targetX << " | " << targetY << " | " << targetZ << std::endl;
-		// std::cout << "Target local position : " << targetX % CHUNK_SIZE_X << " | " << targetY % CHUNK_SIZE_Y << " | " << targetZ % CHUNK_SIZE_Z << std::endl;
-		// std::cout << "Target chunk position : " << targetChunkX << " | " << targetChunkZ << std::endl;
-		// std::cout << "BlockType at target : " << static_cast<int>(addBt) << std::endl;
-		// std::cout << "Player global position: " << playerX << " | " << playerY << " | " << playerZ << std::endl;
-		// std::cout << "Player local position: " << playerX % CHUNK_SIZE_X << " | " << playerY % CHUNK_SIZE_Y << " | " << playerZ % CHUNK_SIZE_Z << std::endl;
-		// std::cout << "Player chunk position: " << playerChunkX << " | " << playerChunkZ << std::endl;
-
 		break;
 	default:
 		break;
