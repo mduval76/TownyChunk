@@ -724,70 +724,43 @@ void Engine::MousePressEvent(const MOUSE_BUTTON& button, int x, int y) {
 		return;
 	}
 
-	Chunk* removeChunk;
-	Chunk* targetChunk;
-	Chunk* playerChunk;
+	Chunk* currentChunk = m_world->ChunkAt(static_cast<int>(m_currentBlock.x), static_cast<int>(m_currentBlock.y), static_cast<int>(m_currentBlock.z));
 
-	int blockX;
-	int blockY;
-	int blockZ;
-	int targetX;
-	int targetY;
-	int targetZ;
-	int playerX;
-	int playerY;
-	int playerZ;
+	int targetX = (static_cast<int>(m_currentBlock.x) % CHUNK_SIZE_X) + m_currentFaceNormal.x;
+	int targetY = (static_cast<int>(m_currentBlock.y) % CHUNK_SIZE_Y) + m_currentFaceNormal.y;
+	int targetZ = (static_cast<int>(m_currentBlock.z) % CHUNK_SIZE_Z) + m_currentFaceNormal.z;
 
-	BlockType removeBt;
-	BlockType addBt;
+	BlockType addBt = currentChunk->GetBlock(targetX, targetY, targetZ);
+	BlockType removeBt = currentChunk->GetBlock(static_cast<int>(m_currentBlock.x) % CHUNK_SIZE_X,
+		static_cast<int>(m_currentBlock.y) % CHUNK_SIZE_Y,
+		static_cast<int>(m_currentBlock.z) % CHUNK_SIZE_Z);
+
+	int playerBlockX = static_cast<int>(m_player.GetPosition().x) % CHUNK_SIZE_X;
+	int playerBlockZ = static_cast<int>(m_player.GetPosition().z) % CHUNK_SIZE_Z;
+
 	BlockType equippedItem = m_player.GetEquippedItem();
-
-	int targetChunkX;
-	int targetChunkZ;
 
 	switch (button) {
 	case MOUSE_BUTTON_LEFT:
-		blockX = static_cast<int>(m_currentBlock.x);
-		blockY = static_cast<int>(m_currentBlock.y);
-		blockZ = static_cast<int>(m_currentBlock.z);
-
-		removeBt = m_world->BlockAt(blockX, blockY, blockZ, BTYPE_AIR);
 		if (removeBt != BTYPE_AIR) {
-			removeChunk = m_world->ChunkAt(blockX, blockY, blockZ);
-			removeChunk->RemoveBlock(blockX % CHUNK_SIZE_X, blockY % CHUNK_SIZE_Y, blockZ % CHUNK_SIZE_Z);
-			m_world->SetDirtyChunk(removeChunk, blockX, blockY, blockZ);
+			currentChunk->RemoveBlock(static_cast<int>(m_currentBlock.x) % CHUNK_SIZE_X,
+				static_cast<int>(m_currentBlock.y) % CHUNK_SIZE_Y,
+				static_cast<int>(m_currentBlock.z) % CHUNK_SIZE_Z);
+
+			m_world->SetDirtyChunk(currentChunk, m_currentBlock.x, m_currentBlock.y, m_currentBlock.z);
 		}
+
+		std::cout << "Tried removing block at (" << m_currentBlock.x << ", " << m_currentBlock.y << ", " << m_currentBlock.z << ")" << std::endl;
+		std::cout << "Block at removing position was : " << static_cast<int>(removeBt) << std::endl;
 		break;
 	case MOUSE_BUTTON_RIGHT:
-		targetX = static_cast<int>(m_currentBlock.x) + m_currentFaceNormal.x;
-		targetY = static_cast<int>(m_currentBlock.y) + m_currentFaceNormal.y;
-		targetZ = static_cast<int>(m_currentBlock.z) + m_currentFaceNormal.z;
-		playerX = static_cast<int>(m_player.GetPosition().x);
-		playerY = static_cast<int>(m_player.GetPosition().y);
-		playerZ = static_cast<int>(m_player.GetPosition().z);
-
-		targetChunkX = targetX / CHUNK_SIZE_X;
-		targetChunkZ = targetZ / CHUNK_SIZE_Z;
-
-		if (targetChunkX < 0 || targetChunkX > WORLD_SIZE_X - 1 ||
-			targetChunkZ < 0 || targetChunkZ > WORLD_SIZE_Z - 1) {
-			break;
-		}
-
-		targetChunk = m_world->ChunkAt(targetX, targetY, targetZ);
-		addBt = m_world->BlockAt(targetX, targetY, targetZ, BTYPE_AIR);
-		if (addBt != BTYPE_AIR) {
+		if (addBt != BTYPE_AIR || (targetX == playerBlockX && targetZ == playerBlockZ)) {
+			std::cout << "Target block and Player block are on the same X or Z axis" << std::endl;
 			return;
 		}
-		else if ((targetX == playerX && targetY == playerY && targetZ == playerZ) ||
-				 (targetX == playerX && targetY == playerY - 1 && targetZ == playerZ)) {
-			return;
-		}
-		else {
-			equippedItem = m_player.GetEquippedItem();
-			targetChunk->SetBlock(targetX % CHUNK_SIZE_X, targetY % CHUNK_SIZE_Y, targetZ % CHUNK_SIZE_Z, equippedItem);
-			m_world->SetDirtyChunk(targetChunk, targetX, targetY, targetZ);
-		}
+		currentChunk->SetBlock(targetX, targetY, targetZ, equippedItem);
+		std::cout << "Tried adding block at (" << targetX << ", " << targetY << ", " << targetZ << ")" << std::endl;
+		std::cout << "Block at adding position was : " << static_cast<int>(addBt) << std::endl;
 		break;
 	default:
 		break;

@@ -23,6 +23,12 @@ Chunk* World::GetChunk(int x, int z) const {
 }
 
 void World::SetDirtyChunk(Chunk* chunk, int blockX, int blockY, int blockZ) {
+
+
+	if (blockX == 0 || blockX == (WORLD_SIZE_X * CHUNK_SIZE_X) - 1 || blockZ == 0 || blockZ == (WORLD_SIZE_Z * CHUNK_SIZE_Z) - 1) {
+		return;
+	}
+
 	int localX = blockX % CHUNK_SIZE_X;
 	int localZ = blockZ % CHUNK_SIZE_Z;
 
@@ -31,20 +37,20 @@ void World::SetDirtyChunk(Chunk* chunk, int blockX, int blockY, int blockZ) {
 
 	if (localX == 0 && chunkX > 0) {
 		Chunk* adjacentChunk = GetChunk(chunkX - 1, chunkZ);
-		if (adjacentChunk && blockX > 0) adjacentChunk->SetIsDirty();
+		if (adjacentChunk) adjacentChunk->SetIsDirty();
 	}
 	if (localX == CHUNK_SIZE_X - 1) {
 		Chunk* adjacentChunk = GetChunk(chunkX + 1, chunkZ);
-		if (adjacentChunk && blockX < WORLD_SIZE_X - 1) adjacentChunk->SetIsDirty();
+		if (adjacentChunk) adjacentChunk->SetIsDirty();
 	}
 
 	if (localZ == 0 && chunkZ > 0) {
 		Chunk* adjacentChunk = GetChunk(chunkX, chunkZ - 1);
-		if (adjacentChunk && blockZ > 0) adjacentChunk->SetIsDirty();
+		if (adjacentChunk) adjacentChunk->SetIsDirty();
 	}
 	if (localZ == CHUNK_SIZE_Z - 1) {
 		Chunk* adjacentChunk = GetChunk(chunkX, chunkZ + 1);
-		if (adjacentChunk && blockZ < WORLD_SIZE_Z - 1) adjacentChunk->SetIsDirty();
+		if (adjacentChunk) adjacentChunk->SetIsDirty();
 	}
 }
 
