@@ -1,15 +1,17 @@
 #include "engine.h"
 
-Engine::Engine() : 
-	m_world(nullptr), 
-	m_player(Vector3f(SPAWN_X, CHUNK_SIZE_Y, SPAWN_Z)), 
+Engine::Engine() :
+	m_world(nullptr),
+	m_player(Vector3f(SPAWN_X, CHUNK_SIZE_Y, SPAWN_Z)),
 	m_currentBlock(Vector3f(0.0f, 0.0f, 0.0f)),
 	m_monsterFace(1),
 	m_monsterAlpha(0.0f),
-	m_monsterFadeTime(1.0f),
-	m_monsterVisibleTime(10.0f),
+	m_monsterFadeTime(2.5f),
+	m_monsterVisibleTime(5.0f),
 	m_monsterInvisibleTime(0.0f),
-	m_lastMonsterFaceChange(0.0f){}
+	m_monsterEyesAlpha(0.0f),
+	m_monsterEyesFadeTime(2.5f),
+	m_monsterEyesVisibleTime(5.0f) {}
 
 Engine::~Engine() {
 	delete m_world;
@@ -293,45 +295,19 @@ void Engine::DrawSkybox() {
 
 	for (int face = 1; face <= 4; ++face) {
 		if (face == m_monsterFace) {
-			m_textureMonster.Bind(); 
+			glDepthMask(GL_FALSE);
+			m_textureMonster.Bind();
+			glColor4f(1.0, 1.0, 1.0, m_monsterAlpha);
+			DrawFaceWithMonster(face);
+
+			m_textureMonsterEyes.Bind();
+			glColor4f(1.0, 1.0, 1.0, m_monsterEyesAlpha);
+			DrawFaceWithMonster(face);
+			glDepthMask(GL_TRUE);
 		}
 		else {
 			m_textureDark.Bind();
 		}
-
-		glColor4f(1.0, 1.0, 1.0, m_monsterAlpha);
-		glBegin(GL_QUADS);
-		switch (face) {
-			case 1: // FRONT
-				glNormal3f(0, 0, 1);
-				glTexCoord2f(0, 0); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
-				glTexCoord2f(1, 0); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
-				glTexCoord2f(1, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
-				glTexCoord2f(0, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
-				break;
-			case 2: // RIGHT
-				glNormal3f(-1, 0, 0);
-				glTexCoord2f(0, 0); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
-				glTexCoord2f(1, 0); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
-				glTexCoord2f(1, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
-				glTexCoord2f(0, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
-				break;
-			case 3: // BACK
-				glNormal3f(0, 0, -1);
-				glTexCoord2f(0, 0); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
-				glTexCoord2f(1, 0); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
-				glTexCoord2f(1, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
-				glTexCoord2f(0, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
-				break;
-			case 4: // LEFT
-				glNormal3f(1, 0, 0);
-				glTexCoord2f(0, 0); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
-				glTexCoord2f(1, 0); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
-				glTexCoord2f(1, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
-				glTexCoord2f(0, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
-				break;
-			}
-		glEnd();
 	}
 
 	m_textureDark.Bind();
@@ -351,23 +327,88 @@ void Engine::DrawSkybox() {
 
 	glDisable(GL_BLEND);
 }
+
+void Engine::DrawFaceWithMonster(int face) {
+	glBegin(GL_QUADS);
+	switch (face) {
+	case 1: // FRONT
+		glNormal3f(0, 0, 1);
+		glTexCoord2f(0, 0); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+		glTexCoord2f(1, 0); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+		glTexCoord2f(1, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+		glTexCoord2f(0, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+		break;
+	case 2: // RIGHT
+		glNormal3f(-1, 0, 0);
+		glTexCoord2f(0, 0); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+		glTexCoord2f(1, 0); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+		glTexCoord2f(1, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+		glTexCoord2f(0, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+		break;
+	case 3: // BACK
+		glNormal3f(0, 0, -1);
+		glTexCoord2f(0, 0); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+		glTexCoord2f(1, 0); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+		glTexCoord2f(1, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+		glTexCoord2f(0, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+		break;
+	case 4: // LEFT
+		glNormal3f(1, 0, 0);
+		glTexCoord2f(0, 0); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+		glTexCoord2f(1, 0); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+		glTexCoord2f(1, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+		glTexCoord2f(0, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+		break;
+	}
+	glEnd();
+}
+
 void Engine::UpdateMonsterFace(float elapsedTime) {
 	if (m_monsterFadeIn) {
 		m_monsterAlpha += elapsedTime / m_monsterFadeTime;
+
 		if (m_monsterAlpha >= 1.0f) {
 			m_monsterAlpha = 1.0f;
 			m_monsterFadeIn = false;
+			m_monsterEyesFadeIn = true;
 			m_monsterVisibleTime = 10.0f;
 		}
 	}
 	else if (m_monsterVisibleTime > 0.0f) {
 		m_monsterVisibleTime -= elapsedTime;
+
+		if (m_monsterEyesFadeIn) {
+			m_monsterEyesAlpha += elapsedTime / m_monsterEyesFadeTime;
+
+			if (m_monsterEyesAlpha >= 1.0f) {
+				m_monsterEyesAlpha = 1.0f;
+				m_monsterEyesFadeIn = false;
+				m_monsterEyesVisibleTime = 5.0f;
+			}
+		}
+		else if (m_monsterEyesVisibleTime > 0.0f) {
+			m_monsterEyesVisibleTime -= elapsedTime;
+
+			if (m_monsterEyesVisibleTime <= 0.0f) {
+				m_monsterEyesFadeOut = true;
+			}
+		}
+		else if (m_monsterEyesFadeOut) {
+			m_monsterEyesAlpha -= elapsedTime / m_monsterEyesFadeTime;
+
+			if (m_monsterEyesAlpha <= 0.0f) {
+				m_monsterEyesAlpha = 0.0f;
+				m_monsterEyesFadeOut = false;
+			}
+		}
+
 		if (m_monsterVisibleTime <= 0.0f) {
 			m_monsterFadeOut = true;
 		}
 	}
 	else if (m_monsterFadeOut) {
 		m_monsterAlpha -= elapsedTime / m_monsterFadeTime;
+
 		if (m_monsterAlpha <= 0.0f) {
 			m_monsterAlpha = 0.0f;
 			m_monsterFadeOut = false;

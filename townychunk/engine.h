@@ -18,8 +18,7 @@
 #include <iomanip>
 #include <iostream>
 
-class Engine : public OpenglContext
-{
+class Engine : public OpenglContext {
 public:
     Engine();
     virtual ~Engine();
@@ -32,7 +31,7 @@ public:
     virtual void KeyReleaseEvent(unsigned char key);
     virtual void MouseMoveEvent(int x, int y);
     virtual void MousePressEvent(const MOUSE_BUTTON& button, int x, int y);
-    virtual void MouseReleaseEvent(const MOUSE_BUTTON &button, int x, int y);
+    virtual void MouseReleaseEvent(const MOUSE_BUTTON& button, int x, int y);
 
 private:
     bool LoadTexture(Texture& texture, const std::string& filename, bool stopOnError = true);
@@ -51,6 +50,7 @@ private:
     void DrawCrosshair();
     void DrawBlock(float elapsedTime);
     void DrawHud(float elapsedTime);
+    void DrawFaceWithMonster(int face);
     void DrawSkybox();
 
     void UpdateMonsterFace(float elapsedTime);
@@ -82,12 +82,20 @@ private:
 
     bool m_monsterFadeIn = false;
     bool m_monsterFadeOut = false;
+    bool m_monsterEyesFadeIn = false;
+    bool m_monsterEyesFadeOut = false;
+
     int m_monsterFace;
+
     float m_monsterAlpha;
     float m_monsterFadeTime;
     float m_monsterVisibleTime;
     float m_monsterInvisibleTime;
-    float m_lastMonsterFaceChange;
+
+    float m_monsterEyesAlpha;
+    float m_monsterEyesFadeTime;
+    float m_monsterEyesVisibleTime;
+    float m_monsterEyesInvisibleTime;
 
     bool m_wireframe = false;
     bool m_isOrtho = false;
