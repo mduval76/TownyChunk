@@ -36,7 +36,7 @@ void Engine::Init() {
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(45.0f, (float)Width() / (float)Height(), 0.0001f, 1000.0f);
+	gluPerspective(45.0f, (float)Width() / (float)Height(), 0.1f, 1000.0f);
 	glEnable(GL_DEPTH_TEST);
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 	glShadeModel(GL_SMOOTH);
@@ -265,7 +265,7 @@ void Engine::AddBlendFunction(bool isOrtho) {
 	glLoadIdentity();
 
 	if (!isOrtho) {
-		gluPerspective(45.0f, (float)Width() / (float)Height(), 0.0001f, 1000.0f);
+		gluPerspective(45.0f, (float)Width() / (float)Height(), 0.1f, 1000.0f);
 	}
 	else {
 		glOrtho(0, Width(), 0, Height(), -1, 1);
@@ -721,50 +721,89 @@ void Engine::MousePressEvent(const MOUSE_BUTTON& button, int x, int y) {
 	}
 
 	if (m_currentBlock.x < 0) {
-		std::cout << "X was < 0" << std::endl;
+		// std::cout << "X was < 0" << std::endl;
 		return;
 	}
 
-	Chunk* currentChunk = m_world->ChunkAt(static_cast<int>(m_currentBlock.x), static_cast<int>(m_currentBlock.y), static_cast<int>(m_currentBlock.z));
+	Chunk* removeChunk;
+	Chunk* targetChunk;
+	Chunk* playerChunk;
 
-	int targetX = (static_cast<int>(m_currentBlock.x) % CHUNK_SIZE_X) + m_currentFaceNormal.x;
-	int targetY = (static_cast<int>(m_currentBlock.y) % CHUNK_SIZE_Y) + m_currentFaceNormal.y;
-	int targetZ = (static_cast<int>(m_currentBlock.z) % CHUNK_SIZE_Z) + m_currentFaceNormal.z;
+	int blockX;
+	int blockY;
+	int blockZ;
+	int targetX;
+	int targetY;
+	int targetZ;
+	int playerX;
+	int playerY;
+	int playerZ;
 
-	BlockType addBt = currentChunk->GetBlock(targetX, targetY, targetZ);
-	BlockType removeBt = currentChunk->GetBlock(static_cast<int>(m_currentBlock.x) % CHUNK_SIZE_X,
-		static_cast<int>(m_currentBlock.y) % CHUNK_SIZE_Y,
-		static_cast<int>(m_currentBlock.z) % CHUNK_SIZE_Z);
-
-	int playerBlockX = static_cast<int>(m_player.GetPosition().x) % CHUNK_SIZE_X;
-	int playerBlockZ = static_cast<int>(m_player.GetPosition().z) % CHUNK_SIZE_Z;
-
+	BlockType removeBt;
+	BlockType addBt;
 	BlockType equippedItem = m_player.GetEquippedItem();
+
+	int targetChunkX;
+	int targetChunkZ;
+	int playerChunkX;
+	int playerChunkZ;
 
 	switch (button) {
 	case MOUSE_BUTTON_LEFT:
+		blockX = static_cast<int>(m_currentBlock.x);
+		blockY = static_cast<int>(m_currentBlock.y);
+		blockZ = static_cast<int>(m_currentBlock.z);
+
+		removeBt = m_world->BlockAt(blockX, blockY, blockZ, BTYPE_AIR);
 		if (removeBt != BTYPE_AIR) {
-			currentChunk->RemoveBlock(static_cast<int>(m_currentBlock.x) % CHUNK_SIZE_X,
-									  static_cast<int>(m_currentBlock.y) % CHUNK_SIZE_Y,
-									  static_cast<int>(m_currentBlock.z) % CHUNK_SIZE_Z);
-
-			m_world->SetDirtyChunk(currentChunk, m_currentBlock.x, m_currentBlock.y, m_currentBlock.z);
+			removeChunk = m_world->ChunkAt(blockX, blockY, blockZ);
+			removeChunk->RemoveBlock(blockX % CHUNK_SIZE_X, blockY % CHUNK_SIZE_Y, blockZ % CHUNK_SIZE_Z);
+			m_world->SetDirtyChunk(removeChunk, blockX, blockY, blockZ);
 		}
-
-		std::cout << "Tried removing block at (" << m_currentBlock.x << ", " << m_currentBlock.y << ", " << m_currentBlock.z << ")" << std::endl;
-		std::cout << "Block at removing position was : " << static_cast<int>(removeBt) << std::endl;
 		break;
 	case MOUSE_BUTTON_RIGHT:
-		if (addBt != BTYPE_AIR || (targetX == playerBlockX && targetZ == playerBlockZ)) {
-			std::cout << "Target block and Player block are on the same X or Z axis" << std::endl;
-			std::cout << "Target block positions were : (" << targetX << ", " << targetY << ", " << targetZ << ")" << std::endl;
-			std::cout << "Player position was : (" << m_player.GetPosition().x << ", " << m_player.GetPosition().y << ", " << m_player.GetPosition().z << ")" << std::endl;
-			std::cout << "Player block positions were : (" << playerBlockX << ", " << playerBlockZ << ")" << std::endl;
-			return;
+		targetX = static_cast<int>(m_currentBlock.x) + m_currentFaceNormal.x;
+		targetY = static_cast<int>(m_currentBlock.y) + m_currentFaceNormal.y;
+		targetZ = static_cast<int>(m_currentBlock.z) + m_currentFaceNormal.z;
+		playerX = static_cast<int>(m_player.GetPosition().x);
+		playerY = static_cast<int>(m_player.GetPosition().y);
+		playerZ = static_cast<int>(m_player.GetPosition().z);
+
+		targetChunk = m_world->ChunkAt(targetX, targetY, targetZ);
+		playerChunk = m_world->ChunkAt(static_cast<int>(m_player.GetPosition().x),
+									   static_cast<int>(m_player.GetPosition().y),
+									   static_cast<int>(m_player.GetPosition().z));
+
+		targetChunkX = targetChunk->GetChunkXCoord();
+		targetChunkZ = targetChunk->GetChunkZCoord();
+		playerChunkX = playerChunk->GetChunkXCoord();
+		playerChunkZ = playerChunk->GetChunkZCoord();
+
+		addBt = m_world->BlockAt(targetX, targetY, targetZ, BTYPE_AIR);
+		// std::cout << "Checking block at target position: " << targetX << " | " << targetY << " | " << targetZ << std::endl;
+		// std::cout << "BlockType at target: " << static_cast<int>(addBt) << std::endl;
+		if (addBt != BTYPE_AIR) {
+			// std::cout << "Target position already occupied by BlockType: " << static_cast<int>(addBt) << std::endl;
 		}
-		currentChunk->SetBlock(targetX, targetY, targetZ, equippedItem);
-		std::cout << "Tried adding block at (" << targetX << ", " << targetY << ", " << targetZ << ")" << std::endl;
-		std::cout << "Block at adding position was : " << static_cast<int>(addBt) << std::endl;
+		else if ((targetX == playerX && targetY == playerY && targetZ == playerZ) ||
+				 (targetX == playerX && targetY == playerY - 1 && targetZ == playerZ)) {
+			// std::cout << "Target position is currently occupied by the player." << std::endl;
+		}
+		else {
+			targetChunk->SetBlock(targetX % CHUNK_SIZE_X, targetY % CHUNK_SIZE_Y, targetZ % CHUNK_SIZE_Z, equippedItem);
+			m_world->SetDirtyChunk(targetChunk, targetX, targetY, targetZ);
+		}
+		// std::cout << "m_currentBlock global position : " << m_currentBlock.x << " | " << m_currentBlock.y << " | " << m_currentBlock.z << std::endl;
+		// std::cout << "m_currentBlock local position : " << static_cast<int>(m_currentBlock.x) % CHUNK_SIZE_X << " | " << static_cast<int>(m_currentBlock.y) % CHUNK_SIZE_Y << " | " << static_cast<int>(m_currentBlock.z) % CHUNK_SIZE_Z << std::endl;
+		// std::cout << "m_currentFaceNormal values : " << m_currentFaceNormal.x << " | " << m_currentFaceNormal.y << " | " << m_currentFaceNormal.z << std::endl;
+		// std::cout << "Target global position : " << targetX << " | " << targetY << " | " << targetZ << std::endl;
+		// std::cout << "Target local position : " << targetX % CHUNK_SIZE_X << " | " << targetY % CHUNK_SIZE_Y << " | " << targetZ % CHUNK_SIZE_Z << std::endl;
+		// std::cout << "Target chunk position : " << targetChunkX << " | " << targetChunkZ << std::endl;
+		// std::cout << "BlockType at target : " << static_cast<int>(addBt) << std::endl;
+		// std::cout << "Player global position: " << playerX << " | " << playerY << " | " << playerZ << std::endl;
+		// std::cout << "Player local position: " << playerX % CHUNK_SIZE_X << " | " << playerY % CHUNK_SIZE_Y << " | " << playerZ % CHUNK_SIZE_Z << std::endl;
+		// std::cout << "Player chunk position: " << playerChunkX << " | " << playerChunkZ << std::endl;
+
 		break;
 	default:
 		break;
@@ -793,6 +832,9 @@ void Engine::GetBlockAtCursor() {
 	glReadPixels(x, int(winY), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &winZ);
 
 	gluUnProject(winX, winY, winZ, modelview, projection, viewport, &posX, &posY, &posZ);
+	// std::cout << "Window points: " << winX << " | " << winY << " | " << winZ << std::endl;
+	// std::cout << "Hit points: " << posX << " | " << posY << " | " << posZ << std::endl;
+
 
 	posX += .5f;
 	posY += .5f;
@@ -826,7 +868,7 @@ void Engine::GetBlockAtCursor() {
 						m_currentBlock.y = y;
 						m_currentBlock.z = z;
 
-						if (InRangeWithEpsilon((float)posX, (float)x, (float)x + 1.f, 0.05f) && InRangeWithEpsilon((float)posY, (float)y, (float)y + 1.f, 0.05f) && InRangeWithEpsilon((float)posZ, (float)z, (float)z + 1.f, 0.05f)) {
+						if (InRangeWithEpsilon((float)posX, (float)x, (float)x + 1.f, 0.075f) && InRangeWithEpsilon((float)posY, (float)y, (float)y + 1.f, 0.075f) && InRangeWithEpsilon((float)posZ, (float)z, (float)z + 1.f, 0.075f)) {
 							found = true;
 						}
 					}
@@ -842,7 +884,7 @@ void Engine::GetBlockAtCursor() {
 		// Find on which face of the bloc we got a hit
 		m_currentFaceNormal.Zero();
 
-		const float epsilon = 0.05f;
+		const float epsilon = 0.075f;
 
 		// Front et back:
 		if (EqualWithEpsilon((float)posZ, (float)m_currentBlock.z, epsilon))
@@ -861,17 +903,11 @@ void Engine::GetBlockAtCursor() {
 }
 
 bool Engine::EqualWithEpsilon(const float& val1, const float& val2, float epsilon) {
-	bool result = (fabs(val2 - val1) < epsilon);
-
-	//std::cout << "EqualWithEpsilon result : " << result <<  " | fabs(val2 - val1) = " << fabs(val2 - val1) << std::endl;
-	return result;
+	return (fabs(val2 - val1) < epsilon);
 }
 
 bool Engine::InRangeWithEpsilon(const float& val, const float& minVal, const float& maxVal, float epsilon) {
-	bool result = (val >= minVal - epsilon && val <= maxVal + epsilon);
-
-	//std::cout << "InRangeWithEpsilon result : " << result << " | val = " << val << " | minVal = " << minVal << " | maxVal = " << maxVal << std::endl;
-	return result;
+	return (val >= minVal - epsilon && val <= maxVal + epsilon);
 }
 
 bool Engine::LoadTexture(Texture& texture, const std::string& filename, bool stopOnError) {
