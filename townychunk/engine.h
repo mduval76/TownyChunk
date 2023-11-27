@@ -54,6 +54,8 @@ private:
     void DrawFaceWithMonster(int face);
     void DrawSkybox();
 
+    void RenderLaserBeams(float elapsedTime);
+
     void PrintText(unsigned int x, unsigned int y, const std::string& t);
 
 private:

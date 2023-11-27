@@ -177,10 +177,12 @@ void Engine::Render(float elapsedTime) {
 	// Camera (Player)
 	Vector3f pos = m_player.GetPosition();
 	Vector3f delta = m_player.Move(m_keyW, m_keyS, m_keyA, m_keyD, m_keySpace, elapsedTime);
+
 	m_world->CheckCollisions(m_player, delta, m_keyW, m_keyS, m_keyA, m_keyD, m_keySpace, elapsedTime);
 	
 	Transformation t;
 	std::array<float, 2> rot = m_player.GetRotation();
+
 	m_player.ApplyTransformation(t);
 	t.ApplyTranslation(0.5f, 0.5f, 0.5f);
 	t.Use();
@@ -205,42 +207,38 @@ void Engine::Render(float elapsedTime) {
 	t.ApplyTranslation(m_player.GetPosition().x, m_player.GetPosition().y, m_player.GetPosition().z);
 	t.Use();
 
-	AddBlendFunction(false);
+	if (m_monster.GetIsAttacking()) {
+		RenderLaserBeams(elapsedTime);
+	}
 
+	AddBlendFunction(false);
 	m_monster.UpdateMonsterFace(elapsedTime);
 	DrawSkybox();
-
 	RemoveBlendFunction(false);
 
-	if (m_wireframe)
+
+	// Wireframe
+	if (m_wireframe) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-	AddBlendFunction(true);
-
-	if (m_keyR) {
-		DrawArm();
 	}
-
-	if (m_keyI) {
-		DrawHud(elapsedTime);
-	}
-
-	if (m_keyC) {
-		DrawCrosshair();
-	}
-
-	RemoveBlendFunction(true);
-
-	if (m_keyR) {
-		DrawBlock(elapsedTime);
-	}
-
-	t.Pop();
-	t.Use();
 
 	if (m_wireframe) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	}
+
+	// HUD
+	AddBlendFunction(true);
+	if (m_keyR) { DrawArm(); }
+	if (m_keyI) { DrawHud(elapsedTime); }
+	if (m_keyC) { DrawCrosshair(); }
+	RemoveBlendFunction(true);
+
+	// Equipped block
+	if (m_keyR) { DrawBlock(elapsedTime); }
+
+	t.Pop();
+	t.Use();
+
 	GetBlockAtCursor();
 }
 
@@ -323,6 +321,22 @@ void Engine::DrawSkybox() {
 	glEnd();
 
 	glDisable(GL_BLEND);
+}
+
+void Engine::RenderLaserBeams(float elapsedTime) {
+	std::cout << "Monster started attacking on face " << m_monster.GetMonsterFace() << "!" << std::endl;
+	m_monster.SetEyeOrigins();
+	glLineWidth(5.0f);
+
+	glBegin(GL_LINES);
+	glVertex3f(m_monster.GetLeftEyeOrigin().x, m_monster.GetLeftEyeOrigin().y, m_monster.GetLeftEyeOrigin().z);
+	glVertex3f(m_monster.GetTargetPosition().x, m_monster.GetTargetPosition().y, m_monster.GetTargetPosition().z);
+	glEnd();
+
+	glBegin(GL_LINES);
+	glVertex3f(m_monster.GetRightEyeOrigin().x, m_monster.GetRightEyeOrigin().y, m_monster.GetRightEyeOrigin().z);
+	glVertex3f(m_monster.GetTargetPosition().x, m_monster.GetTargetPosition().y, m_monster.GetTargetPosition().z);
+	glEnd();
 }
 
 void Engine::DrawFaceWithMonster(int face) {
