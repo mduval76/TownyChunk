@@ -1,7 +1,5 @@
-//http://www.flipcode.com/archives/Perlin_Noise_Class.shtml
-#ifndef PERLIN_H_
-
-#define PERLIN_H_
+#ifndef PERLIN_H__
+#define PERLIN_H__
 
 #include <stdlib.h>
 
@@ -52,4 +50,4 @@ private:
 
 };
 
-#endif
+#endif // PERLIN_H__

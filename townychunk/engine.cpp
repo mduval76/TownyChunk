@@ -182,7 +182,6 @@ void Engine::Render(float elapsedTime) {
 	m_world->CheckCollisions(m_player, delta, m_keyW, m_keyS, m_keyA, m_keyD, m_keySpace, elapsedTime);
 	
 	Transformation t;
-	std::array<float, 2> rot = m_player.GetRotation();
 
 	m_player.ApplyTransformation(t);
 	t.ApplyTranslation(0.5f, 0.5f, 0.5f);
@@ -194,7 +193,7 @@ void Engine::Render(float elapsedTime) {
 	for (int i = 0; i < WORLD_SIZE_X; i++) {
 		for (int j = 0; j < WORLD_SIZE_Z; j++) {
 			Chunk* chunk = m_world->GetChunk(i, j);
-			bool dirty = chunk->IsDirty();
+			chunk->IsDirty();
 			if (chunk->IsDirty()) {
 				chunk->Update();
 			}
@@ -672,7 +671,6 @@ void Engine::MousePressEvent(const MOUSE_BUTTON& button, int x, int y) {
 
 	Chunk* currentChunk;
 	Chunk* targetChunk;
-	Chunk* playerChunk;
 
 	int targetChunkX;
 	int targetChunkZ;
@@ -741,7 +739,6 @@ void Engine::MousePressEvent(const MOUSE_BUTTON& button, int x, int y) {
 void Engine::MouseReleaseEvent(const MOUSE_BUTTON& button, int x, int y) {}
 
 void Engine::GetBlockAtCursor() {
-	bool grounded = m_player.GetIsOnGround();
 	int x = Width() / 2;
 	int y = Height() / 2;
 
