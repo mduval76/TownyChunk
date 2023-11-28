@@ -4,7 +4,9 @@ Engine::Engine() :
 	m_world(nullptr),
 	m_player(Vector3f(SPAWN_X, CHUNK_SIZE_Y, SPAWN_Z)),
 	m_currentBlock(Vector3f(0.0f, 0.0f, 0.0f)),
-	m_monster() {}
+	m_monster(m_player) {
+std::cout << "Monster Face (ENGINE::ENGINE) = " << m_monster.GetMonsterFace() << std::endl;
+}
 
 Engine::~Engine() {
 	delete m_world;
@@ -207,10 +209,6 @@ void Engine::Render(float elapsedTime) {
 	t.ApplyTranslation(m_player.GetPosition().x, m_player.GetPosition().y, m_player.GetPosition().z);
 	t.Use();
 
-	if (m_monster.GetIsAttacking()) {
-		RenderLaserBeams(elapsedTime);
-	}
-
 	AddBlendFunction(false);
 	m_monster.UpdateMonsterFace(elapsedTime);
 	DrawSkybox();
@@ -239,6 +237,9 @@ void Engine::Render(float elapsedTime) {
 	t.Pop();
 	t.Use();
 
+	if (m_monster.GetIsAttacking()) {
+		RenderLaserBeams(elapsedTime);
+	}
 	GetBlockAtCursor();
 }
 
@@ -271,8 +272,8 @@ void Engine::AddBlendFunction(bool isOrtho) {
 }
 
 void Engine::RemoveBlendFunction(bool isOrtho) {
-	glEnable(GL_LIGHTING);
 	glDisable(GL_BLEND);
+	glEnable(GL_LIGHTING);
 
 	if (isOrtho) {
 		glEnable(GL_DEPTH_TEST);
@@ -324,54 +325,58 @@ void Engine::DrawSkybox() {
 }
 
 void Engine::RenderLaserBeams(float elapsedTime) {
-	std::cout << "Monster started attacking on face " << m_monster.GetMonsterFace() << "!" << std::endl;
-	m_monster.SetEyeOrigins();
+	float x = m_player.GetPosition().x;
+	float y = m_player.GetPosition().y;
+	float z = m_player.GetPosition().z;
+
 	glLineWidth(5.0f);
 
 	glBegin(GL_LINES);
 	glVertex3f(m_monster.GetLeftEyeOrigin().x, m_monster.GetLeftEyeOrigin().y, m_monster.GetLeftEyeOrigin().z);
-	glVertex3f(m_monster.GetTargetPosition().x, m_monster.GetTargetPosition().y, m_monster.GetTargetPosition().z);
+	glVertex3f(x, y, z);
 	glEnd();
 
 	glBegin(GL_LINES);
 	glVertex3f(m_monster.GetRightEyeOrigin().x, m_monster.GetRightEyeOrigin().y, m_monster.GetRightEyeOrigin().z);
-	glVertex3f(m_monster.GetTargetPosition().x, m_monster.GetTargetPosition().y, m_monster.GetTargetPosition().z);
+	glVertex3f(x, y, z);
 	glEnd();
 }
 
 void Engine::DrawFaceWithMonster(int face) {
 	glBegin(GL_QUADS);
 	switch (face) {
-	case 1: // FRONT
+	case 1: // Z-
 		glNormal3f(0, 0, 1);
 		glTexCoord2f(0, 0); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
 		glTexCoord2f(1, 0); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
 		glTexCoord2f(1, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
 		glTexCoord2f(0, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
 		break;
-	case 2: // RIGHT
-		glNormal3f(-1, 0, 0);
-		glTexCoord2f(0, 0); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
-		glTexCoord2f(1, 0); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
-		glTexCoord2f(1, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
-		glTexCoord2f(0, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
-		break;
-	case 3: // BACK
+	case 2: // Z+
 		glNormal3f(0, 0, -1);
 		glTexCoord2f(0, 0); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
 		glTexCoord2f(1, 0); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
 		glTexCoord2f(1, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
 		glTexCoord2f(0, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
 		break;
-	case 4: // LEFT
+	case 3: // X-
 		glNormal3f(1, 0, 0);
 		glTexCoord2f(0, 0); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
 		glTexCoord2f(1, 0); glVertex3f(-VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
 		glTexCoord2f(1, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
 		glTexCoord2f(0, 1); glVertex3f(-VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
 		break;
+	case 4: // X+
+		glNormal3f(-1, 0, 0);
+		glTexCoord2f(0, 0); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+		glTexCoord2f(1, 0); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+		glTexCoord2f(1, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
+		glTexCoord2f(0, 1); glVertex3f(VIEW_DISTANCE * 2, VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2);
+		break;
 	}
-	glEnd();
+	glEnd(); 
+	
+	//std::cout << "m_monsterFace was (" << m_monster.GetMonsterFace() << ") before exiting Engine::DrawFaceWithMonster" << std::endl;
 }
 
 void Engine::DrawArm() {

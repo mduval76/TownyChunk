@@ -64,7 +64,6 @@ private:
     BlockInfo* m_blockInfo[BTYPE_LAST];
 
     Player m_player;
-
     Monster m_monster;
 
     sf::Music m_music;
@@ -91,7 +90,7 @@ private:
     bool m_keyC = true;
     bool m_keyD = false;
     bool m_keyI = false;
-    bool m_keyR = false;
+    bool m_keyR = true;
     bool m_keyS = false;
     bool m_keySpace = false;
     bool m_keyW = false;

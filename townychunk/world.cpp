@@ -89,7 +89,7 @@ void World::CheckCollisions(Player& player, Vector3f& delta, bool front, bool ba
 }
 
 bool World::IsBlocked(float x, float y, float z) {
-	BlockType blockType = BlockAt(x, y, z, BTYPE_AIR);
+	BlockType blockType = BlockAt((float)x, (float)y, (float)z, BTYPE_AIR);
 	return blockType != BTYPE_AIR;
 }
 

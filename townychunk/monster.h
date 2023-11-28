@@ -5,9 +5,11 @@
 #include "vector3.h"
 #include "vertexbuffer.h"
 
+class Player;
+
 class Monster {
 public:
-	Monster();
+	Monster(Player& player);
     ~Monster();
 
 	void InitializeLaser();
@@ -23,15 +25,15 @@ public:
     float GetMonsterAlpha() const;
     float GetMonsterEyesAlpha() const;
 
-    void SetEyeOrigins();
-	void SetLeftEyeOrigin(const Vector3f& origin);
-	void SetRightEyeOrigin(const Vector3f& origin);
-	void SetTarget(const Vector3f& target);
+    void SetEyeOrigins(const Player& player);
+	void SetTargetPosition(const Vector3f& target);
 
     void UpdateMonsterFace(float elapsedTime);
     int SetRandomMonsterFace();
 
 private:
+    Player& m_player;
+
 	VertexBuffer m_laserVbo;
 
     Vector3f m_playerPosition;
@@ -44,6 +46,7 @@ private:
     bool m_monsterEyesFadeIn = false;
     bool m_monsterEyesFadeOut = false;
     bool m_isAttacking = false;
+    bool m_isFirstAppearance = true;
 
     int m_monsterFace;
 
