@@ -6,7 +6,9 @@
 
 #include <array>
 #include <cmath>
+#include <deque>
 #include <iostream>
+#include <utility>
 
 class Player {
 public:
@@ -24,6 +26,8 @@ public:
 	void SetEquippedItem(BlockType targetType);
 
 	Vector3f Move(bool front, bool back, bool left, bool right, bool up, float elapsedTime);
+	Vector3f GetPositionInHistory(float elapsedTime) const;
+	void RecordPositionHistory(float elapsedTime, const Vector3f& newPosition);
 
 	void TurnLeftRight(float value);
 	void TurnTopBottom(float value);
@@ -36,6 +40,8 @@ private:
 	Vector3f m_position;
 	Vector3f m_direction;
 	Vector3f m_velocity;
+
+	std::deque<std::pair<float, Vector3f>> m_positionHistory;
 	std::array<float, 2> m_rotation;
 	
 	float m_rotX;
@@ -43,6 +49,7 @@ private:
 	float m_jumpVelocity;
 
 	bool m_isOnGround;
+	bool m_isRecordingPositions;
 };
 
 #endif // PLAYER_H__

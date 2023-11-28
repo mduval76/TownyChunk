@@ -237,6 +237,7 @@ void Engine::Render(float elapsedTime) {
 	t.Use();
 
 	if (m_monster.GetIsAttacking()) {
+		// TODO: Fix lighting of the lasers, check for states influencing the lighting
 		RenderLaserBeams(elapsedTime);
 	}
 	GetBlockAtCursor();

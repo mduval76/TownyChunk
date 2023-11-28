@@ -49,11 +49,16 @@ bool Monster::GetIsAttacking() const {
 }
 
 void Monster::UpdateMonsterFace(float elapsedTime) {
+	static float accumulatedTime = 0.0f;
+
 	if (m_isFirstAppearance) {
 		m_monsterInvisibleTime = 5 + rand() % 16;
 		m_isFirstAppearance = false;
+		accumulatedTime = 0.0f;
 		return;
 	}
+
+	accumulatedTime += elapsedTime;
 
 	if (m_monsterFadeIn) {
 		m_monsterAlpha += elapsedTime / m_monsterFadeTime;
@@ -62,15 +67,34 @@ void Monster::UpdateMonsterFace(float elapsedTime) {
 			m_monsterAlpha = 1.0f;
 			m_monsterFadeIn = false;
 			m_monsterEyesFadeIn = true;
-			m_targetPosition = m_player.GetPosition();
+			m_isRecordingPlayerPositions = true;
 			m_targetPosition.y -= 1.7f;
 			m_monsterVisibleTime = 10.0f;
+		}
+
+		if (m_isRecordingPlayerPositions) {
+			m_player.RecordPositionHistory(accumulatedTime, m_player.GetPosition());
 		}
 	}
 	else if (m_monsterVisibleTime > 0.0f) {
 		m_monsterVisibleTime -= elapsedTime;
 
+		if (m_isRecordingPlayerPositions) {
+			m_player.RecordPositionHistory(accumulatedTime, m_player.GetPosition());
+		}
+
 		if (m_isAttacking) {
+			float attackDuration = 10.0f - m_monsterVisibleTime;
+
+			if (attackDuration <= 5.0f) {
+				float historicalTime = std::max(0.0f, attackDuration - 2.5f);
+				m_targetPosition = m_player.GetPositionInHistory(historicalTime);
+				m_targetPosition.y -= 1.7f;
+			}
+
+			if (attackDuration > 2.5f) {
+				m_isRecordingPlayerPositions = false;
+			}
 			SetEyeOrigins(m_player);
 		}
 
@@ -83,13 +107,13 @@ void Monster::UpdateMonsterFace(float elapsedTime) {
 				m_monsterEyesVisibleTime = 5.0f; 
 				m_isAttacking = true;
 				PlayAttackSound();
-				std::cout << "Monster started attacking on face " << m_monsterFace << "!" << std::endl;
-				std::cout << "Left eye position was : (" << m_leftEyePosition.x << ", " << m_leftEyePosition.y << ", " << m_leftEyePosition.z << ") when monster attacked on face(" << m_monsterFace << ")" << std::endl;
-				std::cout << "Right eye position was : (" << m_rightEyePosition.x << ", " << m_rightEyePosition.y << ", " << m_rightEyePosition.z << ") when monster attacked on face(" << m_monsterFace << ")" << std::endl;
 			}
 		}
 		else if (m_monsterEyesVisibleTime > 0.0f) {
 			m_monsterEyesVisibleTime -= elapsedTime;
+			if (m_monsterEyesVisibleTime <= 2.5f) {
+				m_isRecordingPlayerPositions = false;
+			}
 
 			if (m_monsterEyesVisibleTime <= 0.0f) {
 				m_monsterEyesFadeOut = true;
@@ -125,6 +149,7 @@ void Monster::UpdateMonsterFace(float elapsedTime) {
 			SetRandomMonsterFace();
 			SetEyeOrigins(m_player);
 			m_monsterFadeIn = true;
+			accumulatedTime = 0.0f;
 		}
 	}
 }

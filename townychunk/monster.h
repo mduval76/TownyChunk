@@ -54,6 +54,7 @@ private:
     bool m_monsterEyesFadeOut = false;
     bool m_isAttacking = false;
     bool m_isFirstAppearance = true;
+    bool m_isRecordingPlayerPositions = false;
 
     int m_monsterFace;
 

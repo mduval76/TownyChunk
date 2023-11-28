@@ -115,6 +115,25 @@ Vector3f Player::Move(bool front, bool back, bool left, bool right, bool up, flo
 	return delta;
 }
 
+Vector3f Player::GetPositionInHistory(float elapsedTime) const {
+	float targetTime = m_positionHistory.back().first - elapsedTime;
+
+	for (auto it = m_positionHistory.rbegin(); it != m_positionHistory.rend(); ++it) {
+		if (it->first <= targetTime) {
+			return it->second;
+		}
+	}
+
+	return m_positionHistory.front().second;
+}
+
+void Player::RecordPositionHistory(float currentTime, const Vector3f& newPosition) {
+	m_positionHistory.emplace_back(currentTime, newPosition);
+	while (!m_positionHistory.empty() && currentTime - m_positionHistory.front().first > 5.0f) {
+		m_positionHistory.pop_front();
+	}
+}
+
 void Player::TurnLeftRight(float value) {
 	m_rotY += value;
 	if (m_rotY > 360 || m_rotY < -360)
