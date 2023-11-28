@@ -30,6 +30,8 @@ public:
     void UpdateMonsterFace(float elapsedTime);
     int SetRandomMonsterFace();
 
+    void PlayAttackSound();
+
 private:
     Player& m_player;
 
@@ -38,6 +40,13 @@ private:
     Vector3f m_targetPosition;
     Vector3f m_leftEyePosition;
     Vector3f m_rightEyePosition;
+
+    sf::SoundBuffer m_laserBuffer;
+    sf::Sound m_laser1; 
+    sf::Sound m_laser2; 
+    sf::Sound m_laser3; 
+    sf::Sound m_laser4; 
+    sf::Sound m_laser5;
 
 	bool m_monsterFadeIn = false;
     bool m_monsterFadeOut = false;

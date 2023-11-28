@@ -82,6 +82,7 @@ void Monster::UpdateMonsterFace(float elapsedTime) {
 				m_monsterEyesFadeIn = false;
 				m_monsterEyesVisibleTime = 5.0f; 
 				m_isAttacking = true;
+				PlayAttackSound();
 				std::cout << "Monster started attacking on face " << m_monsterFace << "!" << std::endl;
 				std::cout << "Left eye position was : (" << m_leftEyePosition.x << ", " << m_leftEyePosition.y << ", " << m_leftEyePosition.z << ") when monster attacked on face(" << m_monsterFace << ")" << std::endl;
 				std::cout << "Right eye position was : (" << m_rightEyePosition.x << ", " << m_rightEyePosition.y << ", " << m_rightEyePosition.z << ") when monster attacked on face(" << m_monsterFace << ")" << std::endl;
@@ -136,6 +137,53 @@ int Monster::SetRandomMonsterFace() {
 	m_monsterFace = newFace;
 
 	return m_monsterFace;
+}
+
+void Monster::PlayAttackSound() {
+	int sound = rand() % 5 + 1;
+
+	switch (sound) {
+		case 1:
+			if (!m_laserBuffer.loadFromFile("../townychunk/media/audio/laser1.ogg")) {
+				return;
+			}
+			m_laser1.setBuffer(m_laserBuffer);
+			m_laser1.setVolume(50.0f);
+			m_laser1.play();
+			break;
+		case 2:
+			if (!m_laserBuffer.loadFromFile("../townychunk/media/audio/laser2.ogg")) {
+				return;
+			}
+			m_laser2.setBuffer(m_laserBuffer);
+			m_laser2.setVolume(50.0f);
+			m_laser2.play();
+			break;
+		case 3:
+			if (!m_laserBuffer.loadFromFile("../townychunk/media/audio/laser3.ogg")) {
+				return;
+			}
+			m_laser3.setBuffer(m_laserBuffer);
+			m_laser3.setVolume(50.0f);
+			m_laser3.play();
+			break;
+		case 4:
+			if (!m_laserBuffer.loadFromFile("../townychunk/media/audio/laser4.ogg")) {
+				return;
+			}
+			m_laser4.setBuffer(m_laserBuffer);
+			m_laser4.setVolume(50.0f);
+			m_laser4.play();
+			break;
+		case 5:
+			if (!m_laserBuffer.loadFromFile("../townychunk/media/audio/laser5.ogg")) {
+				return;
+			}
+			m_laser5.setBuffer(m_laserBuffer);
+			m_laser5.setVolume(50.0f);
+			m_laser5.play();
+			break;
+	}
 }
 
 void Monster::SetEyeOrigins(const Player& player) {

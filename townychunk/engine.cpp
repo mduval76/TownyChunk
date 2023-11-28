@@ -5,7 +5,6 @@ Engine::Engine() :
 	m_player(Vector3f(SPAWN_X, CHUNK_SIZE_Y, SPAWN_Z)),
 	m_currentBlock(Vector3f(0.0f, 0.0f, 0.0f)),
 	m_monster(m_player) {
-std::cout << "Monster Face (ENGINE::ENGINE) = " << m_monster.GetMonsterFace() << std::endl;
 }
 
 Engine::~Engine() {
