@@ -26,7 +26,6 @@ public:
     float GetMonsterEyesAlpha() const;
 
     void SetEyeOrigins(const Player& player);
-	void SetTargetPosition(const Vector3f& target);
 
     void UpdateMonsterFace(float elapsedTime);
     int SetRandomMonsterFace();
@@ -36,7 +35,6 @@ private:
 
 	VertexBuffer m_laserVbo;
 
-    Vector3f m_playerPosition;
     Vector3f m_targetPosition;
     Vector3f m_leftEyePosition;
     Vector3f m_rightEyePosition;

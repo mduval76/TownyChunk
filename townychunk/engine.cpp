@@ -325,20 +325,16 @@ void Engine::DrawSkybox() {
 }
 
 void Engine::RenderLaserBeams(float elapsedTime) {
-	float x = m_player.GetPosition().x;
-	float y = m_player.GetPosition().y;
-	float z = m_player.GetPosition().z;
-
-	glLineWidth(5.0f);
+	glLineWidth(7.5f);
 
 	glBegin(GL_LINES);
 	glVertex3f(m_monster.GetLeftEyeOrigin().x, m_monster.GetLeftEyeOrigin().y, m_monster.GetLeftEyeOrigin().z);
-	glVertex3f(x, y, z);
+	glVertex3f(m_monster.GetTargetPosition().x, m_monster.GetTargetPosition().y, m_monster.GetTargetPosition().z);
 	glEnd();
 
 	glBegin(GL_LINES);
 	glVertex3f(m_monster.GetRightEyeOrigin().x, m_monster.GetRightEyeOrigin().y, m_monster.GetRightEyeOrigin().z);
-	glVertex3f(x, y, z);
+	glVertex3f(m_monster.GetTargetPosition().x, m_monster.GetTargetPosition().y, m_monster.GetTargetPosition().z);
 	glEnd();
 }
 

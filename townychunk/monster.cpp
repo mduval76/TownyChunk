@@ -4,7 +4,6 @@
 
 Monster::Monster(Player& player) : 
 	m_player(player),
-	m_playerPosition(Vector3f(0.0f, 0.0f, 0.0f)),
 	m_targetPosition(Vector3f(0.0f, 0.0f, 0.0f)),
 	m_leftEyePosition(Vector3f(0.0f, 0.0f, 0.0f)),
 	m_rightEyePosition(Vector3f(0.0f, 0.0f, 0.0f)),
@@ -52,10 +51,10 @@ bool Monster::GetIsAttacking() const {
 void Monster::UpdateMonsterFace(float elapsedTime) {
 	if (m_isFirstAppearance) {
 		m_monsterInvisibleTime = 5 + rand() % 16;
-		m_isFirstAppearance = false; // Reset the flag after the first update cycle
-		// You might want to perform any initial setup needed for the first appearance here
-		return; // Skip the rest of the method on the first call
+		m_isFirstAppearance = false;
+		return;
 	}
+
 	if (m_monsterFadeIn) {
 		m_monsterAlpha += elapsedTime / m_monsterFadeTime;
 
@@ -63,11 +62,17 @@ void Monster::UpdateMonsterFace(float elapsedTime) {
 			m_monsterAlpha = 1.0f;
 			m_monsterFadeIn = false;
 			m_monsterEyesFadeIn = true;
+			m_targetPosition = m_player.GetPosition();
+			m_targetPosition.y -= 1.7f;
 			m_monsterVisibleTime = 10.0f;
 		}
 	}
 	else if (m_monsterVisibleTime > 0.0f) {
 		m_monsterVisibleTime -= elapsedTime;
+
+		if (m_isAttacking) {
+			SetEyeOrigins(m_player);
+		}
 
 		if (m_monsterEyesFadeIn) {
 			m_monsterEyesAlpha += elapsedTime / m_monsterEyesFadeTime;
@@ -123,7 +128,6 @@ void Monster::UpdateMonsterFace(float elapsedTime) {
 	}
 }
 
-// TODO: Fix randomness
 int Monster::SetRandomMonsterFace() {
 	int newFace;
 	do {
@@ -139,33 +143,35 @@ void Monster::SetEyeOrigins(const Player& player) {
 	float playerY = player.GetPosition().y;
 	float playerZ = player.GetPosition().z;
 
+	float offsetZPlus = 5.0f;
+
 	switch (m_monsterFace) {
 	case 1: // Z- (Front)
 		m_leftEyePosition.x = playerX + (NORMALIZED_LEFT_EYE_X - 0.5f) * VIEW_DISTANCE * 2;
-		m_leftEyePosition.y = playerY - (NORMALIZED_LEFT_EYE_Y - 0.5f) * VIEW_DISTANCE * 2;  // Inverted Y
+		m_leftEyePosition.y = playerY - (NORMALIZED_LEFT_EYE_Y - 0.5f) * VIEW_DISTANCE * 2; 
 		m_leftEyePosition.z = playerZ - VIEW_DISTANCE;
 
 		m_rightEyePosition.x = playerX + (NORMALIZED_RIGHT_EYE_X - 0.5f) * VIEW_DISTANCE * 2;
-		m_rightEyePosition.y = playerY - (NORMALIZED_RIGHT_EYE_Y - 0.5f) * VIEW_DISTANCE * 2;  // Inverted Y
+		m_rightEyePosition.y = playerY - (NORMALIZED_RIGHT_EYE_Y - 0.5f) * VIEW_DISTANCE * 2; 
 		m_rightEyePosition.z = playerZ - VIEW_DISTANCE;
 		break;
 	case 2: // Z+ (Back)
-		m_leftEyePosition.x = playerX + (NORMALIZED_LEFT_EYE_X - 0.5f) * VIEW_DISTANCE * 2;
-		m_leftEyePosition.y = playerY - (NORMALIZED_LEFT_EYE_Y - 0.5f) * VIEW_DISTANCE * 2;  // Inverted Y
+		m_leftEyePosition.x = playerX + (NORMALIZED_LEFT_EYE_X - 0.5f) * VIEW_DISTANCE * 2 - offsetZPlus;
+		m_leftEyePosition.y = playerY - (NORMALIZED_LEFT_EYE_Y - 0.5f) * VIEW_DISTANCE * 2;  
 		m_leftEyePosition.z = playerZ + VIEW_DISTANCE;
 
-		m_rightEyePosition.x = playerX + (NORMALIZED_RIGHT_EYE_X - 0.5f) * VIEW_DISTANCE * 2;
-		m_rightEyePosition.y = playerY - (NORMALIZED_RIGHT_EYE_Y - 0.5f) * VIEW_DISTANCE * 2;  // Inverted Y
+		m_rightEyePosition.x = playerX + (NORMALIZED_RIGHT_EYE_X - 0.5f) * VIEW_DISTANCE * 2 - offsetZPlus;
+		m_rightEyePosition.y = playerY - (NORMALIZED_RIGHT_EYE_Y - 0.5f) * VIEW_DISTANCE * 2; 
 		m_rightEyePosition.z = playerZ + VIEW_DISTANCE;
 		break;
 	case 3: // X- (Left)
 		m_leftEyePosition.x = playerX - VIEW_DISTANCE;
-		m_leftEyePosition.y = playerY - (NORMALIZED_LEFT_EYE_Y - 0.5f) * VIEW_DISTANCE * 2;  // Inverted Y
-		m_leftEyePosition.z = playerZ + (NORMALIZED_LEFT_EYE_X - 0.5f) * VIEW_DISTANCE * 2;
+		m_leftEyePosition.y = playerY - (NORMALIZED_LEFT_EYE_Y - 0.5f) * VIEW_DISTANCE * 2;
+		m_leftEyePosition.z = playerZ + (NORMALIZED_LEFT_EYE_X - 0.5f) * VIEW_DISTANCE * 2 - offsetZPlus;
 
 		m_rightEyePosition.x = playerX - VIEW_DISTANCE;
-		m_rightEyePosition.y = playerY - (NORMALIZED_RIGHT_EYE_Y - 0.5f) * VIEW_DISTANCE * 2;  // Inverted Y
-		m_rightEyePosition.z = playerZ + (NORMALIZED_RIGHT_EYE_X - 0.5f) * VIEW_DISTANCE * 2;
+		m_rightEyePosition.y = playerY - (NORMALIZED_RIGHT_EYE_Y - 0.5f) * VIEW_DISTANCE * 2; 
+		m_rightEyePosition.z = playerZ + (NORMALIZED_RIGHT_EYE_X - 0.5f) * VIEW_DISTANCE * 2 - offsetZPlus;
 		break;
 	case 4: // X+ (Right)
 		m_leftEyePosition.x = playerX + VIEW_DISTANCE;
@@ -191,8 +197,4 @@ float Monster::GetMonsterAlpha() const {
 
 float Monster::GetMonsterEyesAlpha() const {
 	return m_monsterEyesAlpha;
-}
-
-void Monster::SetTargetPosition(const Vector3f& target) {
-	m_targetPosition = m_playerPosition;
 }
