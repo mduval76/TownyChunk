@@ -44,7 +44,6 @@ void Engine::Init() {
 	glEnable(GL_LINE_SMOOTH);
 	glEnable(GL_CULL_FACE);
 
-	// Light
 	GLfloat light0Pos[4] = { 0.0f, CHUNK_SIZE_Y, 0.0f, 1.0f };
 	GLfloat light0Amb[4] = { 0.9f, 0.9f, 0.9f, 1.0f };
 	GLfloat light0Diff[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -57,9 +56,6 @@ void Engine::Init() {
 	glLightfv(GL_LIGHT0, GL_SPECULAR, light0Spec);
 
 	m_world = new World();
-
-	CenterMouse();
-	HideCursor();
 }
 
 void Engine::DeInit() {}
@@ -162,17 +158,15 @@ void Engine::LoadResource() {
 
 void Engine::UnloadResource() {}
 
-// TODO: ADD START SCREEN WITH PLAY BUTTON
-
 void Engine::Render(float elapsedTime) {
 	if (elapsedTime > 1.0f / 60.0f) {
 		elapsedTime = 1.0f / 60.0f;
 	}
 
-	static float gameTime = elapsedTime; // Valeur conservée entre les appels car static
+	static float gameTime = elapsedTime;
 	gameTime += elapsedTime;
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Efface le tampon de couleur et de profondeur
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// Transformations initiales
 	glMatrixMode(GL_MODELVIEW);
@@ -245,8 +239,10 @@ void Engine::Render(float elapsedTime) {
 	t.Use();
 
 	if (m_monster.GetIsAttacking()) {
+		AddBlendFunction(false);
 		// TODO: Fix lighting of the lasers, check for states influencing the lighting
 		RenderLaserBeams(elapsedTime);
+		RemoveBlendFunction(false);
 	}
 
 	GetBlockAtCursor();
@@ -358,7 +354,6 @@ void Engine::DrawStartScreen(float elapsedTime) {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	m_texturePlayButton.Bind();
-	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 	glBegin(GL_QUADS);
 	glTexCoord2f(0, 0); glVertex2i(centerX - buttonWidth / 2, centerY - buttonHeight / 2);
 	glTexCoord2f(1, 0); glVertex2i(centerX + buttonWidth / 2, centerY - buttonHeight / 2);
@@ -415,8 +410,6 @@ void Engine::DrawFaceWithMonster(int face) {
 		break;
 	}
 	glEnd(); 
-	
-	//std::cout << "m_monsterFace was (" << m_monster.GetMonsterFace() << ") before exiting Engine::DrawFaceWithMonster" << std::endl;
 }
 
 void Engine::DrawArm() {
@@ -468,20 +461,20 @@ void Engine::DrawBlock(float elapsedTime) {
 	float u, v, w, h;
 	BlockInfo::GetBlockTextureCoords(equippedItem, FRONT, u, v, w, h);
 	glBegin(GL_QUADS);		// FRONT
-	glNormal3f(0, 0, -1);	// Normal Z-
-	glTexCoord2f(u, v);	glVertex3f(-0.5, -0.5, 0.5);
-	glTexCoord2f(u + w, v);	glVertex3f(0.5, -0.5, 0.5);
-	glTexCoord2f(u + w, v + h);	glVertex3f(0.5, 0.5, 0.5);
-	glTexCoord2f(u, v + h);	glVertex3f(-0.5, 0.5, 0.5);
-	glEnd();
-
-	BlockInfo::GetBlockTextureCoords(equippedItem, BACK, u, v, w, h);
-	glBegin(GL_QUADS);		// BACK
 	glNormal3f(0, 0, 1);	// Normal Z+
 	glTexCoord2f(u, v); glVertex3f(0.5, -0.5, -0.5);
 	glTexCoord2f(u + w, v); glVertex3f(-0.5, -0.5, -0.5);
 	glTexCoord2f(u + w, v + h); glVertex3f(-0.5, 0.5, -0.5);
 	glTexCoord2f(u, v + h); glVertex3f(0.5, 0.5, -0.5);
+	glEnd();
+
+	BlockInfo::GetBlockTextureCoords(equippedItem, BACK, u, v, w, h);
+	glBegin(GL_QUADS);		// BACK
+	glNormal3f(0, 0, -1);	// Normal Z-
+	glTexCoord2f(u, v);	glVertex3f(-0.5, -0.5, 0.5);
+	glTexCoord2f(u + w, v);	glVertex3f(0.5, -0.5, 0.5);
+	glTexCoord2f(u + w, v + h);	glVertex3f(0.5, 0.5, 0.5);
+	glTexCoord2f(u, v + h);	glVertex3f(-0.5, 0.5, 0.5);
 	glEnd();
 
 	BlockInfo::GetBlockTextureCoords(equippedItem, TOP, u, v, w, h);
@@ -504,20 +497,20 @@ void Engine::DrawBlock(float elapsedTime) {
 
 	BlockInfo::GetBlockTextureCoords(equippedItem, LEFT, u, v, w, h);
 	glBegin(GL_QUADS);		// LEFT
-	glNormal3f(1, 0, 0);	// Normal X-
-	glTexCoord2f(u, v);	glVertex3f(-0.5, -0.5, -0.5);
-	glTexCoord2f(u + w, v);	glVertex3f(-0.5, -0.5, 0.5);
-	glTexCoord2f(u + w, v + h);	glVertex3f(-0.5, 0.5, 0.5);
-	glTexCoord2f(u, v + h);	glVertex3f(-0.5, 0.5, -0.5);
-	glEnd();
-
-	BlockInfo::GetBlockTextureCoords(equippedItem, RIGHT, u, v, w, h);
-	glBegin(GL_QUADS);		// RIGHT
 	glNormal3f(-1, 0, 0);	// Normal X+
 	glTexCoord2f(u, v);	glVertex3f(0.5, -0.5, 0.5);
 	glTexCoord2f(u + w, v);	glVertex3f(0.5, -0.5, -0.5);
 	glTexCoord2f(u + w, v + h);	glVertex3f(0.5, 0.5, -0.5);
 	glTexCoord2f(u, v + h);	glVertex3f(0.5, 0.5, 0.5);
+	glEnd();
+
+	BlockInfo::GetBlockTextureCoords(equippedItem, RIGHT, u, v, w, h);
+	glBegin(GL_QUADS);		// RIGHT
+	glNormal3f(1, 0, 0);	// Normal X-
+	glTexCoord2f(u, v);	glVertex3f(-0.5, -0.5, -0.5);
+	glTexCoord2f(u + w, v);	glVertex3f(-0.5, -0.5, 0.5);
+	glTexCoord2f(u + w, v + h);	glVertex3f(-0.5, 0.5, 0.5);
+	glTexCoord2f(u, v + h);	glVertex3f(-0.5, 0.5, -0.5);
 	glEnd();
 
 	glDepthRange(0.0, 1.0);
@@ -676,17 +669,17 @@ void Engine::KeyReleaseEvent(unsigned char key) {
 }
 
 void Engine::MouseMoveEvent(int x, int y) {
-	// Centrer la souris seulement si elle n'est pas déjà centrée
-	// Il est nécessaire de faire la vérification pour éviter de tomber
-	// dans une boucle infinie où l'appel à CenterMouse génère un
-	// MouseMoveEvent, qui rapelle CenterMouse qui rapelle un autre
-	// MouseMoveEvent, etc
 	if (x == (Width() / 2) && y == (Height() / 2))
 		return;
 
 	MakeRelativeToCenter(x, y);
 	m_player.TurnLeftRight((float)x);
 	m_player.TurnTopBottom((float)y);
+
+	if (m_gameState == START_MENU) {
+		return;
+	}
+
 	CenterMouse();
 }
 
@@ -733,8 +726,11 @@ void Engine::MousePressEvent(const MOUSE_BUTTON& button, int x, int y) {
 
 	switch (button) {
 	case MOUSE_BUTTON_LEFT:
-		if (x > 0.0f && x < Width() && y > 0.0f && y < Height()) {
+
+		if (m_gameState ==  START_MENU && (x > 0.0f && x < Width() && y > 0.0f && y < Height())) {
 			m_gameState = PLAY;
+			HideCursor();
+			CenterMouse();
 			m_music.play();
 			m_music.setLoop(true);
 			return;
@@ -744,6 +740,7 @@ void Engine::MousePressEvent(const MOUSE_BUTTON& button, int x, int y) {
 		removeBt = currentChunk->GetBlock(static_cast<int>(m_currentBlock.x) % CHUNK_SIZE_X,
 			static_cast<int>(m_currentBlock.y) % CHUNK_SIZE_Y,
 			static_cast<int>(m_currentBlock.z) % CHUNK_SIZE_Z);
+
 		if (removeBt != BTYPE_AIR) {
 			currentChunk->RemoveBlock(static_cast<int>(m_currentBlock.x) % CHUNK_SIZE_X,
 				static_cast<int>(m_currentBlock.y) % CHUNK_SIZE_Y,
@@ -809,16 +806,11 @@ void Engine::GetBlockAtCursor() {
 	glReadPixels(x, int(winY), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &winZ);
 
 	gluUnProject(winX, winY, winZ, modelview, projection, viewport, &posX, &posY, &posZ);
-	// std::cout << "Window points: " << winX << " | " << winY << " | " << winZ << std::endl;
-	// std::cout << "Hit points: " << posX << " | " << posY << " | " << posZ << std::endl;
-
 
 	posX += .5f;
 	posY += .5f;
 	posZ += .5f;
 
-	// Le cast vers int marche juste pour les valeurs entiere, utiliser une fonction de la libc si besoin
-	// de valeurs negatives
 	int px = (int)(posX);
 	int py = (int)(posY);
 	int pz = (int)(posZ);
@@ -826,13 +818,6 @@ void Engine::GetBlockAtCursor() {
 	bool found = false;
 
 	if ((m_player.GetPosition() - Vector3f((float)posX, (float)posY, (float)posZ)).Length() < MAX_SELECT_DISTANCE) {
-		// Apres avoir determine la position du bloc en utilisant la partie entiere du hit
-		// point retourne par opengl, on doit verifier de chaque cote du bloc trouve pour trouver
-		// le vrai bloc. Le vrai bloc peut etre different a cause d'erreurs de precision de nos
-		// nombres flottants (si z = 14.999 par exemple, et qu'il n'y a pas de blocs a la position
-		// 14 (apres arrondi vers l'entier) on doit trouver et retourner le bloc en position 15 s'il existe
-		// A cause des erreurs de precisions, ils arrive que le cote d'un bloc qui doit pourtant etre a la
-		// position 15 par exemple nous retourne plutot la position 15.0001
 		for (int x = px - 1; !found && x <= px + 1; ++x) {
 			for (int y = py - 1; !found && x >= 0 && y <= py + 1; ++y) {
 				for (int z = pz - 1; !found && y >= 0 && z <= pz + 1; ++z) {
@@ -858,12 +843,10 @@ void Engine::GetBlockAtCursor() {
 		m_currentBlock.x = -1;
 	}
 	else {
-		// Find on which face of the bloc we got a hit
 		m_currentFaceNormal.Zero();
 
 		const float epsilon = 0.075f;
 
-		// Front et back:
 		if (EqualWithEpsilon((float)posZ, (float)m_currentBlock.z, epsilon))
 			m_currentFaceNormal.z = -1;
 		else if (EqualWithEpsilon((float)posZ, (float)m_currentBlock.z + 1.f, epsilon))

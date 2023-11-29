@@ -66,6 +66,10 @@ private:
     float m_monsterEyesAlpha;
     float m_monsterEyesFadeTime;
     float m_monsterEyesVisibleTime;
+
+    int m_attackCount = 0;
+    int m_lastRecordedTime = 0;
+    int m_UsedRecordingCount = 0;
 };
 
 #endif // MONSTER_H__

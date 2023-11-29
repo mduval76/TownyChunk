@@ -68,7 +68,6 @@ void Monster::UpdateMonsterFace(float elapsedTime) {
 			m_monsterFadeIn = false;
 			m_monsterEyesFadeIn = true;
 			m_isRecordingPlayerPositions = true;
-			m_targetPosition.y -= 1.7f;
 			m_monsterVisibleTime = 10.0f;
 		}
 
