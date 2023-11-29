@@ -47,6 +47,7 @@ private:
 	float m_rotX;
 	float m_rotY;
 	float m_jumpVelocity;
+	float m_hp;
 
 	bool m_isOnGround;
 	bool m_isRecordingPositions;

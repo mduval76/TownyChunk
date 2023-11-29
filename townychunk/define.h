@@ -73,6 +73,7 @@ enum BLOCK_TYPE {
 
 typedef uint8_t BlockFace;
 enum BLOCK_FACE { FRONT, BACK, LEFT, RIGHT, TOP, BOTTOM, LAST };
+enum GameState { PLAY, START_MENU };
 
 #define TEXTURE_PATH    "../townychunk/media/textures/"
 #define SHADER_PATH     "../townychunk/media/shaders/"

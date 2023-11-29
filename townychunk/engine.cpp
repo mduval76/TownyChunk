@@ -2,10 +2,11 @@
 
 Engine::Engine() :
 	m_world(nullptr),
+	m_gameState(START_MENU),
 	m_player(Vector3f(SPAWN_X, CHUNK_SIZE_Y, SPAWN_Z)),
 	m_currentBlock(Vector3f(0.0f, 0.0f, 0.0f)),
-	m_monster(m_player) {
-}
+	m_monster(m_player),
+	m_playButtonAnimationTime(0.0f){}
 
 Engine::~Engine() {
 	delete m_world;
@@ -67,9 +68,11 @@ void Engine::LoadResource() {
 	LoadTexture(m_textureArm, TEXTURE_PATH "arm.png");
 	LoadTexture(m_textureMonster, TEXTURE_PATH "monster.png");
 	LoadTexture(m_textureMonsterEyes, TEXTURE_PATH "monster_eyes.png");
+	LoadTexture(m_texturePlayButton, TEXTURE_PATH "play_button.png");
 	LoadTexture(m_textureDark, TEXTURE_PATH "darkness.jpg");
 	LoadTexture(m_textureFont, TEXTURE_PATH "font.bmp");
 	LoadTexture(m_textureCrosshair, TEXTURE_PATH "cross.bmp");
+	LoadTexture(m_textureStartScreen, TEXTURE_PATH "start_screen.png");
 
 	TextureAtlas::TextureIndex texIdxEmbossedBrown = m_textureAtlas.AddTexture(TEXTURE_PATH "embossed_brown.png");
 	TextureAtlas::TextureIndex texIdxEmbossedWhite = m_textureAtlas.AddTexture(TEXTURE_PATH "embossed_white.png");
@@ -155,11 +158,11 @@ void Engine::LoadResource() {
 		abort();
 	}
 
-	m_music.play();
-	m_music.setLoop(true);
 }
 
 void Engine::UnloadResource() {}
+
+// TODO: ADD START SCREEN WITH PLAY BUTTON
 
 void Engine::Render(float elapsedTime) {
 	if (elapsedTime > 1.0f / 60.0f) {
@@ -174,6 +177,13 @@ void Engine::Render(float elapsedTime) {
 	// Transformations initiales
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
+
+	if (m_gameState == START_MENU) {
+		AddBlendFunction(true);
+		DrawStartScreen(elapsedTime);
+		RemoveBlendFunction(true);
+		return;
+	}
 
 	// Camera (Player)
 	Vector3f pos = m_player.GetPosition();
@@ -212,7 +222,6 @@ void Engine::Render(float elapsedTime) {
 	DrawSkybox();
 	RemoveBlendFunction(false);
 
-
 	// Wireframe
 	if (m_wireframe) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -231,7 +240,7 @@ void Engine::Render(float elapsedTime) {
 
 	// Equipped block
 	if (m_keyR) { DrawBlock(elapsedTime); }
-
+	
 	t.Pop();
 	t.Use();
 
@@ -239,6 +248,7 @@ void Engine::Render(float elapsedTime) {
 		// TODO: Fix lighting of the lasers, check for states influencing the lighting
 		RenderLaserBeams(elapsedTime);
 	}
+
 	GetBlockAtCursor();
 }
 
@@ -320,6 +330,41 @@ void Engine::DrawSkybox() {
 	glTexCoord2f(0, 1); glVertex3f(VIEW_DISTANCE * 2, -VIEW_DISTANCE * 2, VIEW_DISTANCE * 2);
 	glEnd();
 
+	glDisable(GL_BLEND);
+}
+
+void Engine::DrawStartScreen(float elapsedTime) {
+	m_textureStartScreen.Bind();
+	glBegin(GL_QUADS);
+		glTexCoord2f(0, 0); glVertex2i(0, 0);
+		glTexCoord2f(1, 0); glVertex2i(Width(), 0);
+		glTexCoord2f(1, 1); glVertex2i(Width(), Height());
+		glTexCoord2f(0, 1); glVertex2i(0, Height());
+	glEnd();
+
+	m_playButtonAnimationTime += elapsedTime;
+
+	float amplitude = 0.05f; 
+	float frequency = 6.0f; 
+	float scale = 0.4f + amplitude * sin(frequency * m_playButtonAnimationTime);
+
+
+	float buttonWidth = 400.0f * scale;
+	float buttonHeight = 250.0f * scale;
+	float centerX = Width() / 2.0f;
+	float centerY = Height() / 3.0f;
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	m_texturePlayButton.Bind();
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+	glBegin(GL_QUADS);
+	glTexCoord2f(0, 0); glVertex2i(centerX - buttonWidth / 2, centerY - buttonHeight / 2);
+	glTexCoord2f(1, 0); glVertex2i(centerX + buttonWidth / 2, centerY - buttonHeight / 2);
+	glTexCoord2f(1, 1); glVertex2i(centerX + buttonWidth / 2, centerY + buttonHeight / 2);
+	glTexCoord2f(0, 1); glVertex2i(centerX - buttonWidth / 2, centerY + buttonHeight / 2);
+	glEnd();
 	glDisable(GL_BLEND);
 }
 
@@ -688,6 +733,13 @@ void Engine::MousePressEvent(const MOUSE_BUTTON& button, int x, int y) {
 
 	switch (button) {
 	case MOUSE_BUTTON_LEFT:
+		if (x > 0.0f && x < Width() && y > 0.0f && y < Height()) {
+			m_gameState = PLAY;
+			m_music.play();
+			m_music.setLoop(true);
+			return;
+		}
+
 		currentChunk = m_world->ChunkAt(static_cast<int>(m_currentBlock.x), static_cast<int>(m_currentBlock.y), static_cast<int>(m_currentBlock.z));
 		removeBt = currentChunk->GetBlock(static_cast<int>(m_currentBlock.x) % CHUNK_SIZE_X,
 			static_cast<int>(m_currentBlock.y) % CHUNK_SIZE_Y,

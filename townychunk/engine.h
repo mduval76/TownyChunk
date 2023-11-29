@@ -53,6 +53,7 @@ private:
     void DrawHud(float elapsedTime);
     void DrawFaceWithMonster(int face);
     void DrawSkybox();
+    void DrawStartScreen(float elapsedTime);
 
     void RenderLaserBeams(float elapsedTime);
 
@@ -68,20 +69,26 @@ private:
 
     sf::Music m_music;
 
+    GameState m_gameState;
+
     Shader m_shader01;
     Shader m_particleShader;
 
+    Texture m_textureArm;
     Texture m_textureCrosshair;
     Texture m_textureDark;
     Texture m_textureFont;
     Texture m_textureMonster;
     Texture m_textureMonsterEyes;
-    Texture m_textureArm;
+    Texture m_texturePlayButton;
+    Texture m_textureStartScreen;
 
     TextureAtlas m_textureAtlas = TextureAtlas(BTYPE_LAST);
 
     Vector3f m_currentBlock;
     Vector3f m_currentFaceNormal;
+
+    float m_playButtonAnimationTime;
 
     bool m_wireframe = false;
     bool m_isOrtho = false;

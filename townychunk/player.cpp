@@ -9,7 +9,8 @@ Player::Player(const Vector3f& position, float rotX, float rotY)
 		 m_rotY(rotY),
 		 m_jumpVelocity(8.5f),
 		 m_isOnGround(false),
-		 m_equippedItem(BTYPE_HELL) {}
+		 m_equippedItem(BTYPE_HELL),
+		 m_hp(100.0f){}
 
 std::array<float, 2> Player::GetRotation() const {
 	return m_rotation;
