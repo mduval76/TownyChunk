@@ -15,8 +15,8 @@ Monster::Monster(Player& player) :
 	m_monsterEyesAlpha(0.0f),
 	m_monsterEyesFadeTime(2.5f),
 	m_monsterEyesVisibleTime(0.0f) {
-	srand(static_cast<unsigned int>(time(NULL))); // Seed the random number generator
-	// InitializeLaser(); // Uncomment if laser initialization is needed here
+	srand(static_cast<unsigned int>(time(NULL)));
+	// InitializeLaser();
 }
 
 Monster::~Monster() {
@@ -70,20 +70,13 @@ void Monster::UpdateMonsterFace(float elapsedTime) {
 			m_isRecordingPlayerPositions = true;
 			m_monsterVisibleTime = 10.0f;
 		}
-
-		if (m_isRecordingPlayerPositions) {
-			m_player.RecordPositionHistory(accumulatedTime, m_player.GetPosition());
-		}
 	}
 	else if (m_monsterVisibleTime > 0.0f) {
 		m_monsterVisibleTime -= elapsedTime;
 
-		if (m_isRecordingPlayerPositions) {
-			m_player.RecordPositionHistory(accumulatedTime, m_player.GetPosition());
-		}
-
 		if (m_isAttacking) {
 			float attackDuration = 10.0f - m_monsterVisibleTime;
+
 
 			if (attackDuration <= 5.0f) {
 				float historicalTime = std::max(0.0f, attackDuration - 2.5f);
@@ -100,6 +93,11 @@ void Monster::UpdateMonsterFace(float elapsedTime) {
 		if (m_monsterEyesFadeIn) {
 			m_monsterEyesAlpha += elapsedTime / m_monsterEyesFadeTime;
 
+			if (m_isRecordingPlayerPositions) {
+				m_player.RecordPositionHistory(accumulatedTime, m_player.GetPosition());
+				std::cout << "Recorded position: " << m_player.GetPosition().x << ", " << m_player.GetPosition().y << ", " << m_player.GetPosition().z << " during EYE FADE-IN" << std::endl;
+			}
+
 			if (m_monsterEyesAlpha >= 1.0f) {
 				m_monsterEyesAlpha = 1.0f;
 				m_monsterEyesFadeIn = false;
@@ -110,7 +108,12 @@ void Monster::UpdateMonsterFace(float elapsedTime) {
 		}
 		else if (m_monsterEyesVisibleTime > 0.0f) {
 			m_monsterEyesVisibleTime -= elapsedTime;
-			if (m_monsterEyesVisibleTime <= 2.5f) {
+
+			if (m_isRecordingPlayerPositions && m_monsterEyesVisibleTime <= 2.5f) {
+				m_player.RecordPositionHistory(accumulatedTime, m_player.GetPosition());
+				std::cout << "Recorded position: " << m_player.GetPosition().x << ", " << m_player.GetPosition().y << ", " << m_player.GetPosition().z << " during ATTACK" << std::endl;
+			}
+			else {
 				m_isRecordingPlayerPositions = false;
 			}
 

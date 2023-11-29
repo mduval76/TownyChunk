@@ -344,21 +344,24 @@ void Engine::DrawStartScreen(float elapsedTime) {
 	float frequency = 6.0f; 
 	float scale = 0.4f + amplitude * sin(frequency * m_playButtonAnimationTime);
 
+	m_buttonWidth = Width() * 0.4f;
+	m_buttonHeight = Height() * 0.4f;
 
-	float buttonWidth = 400.0f * scale;
-	float buttonHeight = 250.0f * scale;
-	float centerX = Width() / 2.0f;
-	float centerY = Height() / 3.0f;
+	float scaledButtonWidth = m_buttonWidth * scale;
+	float scaledButtonHeight = m_buttonHeight * scale;
+
+	m_centerX = Width() * 0.5f;
+	m_centerY = Height() * 0.3f;
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	m_texturePlayButton.Bind();
 	glBegin(GL_QUADS);
-	glTexCoord2f(0, 0); glVertex2i(centerX - buttonWidth / 2, centerY - buttonHeight / 2);
-	glTexCoord2f(1, 0); glVertex2i(centerX + buttonWidth / 2, centerY - buttonHeight / 2);
-	glTexCoord2f(1, 1); glVertex2i(centerX + buttonWidth / 2, centerY + buttonHeight / 2);
-	glTexCoord2f(0, 1); glVertex2i(centerX - buttonWidth / 2, centerY + buttonHeight / 2);
+	glTexCoord2f(0, 0); glVertex2i(m_centerX - scaledButtonWidth / 2, m_centerY - scaledButtonHeight / 2);
+	glTexCoord2f(1, 0); glVertex2i(m_centerX + scaledButtonWidth / 2, m_centerY - scaledButtonHeight / 2);
+	glTexCoord2f(1, 1); glVertex2i(m_centerX + scaledButtonWidth / 2, m_centerY + scaledButtonHeight / 2);
+	glTexCoord2f(0, 1); glVertex2i(m_centerX - scaledButtonWidth / 2, m_centerY + scaledButtonHeight / 2);
 	glEnd();
 	glDisable(GL_BLEND);
 }
@@ -724,10 +727,16 @@ void Engine::MousePressEvent(const MOUSE_BUTTON& button, int x, int y) {
 	BlockType removeBt;
 	BlockType equippedItem;
 
+	float buttonLeft = m_centerX - m_buttonWidth / 2;
+	float buttonRight = m_centerX + m_buttonWidth / 2;
+	float buttonTop = m_centerY + m_buttonHeight / 4;
+	float buttonBottom = m_centerY - m_buttonHeight / 4;
+	float invertedY = Height() - y;
+
 	switch (button) {
 	case MOUSE_BUTTON_LEFT:
 
-		if (m_gameState ==  START_MENU && (x > 0.0f && x < Width() && y > 0.0f && y < Height())) {
+		if (m_gameState == START_MENU && (x > buttonLeft && x < buttonRight && invertedY < buttonTop && invertedY > buttonBottom)) {
 			m_gameState = PLAY;
 			HideCursor();
 			CenterMouse();

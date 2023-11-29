@@ -89,6 +89,10 @@ private:
     Vector3f m_currentFaceNormal;
 
     float m_playButtonAnimationTime;
+    float m_buttonWidth;
+    float m_buttonHeight;
+    float m_centerX;
+    float m_centerY;
 
     bool m_wireframe = false;
     bool m_isOrtho = false;
