@@ -367,6 +367,7 @@ void Engine::DrawStartScreen(float elapsedTime) {
 }
 
 void Engine::RenderLaserBeams(float elapsedTime) {
+	glColor3f(1.0f, 0.0f, 0.0f);
 	glLineWidth(7.5f);
 
 	glBegin(GL_LINES);
@@ -378,6 +379,8 @@ void Engine::RenderLaserBeams(float elapsedTime) {
 	glVertex3f(m_monster.GetRightEyeOrigin().x, m_monster.GetRightEyeOrigin().y, m_monster.GetRightEyeOrigin().z);
 	glVertex3f(m_monster.GetTargetPosition().x, m_monster.GetTargetPosition().y, m_monster.GetTargetPosition().z);
 	glEnd();
+
+	glColor3f(1.0f, 1.0f, 1.0f);
 }
 
 void Engine::DrawFaceWithMonster(int face) {
@@ -442,12 +445,13 @@ void Engine::DrawArm() {
 }
 
 void Engine::DrawBlock(float elapsedTime) {
-	Transformation t;
-	t.Push();
 	static float angleX = 0.0f;
 	static float angleY = 0.0f;
 	angleX += (elapsedTime * 100);
 	angleY += (elapsedTime * 100);
+
+	Transformation t;
+	t.Push();
 	t.ApplyTranslation(1.135f, -0.25, -5.5f);
 	t.ApplyRotation(angleX, 1.0f, 0.0f, 0.0f);
 	t.ApplyRotation(angleY, 0.0f, 1.0f, 0.0f);
@@ -519,7 +523,8 @@ void Engine::DrawBlock(float elapsedTime) {
 	glDepthRange(0.0, 1.0);
 
 	t.Pop();
-	t.Use();
+
+	glBindTexture(GL_TEXTURE_2D, 0); // DON'T REMOVE THIS FUCKER!!!
 }
 
 void Engine::DrawHud(float elapsedTime) {
@@ -735,7 +740,6 @@ void Engine::MousePressEvent(const MOUSE_BUTTON& button, int x, int y) {
 
 	switch (button) {
 	case MOUSE_BUTTON_LEFT:
-
 		if (m_gameState == START_MENU && (x > buttonLeft && x < buttonRight && invertedY < buttonTop && invertedY > buttonBottom)) {
 			m_gameState = PLAY;
 			HideCursor();
