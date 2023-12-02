@@ -72,7 +72,7 @@ private:
     GameState m_gameState;
 
     Shader m_shader01;
-    Shader m_particleShader;
+    Shader m_laserShader;
 
     Texture m_textureArm;
     Texture m_textureCrosshair;

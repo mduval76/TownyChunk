@@ -26,7 +26,7 @@ void Engine::Init() {
 		exit(1);
 	}
 
-	if (!m_particleShader.Load(SHADER_PATH "laser.vert", SHADER_PATH "laser.frag", true)) {
+	if (!m_laserShader.Load(SHADER_PATH "laser.vert", SHADER_PATH "laser.frag", true)) {
 		std::cout << "Failed to load laser shader" << std::endl;
 		exit(1);
 	}
@@ -239,9 +239,11 @@ void Engine::Render(float elapsedTime) {
 	t.Use();
 
 	if (m_monster.GetIsAttacking()) {
+		m_laserShader.Use();
 		AddBlendFunction(false);
 		RenderLaserBeams(elapsedTime);
 		RemoveBlendFunction(false);
+		Shader::Disable();
 	}
 
 	GetBlockAtCursor();
@@ -367,15 +369,16 @@ void Engine::DrawStartScreen(float elapsedTime) {
 
 void Engine::RenderLaserBeams(float elapsedTime) {
 
-	/*glBegin(GL_LINES);
-	glVertex3f(m_monster.GetLeftEyeOrigin().x, m_monster.GetLeftEyeOrigin().y, m_monster.GetLeftEyeOrigin().z);
-	glVertex3f(m_monster.GetTargetPosition().x, m_monster.GetTargetPosition().y, m_monster.GetTargetPosition().z);
-	glEnd();
+	//glLineWidth(2.0f);
+	//glBegin(GL_LINES);
+	//glVertex3f(m_monster.GetLeftEyeOrigin().x, m_monster.GetLeftEyeOrigin().y, m_monster.GetLeftEyeOrigin().z);
+	//glVertex3f(m_monster.GetTargetPosition().x, m_monster.GetTargetPosition().y, m_monster.GetTargetPosition().z);
+	//glEnd();
 
-	glBegin(GL_LINES);
-	glVertex3f(m_monster.GetRightEyeOrigin().x, m_monster.GetRightEyeOrigin().y, m_monster.GetRightEyeOrigin().z);
-	glVertex3f(m_monster.GetTargetPosition().x, m_monster.GetTargetPosition().y, m_monster.GetTargetPosition().z);
-	glEnd();*/
+	//glBegin(GL_LINES);
+	//glVertex3f(m_monster.GetRightEyeOrigin().x, m_monster.GetRightEyeOrigin().y, m_monster.GetRightEyeOrigin().z);
+	//glVertex3f(m_monster.GetTargetPosition().x, m_monster.GetTargetPosition().y, m_monster.GetTargetPosition().z);
+	//glEnd();
 
 	const VertexBuffer& leftEyeLaserVbo = m_monster.GetLeftEyeLaserVBO();
 	if (leftEyeLaserVbo.IsValid()) {

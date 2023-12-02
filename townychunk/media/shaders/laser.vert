@@ -1,9 +1,6 @@
-#version 330 core
-
-layout(location = 0) in vec4 vertexPosition;
-
-uniform mat4 modelViewProjectionMatrix;
+varying vec4 light;
 
 void main() {
-    gl_Position = modelViewProjectionMatrix * vertexPosition;
+    light = gl_Color;
+    gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
 }
