@@ -368,17 +368,11 @@ void Engine::DrawStartScreen(float elapsedTime) {
 }
 
 void Engine::RenderLaserBeams(float elapsedTime) {
+	GLuint shaderProgramID = m_laserShader.GetProgramID();
+	glUseProgram(shaderProgramID);
 
-	//glLineWidth(2.0f);
-	//glBegin(GL_LINES);
-	//glVertex3f(m_monster.GetLeftEyeOrigin().x, m_monster.GetLeftEyeOrigin().y, m_monster.GetLeftEyeOrigin().z);
-	//glVertex3f(m_monster.GetTargetPosition().x, m_monster.GetTargetPosition().y, m_monster.GetTargetPosition().z);
-	//glEnd();
-
-	//glBegin(GL_LINES);
-	//glVertex3f(m_monster.GetRightEyeOrigin().x, m_monster.GetRightEyeOrigin().y, m_monster.GetRightEyeOrigin().z);
-	//glVertex3f(m_monster.GetTargetPosition().x, m_monster.GetTargetPosition().y, m_monster.GetTargetPosition().z);
-	//glEnd();
+	GLint timeLocation = glGetUniformLocation(shaderProgramID, "time");
+	glUniform1f(timeLocation, elapsedTime);
 
 	const VertexBuffer& leftEyeLaserVbo = m_monster.GetLeftEyeLaserVBO();
 	if (leftEyeLaserVbo.IsValid()) {

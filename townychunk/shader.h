@@ -11,6 +11,7 @@ class Shader
         void Use() const;
 
         GLint BindIntUniform(const std::string& name) const;
+        GLuint GetProgramID() const;
         void UpdateIntUniform(GLint name, GLint value) const;
         void UpdateFloatUniform(GLint name, GLfloat value) const;
 
