@@ -89,6 +89,10 @@ GLint Shader::BindIntUniform(const std::string& name) const
     return glGetUniformLocation(m_program, name.c_str());
 }
 
+GLuint Shader::GetProgramID() const {
+    return m_program;
+}
+
 void Shader::UpdateIntUniform(GLint name, GLint value) const
 {
     glUniform1i(name, value);

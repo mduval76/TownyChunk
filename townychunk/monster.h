@@ -12,7 +12,9 @@ public:
 	Monster(Player& player);
     ~Monster();
 
-	void InitializeLaser();
+	void UpdateLaserBeams();
+    const VertexBuffer& GetLeftEyeLaserVBO() const;
+    const VertexBuffer& GetRightEyeLaserVBO() const;
 
     Vector3f GetLeftEyeOrigin() const;
     Vector3f GetRightEyeOrigin() const;
@@ -35,7 +37,8 @@ public:
 private:
     Player& m_player;
 
-	VertexBuffer m_laserVbo;
+	VertexBuffer m_leftLaserBeamVbo;
+    VertexBuffer m_rightLaserBeamVbo;
 
     Vector3f m_targetPosition;
     Vector3f m_leftEyePosition;
@@ -61,13 +64,14 @@ private:
     float m_monsterAlpha;
     float m_monsterFadeTime;
     float m_monsterVisibleTime;
+    float m_monsterVisible;
     float m_monsterInvisibleTime;
 
     float m_monsterEyesAlpha;
     float m_monsterEyesFadeTime;
     float m_monsterEyesVisibleTime;
 
-    int m_attackCount = 0;
+    int m_attackCount;
     int m_lastRecordedTime = 0;
     int m_UsedRecordingCount = 0;
 };

@@ -26,8 +26,9 @@ public:
 	void SetEquippedItem(BlockType targetType);
 
 	Vector3f Move(bool front, bool back, bool left, bool right, bool up, float elapsedTime);
-	Vector3f GetPositionInHistory(float elapsedTime) const;
-	void RecordPositionHistory(float elapsedTime, const Vector3f& newPosition);
+	Vector3f GetPositionAtIndex(int index) const;
+	void RecordPositionHistory(const Vector3f& position);
+	void ResetPositionHistory();
 
 	void TurnLeftRight(float value);
 	void TurnTopBottom(float value);
@@ -41,7 +42,7 @@ private:
 	Vector3f m_direction;
 	Vector3f m_velocity;
 
-	std::deque<std::pair<float, Vector3f>> m_positionHistory;
+	std::vector<Vector3f> m_positionHistory;
 	std::array<float, 2> m_rotation;
 	
 	float m_rotX;
