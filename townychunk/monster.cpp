@@ -23,13 +23,65 @@ Monster::~Monster() {
 	//delete m_laserVbo;
 }
 
-void Monster::InitializeLaser() {
-	VertexBuffer::VertexData laserVd[2];
+void Monster::UpdateLaserBeams() {
+	float width = 0.25f;
 
-	laserVd[0] = VertexBuffer::VertexData(0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-	laserVd[1] = VertexBuffer::VertexData(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+	Vector3f leftDirection = m_targetPosition - m_leftEyePosition;
+	Vector3f rightDirection = m_targetPosition - m_rightEyePosition;
 
-	m_laserVbo.SetMeshData(laserVd, 2);
+	leftDirection.Normalize();
+	rightDirection.Normalize();
+
+	Vector3f up = (fabs(leftDirection.z) < 0.99f) ? Vector3f(0.0f, 0.0f, 1.0f) : Vector3f(0.0f, 1.0f, 0.0f);
+
+	Vector3f leftPerp1 = leftDirection.Cross(up);
+	Vector3f leftPerp2 = leftDirection.Cross(leftPerp1);
+
+	Vector3f rightPerp1 = rightDirection.Cross(up);
+	Vector3f rightPerp2 = rightDirection.Cross(rightPerp1);
+
+	leftPerp1.Normalize();
+	leftPerp2.Normalize();
+
+	rightPerp1.Normalize();
+	rightPerp2.Normalize();
+
+	//Left eye
+	VertexBuffer::VertexData leftLaserVd[8];
+
+	leftLaserVd[0] = VertexBuffer::VertexData(m_leftEyePosition.x + leftPerp1.x * width, m_leftEyePosition.y + leftPerp1.y * width, m_leftEyePosition.z + leftPerp1.z * width, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f);
+	leftLaserVd[1] = VertexBuffer::VertexData(m_targetPosition.x + leftPerp1.x * width, m_targetPosition.y + leftPerp1.y * width, m_targetPosition.z + leftPerp1.z * width, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f);
+	leftLaserVd[2] = VertexBuffer::VertexData(m_targetPosition.x - leftPerp1.x * width, m_targetPosition.y - leftPerp1.y * width, m_targetPosition.z - leftPerp1.z * width, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f);
+	leftLaserVd[3] = VertexBuffer::VertexData(m_leftEyePosition.x - leftPerp1.x * width, m_leftEyePosition.y - leftPerp1.y * width, m_leftEyePosition.z - leftPerp1.z * width, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f);
+
+	leftLaserVd[4] = VertexBuffer::VertexData(m_leftEyePosition.x + leftPerp2.x * width, m_leftEyePosition.y + leftPerp2.y * width, m_leftEyePosition.z + leftPerp2.z * width, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f);
+	leftLaserVd[5] = VertexBuffer::VertexData(m_targetPosition.x + leftPerp2.x * width, m_targetPosition.y + leftPerp2.y * width, m_targetPosition.z + leftPerp2.z * width, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f);
+	leftLaserVd[6] = VertexBuffer::VertexData(m_targetPosition.x - leftPerp2.x * width, m_targetPosition.y - leftPerp2.y * width, m_targetPosition.z - leftPerp2.z * width, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f);
+	leftLaserVd[7] = VertexBuffer::VertexData(m_leftEyePosition.x - leftPerp2.x * width, m_leftEyePosition.y - leftPerp2.y * width, m_leftEyePosition.z - leftPerp2.z * width, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f);
+
+	// Right Eye
+	VertexBuffer::VertexData rightLaserVd[8];
+
+	rightLaserVd[0] = VertexBuffer::VertexData(m_rightEyePosition.x + rightPerp1.x * width, m_rightEyePosition.y + rightPerp1.y * width, m_rightEyePosition.z + rightPerp1.z * width, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f);
+	rightLaserVd[1] = VertexBuffer::VertexData(m_targetPosition.x + rightPerp1.x * width, m_targetPosition.y + rightPerp1.y * width, m_targetPosition.z + rightPerp1.z * width, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f);
+	rightLaserVd[2] = VertexBuffer::VertexData(m_targetPosition.x - rightPerp1.x * width, m_targetPosition.y - rightPerp1.y * width, m_targetPosition.z - rightPerp1.z * width, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f);
+	rightLaserVd[3] = VertexBuffer::VertexData(m_rightEyePosition.x - rightPerp1.x * width, m_rightEyePosition.y - rightPerp1.y * width, m_rightEyePosition.z - rightPerp1.z * width, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f);
+
+	rightLaserVd[4] = VertexBuffer::VertexData(m_rightEyePosition.x + rightPerp2.x * width, m_rightEyePosition.y + rightPerp2.y * width, m_rightEyePosition.z + rightPerp2.z * width, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f);
+	rightLaserVd[5] = VertexBuffer::VertexData(m_targetPosition.x + rightPerp2.x * width, m_targetPosition.y + rightPerp2.y * width, m_targetPosition.z + rightPerp2.z * width, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f);
+	rightLaserVd[6] = VertexBuffer::VertexData(m_targetPosition.x - rightPerp2.x * width, m_targetPosition.y - rightPerp2.y * width, m_targetPosition.z - rightPerp2.z * width, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f);
+	rightLaserVd[7] = VertexBuffer::VertexData(m_rightEyePosition.x - rightPerp2.x * width, m_rightEyePosition.y - rightPerp2.y * width, m_rightEyePosition.z - rightPerp2.z * width, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f);
+
+	m_leftLaserBeamVbo.SetMeshData(leftLaserVd, 8);
+	m_rightLaserBeamVbo.SetMeshData(rightLaserVd, 8);
+}
+
+const VertexBuffer& Monster::GetLeftEyeLaserVBO() const {
+	return m_leftLaserBeamVbo;
+}
+
+const VertexBuffer& Monster::GetRightEyeLaserVBO() const {
+	return m_rightLaserBeamVbo;
 }
 
 Vector3f Monster::GetLeftEyeOrigin() const {
@@ -74,34 +126,18 @@ void Monster::UpdateMonsterFace(float elapsedTime) {
 	else if (m_monsterVisibleTime > 0.0f) {
 		m_monsterVisibleTime -= elapsedTime;
 
-		if (m_isAttacking) {
-			float attackDuration = 10.0f - m_monsterVisibleTime;
-
-
-			if (attackDuration <= 5.0f) {
-				float historicalTime = std::max(0.0f, attackDuration - 2.5f);
-				m_targetPosition = m_player.GetPositionInHistory(historicalTime);
-				m_targetPosition.y -= 1.7f;
-			}
-
-			if (attackDuration > 2.5f) {
-				m_isRecordingPlayerPositions = false;
-			}
-			SetEyeOrigins(m_player);
-		}
-
 		if (m_monsterEyesFadeIn) {
 			m_monsterEyesAlpha += elapsedTime / m_monsterEyesFadeTime;
 
 			if (m_isRecordingPlayerPositions) {
-				m_player.RecordPositionHistory(accumulatedTime, m_player.GetPosition());
+				m_player.RecordPositionHistory(m_player.GetPosition());
 				std::cout << "Recorded position: " << m_player.GetPosition().x << ", " << m_player.GetPosition().y << ", " << m_player.GetPosition().z << " during EYE FADE-IN" << std::endl;
 			}
 
 			if (m_monsterEyesAlpha >= 1.0f) {
 				m_monsterEyesAlpha = 1.0f;
 				m_monsterEyesFadeIn = false;
-				m_monsterEyesVisibleTime = 5.0f; 
+				m_monsterEyesVisibleTime = 5.0f;
 				m_isAttacking = true;
 				PlayAttackSound();
 			}
@@ -109,12 +145,29 @@ void Monster::UpdateMonsterFace(float elapsedTime) {
 		else if (m_monsterEyesVisibleTime > 0.0f) {
 			m_monsterEyesVisibleTime -= elapsedTime;
 
-			if (m_isRecordingPlayerPositions && m_monsterEyesVisibleTime <= 2.5f) {
-				m_player.RecordPositionHistory(accumulatedTime, m_player.GetPosition());
-				std::cout << "Recorded position: " << m_player.GetPosition().x << ", " << m_player.GetPosition().y << ", " << m_player.GetPosition().z << " during ATTACK" << std::endl;
-			}
-			else {
-				m_isRecordingPlayerPositions = false;
+			if (m_isAttacking) {
+				m_targetPosition = m_player.GetPositionAtIndex(m_attackCount);
+				m_targetPosition.y -= 1.7f;
+				std::cout << "Attacked position was: " << m_targetPosition.x << ", " << m_targetPosition.y << ", " << m_targetPosition.z << std::endl;
+				UpdateLaserBeams();
+
+				if (m_isRecordingPlayerPositions && m_monsterEyesVisibleTime >= 2.5f) {
+					m_player.RecordPositionHistory(m_player.GetPosition());
+					std::cout << "Recorded position: " << m_player.GetPosition().x << ", " << m_player.GetPosition().y << ", " << m_player.GetPosition().z << " during ATTACK" << std::endl;
+				}
+				else {
+					m_isRecordingPlayerPositions = false;
+				}
+
+				m_attackCount++;
+
+
+				
+				if (accumulatedTime > 10.0f) {
+					m_isAttacking = false;
+				}
+
+				SetEyeOrigins(m_player);
 			}
 
 			if (m_monsterEyesVisibleTime <= 0.0f) {
@@ -152,6 +205,8 @@ void Monster::UpdateMonsterFace(float elapsedTime) {
 			SetEyeOrigins(m_player);
 			m_monsterFadeIn = true;
 			accumulatedTime = 0.0f;
+			m_player.ResetPositionHistory();
+			m_attackCount = 0;
 		}
 	}
 }
