@@ -188,7 +188,7 @@ void Engine::Render(float elapsedTime) {
 	Transformation t;
 
 	m_player.ApplyTransformation(t);
-	t.ApplyTranslation(0.5f, 0.5f, 0.5f);
+	t.ApplyTranslation(0.0f, 0.0f, 0.0f);
 	t.Use();
 
 	// Chunk
@@ -372,6 +372,7 @@ void Engine::DrawStartScreen(float elapsedTime) {
 
 void Engine::RenderLaserBeams(float elapsedTime) {
 	glEnable(GL_BLEND);
+	glDisable(GL_CULL_FACE);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	GLuint shaderProgramID = m_laserShader.GetProgramID();
 	glUseProgram(shaderProgramID);
@@ -389,6 +390,7 @@ void Engine::RenderLaserBeams(float elapsedTime) {
 		rightEyeLaserVbo.Render();
 	}
 	glDisable(GL_BLEND);
+	glEnable(GL_CULL_FACE);
 }
 
 void Engine::DrawFaceWithMonster(int face) {
@@ -435,8 +437,8 @@ void Engine::DrawArm() {
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	float armLeft = Width() * 0.65f;
-	float armRight = Width() * 0.925f;
+	float armLeft = Width() * 0.625f;
+	float armRight = Width() * 0.9f;
 	float armTop = Width() * 0.275f;
 	float armBottom = 0.0f;
 
@@ -458,7 +460,7 @@ void Engine::DrawBlock(float elapsedTime) {
 
 	Transformation t;
 	t.Push();
-	t.ApplyTranslation(2.25f, -0.25, -5.5f);
+	t.ApplyTranslation(2.5f, -0.65, -6.75f);
 	t.ApplyRotation(angleX, 1.0f, 0.0f, 0.0f);
 	t.ApplyRotation(angleY, 0.0f, 1.0f, 0.0f);
 	t.Use();
@@ -853,7 +855,7 @@ void Engine::MousePressEvent(const MOUSE_BUTTON& button, int x, int y) {
 			return;
 		}
 		else if ((targetX == playerX && targetY == playerY && targetZ == playerZ) ||
-			(targetX == playerX && targetY == playerY - 1 && targetZ == playerZ)) {
+			(targetX == playerX && targetY == playerY - 1 && targetZ == playerZ)) { // TODO: Apply y detection
 			return;
 		}
 		else {
