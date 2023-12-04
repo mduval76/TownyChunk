@@ -138,7 +138,7 @@ void Monster::UpdateMonsterFace(float elapsedTime) {
 
 			if (m_isRecordingPlayerPositions) {
 				m_player.RecordPositionHistory(m_player.GetPosition());
-				std::cout << "Recorded position: " << m_player.GetPosition().x << ", " << m_player.GetPosition().y << ", " << m_player.GetPosition().z << " during EYE FADE-IN" << std::endl;
+				//std::cout << "Recorded position: " << m_player.GetPosition().x << ", " << m_player.GetPosition().y << ", " << m_player.GetPosition().z << " during EYE FADE-IN" << std::endl;
 			}
 
 			if (m_monsterEyesAlpha >= 1.0f) {
@@ -155,12 +155,12 @@ void Monster::UpdateMonsterFace(float elapsedTime) {
 			if (m_isAttacking) {
 				m_targetPosition = m_player.GetPositionAtIndex(m_attackCount);
 				m_targetPosition.y -= 1.7f;
-				std::cout << "Attacked position was: " << m_targetPosition.x << ", " << m_targetPosition.y << ", " << m_targetPosition.z << std::endl;
+				//std::cout << "Attacked position was: " << m_targetPosition.x << ", " << m_targetPosition.y << ", " << m_targetPosition.z << std::endl;
 				UpdateLaserBeams();
 
 				if (m_isRecordingPlayerPositions && m_monsterEyesVisibleTime >= 2.5f) {
 					m_player.RecordPositionHistory(m_player.GetPosition());
-					std::cout << "Recorded position: " << m_player.GetPosition().x << ", " << m_player.GetPosition().y << ", " << m_player.GetPosition().z << " during ATTACK" << std::endl;
+					//std::cout << "Recorded position: " << m_player.GetPosition().x << ", " << m_player.GetPosition().y << ", " << m_player.GetPosition().z << " during ATTACK" << std::endl;
 				}
 				else {
 					m_isRecordingPlayerPositions = false;
@@ -168,19 +168,20 @@ void Monster::UpdateMonsterFace(float elapsedTime) {
 
 				m_attackCount++;
 
+				if (CheckLaserHit(m_player, m_targetPosition)) {
+					std::cout << "Player got zapped!" << std::endl;
+				}
+				SetEyeOrigins(m_player);
 
-				
 				if (accumulatedTime > 10.0f) {
 					m_isAttacking = false;
 				}
-
-				SetEyeOrigins(m_player);
 			}
 
 			if (m_monsterEyesVisibleTime <= 0.0f) {
 				m_monsterEyesFadeOut = true;
 				m_isAttacking = false;
-				std::cout << "Monster stopped attacking!" << std::endl;
+				//std::cout << "Monster stopped attacking!" << std::endl;
 			}
 		}
 		else if (m_monsterEyesFadeOut) {
@@ -285,7 +286,6 @@ bool Monster::CheckLaserHit(const Player& player, const Vector3f& target) {
 	int targetZ = static_cast<int>(std::floor(m_targetPosition.z));
 
 	if (playerX == targetX && playerZ == targetZ) {
-		std::cout << "Player hit by laser!" << std::endl;
 		return true;
 	}
 

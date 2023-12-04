@@ -50,6 +50,7 @@ private:
     void DrawArm();
     void DrawCrosshair();
     void DrawBlock(float elapsedTime);
+    void DrawHealthBar();
     void DrawHud(float elapsedTime);
     void DrawFaceWithMonster(int face);
     void DrawSkybox();
@@ -78,6 +79,7 @@ private:
     Texture m_textureCrosshair;
     Texture m_textureDark;
     Texture m_textureFont;
+    Texture m_textureHealthBar;
     Texture m_textureMonster;
     Texture m_textureMonsterEyes;
     Texture m_texturePlayButton;
@@ -100,6 +102,7 @@ private:
     bool m_keyA = false;
     bool m_keyC = true;
     bool m_keyD = false;
+    bool m_keyH = true;
     bool m_keyI = false;
     bool m_keyR = true;
     bool m_keyS = false;

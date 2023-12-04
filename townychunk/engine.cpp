@@ -67,6 +67,7 @@ void Engine::LoadResource() {
 	LoadTexture(m_texturePlayButton, TEXTURE_PATH "play_button.png");
 	LoadTexture(m_textureDark, TEXTURE_PATH "darkness.jpg");
 	LoadTexture(m_textureFont, TEXTURE_PATH "font.bmp");
+	LoadTexture(m_textureHealthBar, TEXTURE_PATH "health_bar.png");
 	LoadTexture(m_textureCrosshair, TEXTURE_PATH "cross.bmp");
 	LoadTexture(m_textureStartScreen, TEXTURE_PATH "start_screen.png");
 
@@ -153,7 +154,6 @@ void Engine::LoadResource() {
 		std::cerr << "Unable to load music" << std::endl;
 		abort();
 	}
-
 }
 
 void Engine::UnloadResource() {}
@@ -227,9 +227,10 @@ void Engine::Render(float elapsedTime) {
 
 	// HUD
 	AddBlendFunction(true);
-	if (m_keyR) { DrawArm(); }
-	if (m_keyI) { DrawHud(elapsedTime); }
 	if (m_keyC) { DrawCrosshair(); }
+	if (m_keyR) { DrawArm(); }
+	if (m_keyH) { DrawHealthBar(); }
+	if (m_keyI) { DrawHud(elapsedTime); }
 	RemoveBlendFunction(true);
 
 	// Equipped block
@@ -529,39 +530,57 @@ void Engine::DrawBlock(float elapsedTime) {
 	glBindTexture(GL_TEXTURE_2D, 0); // DON'T REMOVE THIS FUCKER!!!
 }
 
+void Engine::DrawHealthBar() {
+	float healthBarLeft = Width() * 0.025f;
+	float healthBarRight = Width() * 0.35f;
+
+	float healthBarTop = Height() * 0.95f;
+	float healthBarBottom = Height() * 0.8f;
+
+	m_textureHealthBar.Bind();
+	glBegin(GL_QUADS);
+	glTexCoord2f(0, 0); glVertex2i(healthBarLeft, healthBarBottom);
+	glTexCoord2f(1, 0); glVertex2i(healthBarRight, healthBarBottom);
+	glTexCoord2f(1, 1); glVertex2i(healthBarRight, healthBarTop);
+	glTexCoord2f(0, 1); glVertex2i(healthBarLeft, healthBarTop);
+	glEnd();
+}
+
 void Engine::DrawHud(float elapsedTime) {
 	m_textureFont.Bind();
 	std::ostringstream ss;
 
+	float h = Height();
+
 	ss << " CURSOR : ( X " << m_currentBlock.x << " | Y " << m_currentBlock.y << " | Z " << m_currentBlock.z << " )";
-	PrintText(10, Height() - 30, ss.str());
+	PrintText(10, h * 0.7f, ss.str());
 	ss.str("");
 	Vector3f currentDirection = m_player.GetDirection();
 	ss << " DIRECTION : " << DirectionToString(currentDirection);
-	PrintText(10, Height() - 60, ss.str());
+	PrintText(10, h * 0.65f, ss.str());
 	ss.str("");
 	ss << " FPS : " << GetFps(elapsedTime);
-	PrintText(10, Height() - 90, ss.str());
+	PrintText(10, h * 0.6f, ss.str());
 	ss.str("");
 
 	Vector3f pos = m_player.GetPosition();
 	ss << (pos.x > 0 ? " CHUNK: ( X " : " CHUNK: ( X-") << (int)(pos.x / CHUNK_SIZE_X) <<
 		(pos.z > 0 ? " | Z " : " | Z-") << (int)(pos.z / CHUNK_SIZE_Z) << " )";
-	PrintText(10, 80, ss.str());
+	PrintText(10, h * 0.15f, ss.str());
 	ss.str("");
 
 	ss << (pos.x > 0 ? " BLOCK: ( X " : " BLOCK: ( X-") <<
 		abs((int)(pos.x) % CHUNK_SIZE_X) << (pos.y > 0 ? " | Y " : " | Y-") <<
 		abs((int)(pos.y) % CHUNK_SIZE_Y) << (pos.z > 0 ? " | Z " : " | Z-") <<
 		abs((int)(pos.z) % CHUNK_SIZE_Z) << " )";
-	PrintText(10, 50, ss.str());
+	PrintText(10, h * 0.1f, ss.str());
 	ss.str("");
 
 	ss << (pos.x > 0 ? " GLOBAL: ( X " : " GLOBAL: ( X-") << std::fixed << std::setprecision(2) <<
 		abs(pos.x) << (pos.y > 0 ? " | Y " : " | Y-") <<
 		abs(pos.y) << (pos.z > 0 ? " | Z " : " | Z-") <<
 		abs(pos.z) << " )";
-	PrintText(10, 20, ss.str());
+	PrintText(10, h * 0.05f, ss.str());
 	ss.str("");
 }
 
@@ -624,6 +643,9 @@ void Engine::KeyPressEvent(unsigned char key) {
 		break;
 	case 3: // ( BACK ) D
 		m_keyD = true;
+		break;
+	case 7: // ( INFO ) I
+		m_keyH = !m_keyH;
 		break;
 	case 8: // ( INFO ) I
 		m_keyI = !m_keyI;
