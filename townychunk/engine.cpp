@@ -227,8 +227,8 @@ void Engine::Render(float elapsedTime) {
 
 	// HUD
 	AddBlendFunction(true);
-	if (m_keyR) { DrawArm(); }
 	if (m_keyH) { DrawHealthBar(); }
+	if (m_keyR) { DrawArm(); }
 	if (m_keyI) { DrawHud(elapsedTime); }
 	if (m_keyC) { DrawCrosshair(); }
 	RemoveBlendFunction(true);
@@ -241,9 +241,7 @@ void Engine::Render(float elapsedTime) {
 
 	if (m_monster.GetIsAttacking()) {
 		m_laserShader.Use();
-		AddBlendFunction(false);
 		RenderLaserBeams(elapsedTime);
-		RemoveBlendFunction(false);
 		Shader::Disable();
 	}
 
@@ -442,7 +440,6 @@ void Engine::DrawArm() {
 	glTexCoord2f(1, 1); glVertex2i(armRight, armTop);
 	glTexCoord2f(0, 1); glVertex2i(armLeft, armTop);
 	glEnd();
-
 	glBlendFunc(originalBlendSrc, originalBlendDst);
 }
 
@@ -530,12 +527,21 @@ void Engine::DrawBlock(float elapsedTime) {
 }
 
 void Engine::DrawHealthBar() {
+	glLoadIdentity();
+
+	GLint originalBlendSrc, originalBlendDst;
+	glGetIntegerv(GL_BLEND_SRC_ALPHA, &originalBlendSrc);
+	glGetIntegerv(GL_BLEND_DST_ALPHA, &originalBlendDst);
+
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	float healthBarLeft = Width() * 0.025f;
 	float healthBarRight = Width() * 0.35f;
 
 	float healthBarTop = Height() * 0.95f;
 	float healthBarBottom = Height() * 0.8f;
 
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 	m_textureHealthBar.Bind();
 	glBegin(GL_QUADS);
 	glTexCoord2f(0, 0); glVertex2i(healthBarLeft, healthBarBottom);
@@ -543,6 +549,24 @@ void Engine::DrawHealthBar() {
 	glTexCoord2f(1, 1); glVertex2i(healthBarRight, healthBarTop);
 	glTexCoord2f(0, 1); glVertex2i(healthBarLeft, healthBarTop);
 	glEnd();
+
+	float dynamicHealthBarLeft = Width() * 0.08f;
+	float dynamicHealthBarRight = Width() * 0.295f;
+
+	float dynamicHealthBarTop = Height() * 0.89f;
+	float dynamicHealthBarBottom = Height() * 0.875f;
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glColor4f(0.0f, 1.0f, 0.0f, 0.5f);
+	glBegin(GL_QUADS);
+	glTexCoord2f(0, 0); glVertex2i(dynamicHealthBarLeft, dynamicHealthBarBottom);
+	glTexCoord2f(1, 0); glVertex2i(dynamicHealthBarRight, dynamicHealthBarBottom);
+	glTexCoord2f(1, 1); glVertex2i(dynamicHealthBarRight, dynamicHealthBarTop);
+	glTexCoord2f(0, 1); glVertex2i(dynamicHealthBarLeft, dynamicHealthBarTop);
+	glEnd();
+
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+	glBlendFunc(originalBlendSrc, originalBlendDst);
 }
 
 void Engine::DrawHud(float elapsedTime) {
@@ -629,7 +653,7 @@ void Engine::PrintText(unsigned int x, unsigned int y, const std::string& t) {
 		glTexCoord2f(left, top);	 glVertex2f(0, charHeight - 5);
 		glEnd();
 
-		glTranslated(charWidth, 0, 0);
+		glTranslated(charWidth - 10, 0, 0);
 	}
 }
 
