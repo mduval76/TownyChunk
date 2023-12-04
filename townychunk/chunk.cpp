@@ -15,14 +15,14 @@ Chunk::Chunk(IWorld* world, int x, int z) : m_blocks(CHUNK_SIZE_X, CHUNK_SIZE_Y,
 			val *= CHUNK_SIZE_Y;
 
 			for (int y = 0; y < val; ++y) {
-				if (val < 15) {
-					SetBlock(x, y, z, BTYPE_EMBOSSED_BROWN);
-				}
-				else if (val >= 15 && val < 30) {
+				if (val < 2) {
 					SetBlock(x, y, z, BTYPE_CIRCLE);
 				}
-				else if (val >= 30 && val < 45) {
-					SetBlock(x, y, z, BTYPE_HELL);
+				else if (val >= 2 && val < 15) {
+					SetBlock(x, y, z, BTYPE_EMBOSSED_BROWN);
+				}
+				else if (val >= 15) {
+					SetBlock(x, y, z, BTYPE_EMBOSSED_WHITE);
 				}
 			}
 		

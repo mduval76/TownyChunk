@@ -421,26 +421,26 @@ void Engine::DrawFaceWithMonster(int face) {
 }
 
 void Engine::DrawArm() {
-	float armWidth = Width() * 0.33f;
-	float armHeight = Height() * 0.5f;
-	float armPosX = Width() * 0.95f;
-	float armPosY = 0.0f;
 
 	glLoadIdentity();
-	glTranslated(armPosX * RESIZE_RATIO, armPosY, 0);
 
-	m_textureArm.Bind();
 	GLint originalBlendSrc, originalBlendDst;
 	glGetIntegerv(GL_BLEND_SRC_ALPHA, &originalBlendSrc);
 	glGetIntegerv(GL_BLEND_DST_ALPHA, &originalBlendDst);
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+	float armLeft = Width() * 0.65f;
+	float armRight = Width() * 0.925f;
+	float armTop = Width() * 0.275f;
+	float armBottom = 0.0f;
+
+	m_textureArm.Bind();
 	glBegin(GL_QUADS);
-	glTexCoord2f(1, 0); glVertex2i(0, 0);
-	glTexCoord2f(0, 0); glVertex2i(armWidth, 0);
-	glTexCoord2f(0, 1); glVertex2i(armWidth, armHeight);
-	glTexCoord2f(1, 1); glVertex2i(0, armHeight);
+	glTexCoord2f(0, 0); glVertex2i(armLeft, armBottom);
+	glTexCoord2f(1, 0); glVertex2i(armRight, armBottom);
+	glTexCoord2f(1, 1); glVertex2i(armRight, armTop);
+	glTexCoord2f(0, 1); glVertex2i(armLeft, armTop);
 	glEnd();
 
 	glBlendFunc(originalBlendSrc, originalBlendDst);
@@ -454,7 +454,7 @@ void Engine::DrawBlock(float elapsedTime) {
 
 	Transformation t;
 	t.Push();
-	t.ApplyTranslation(1.135f, -0.25, -5.5f);
+	t.ApplyTranslation(2.25f, -0.25, -5.5f);
 	t.ApplyRotation(angleX, 1.0f, 0.0f, 0.0f);
 	t.ApplyRotation(angleY, 0.0f, 1.0f, 0.0f);
 	t.Use();

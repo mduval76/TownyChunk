@@ -275,6 +275,23 @@ void Monster::PlayAttackSound() {
 	}
 }
 
+bool Monster::CheckLaserHit(const Player& player, const Vector3f& target) {
+	int playerX = static_cast<int>(std::floor(player.GetPosition().x));
+	int playerY = static_cast<int>(std::floor(player.GetPosition().y));
+	int playerZ = static_cast<int>(std::floor(player.GetPosition().z));
+
+	int targetX = static_cast<int>(std::floor(m_targetPosition.x));
+	int targetY = static_cast<int>(std::floor(m_targetPosition.y));
+	int targetZ = static_cast<int>(std::floor(m_targetPosition.z));
+
+	if (playerX == targetX && playerZ == targetZ) {
+		std::cout << "Player hit by laser!" << std::endl;
+		return true;
+	}
+
+	return false;
+}
+
 void Monster::SetEyeOrigins(const Player& player) {
 	float playerX = player.GetPosition().x;
 	float playerY = player.GetPosition().y;
