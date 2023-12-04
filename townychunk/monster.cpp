@@ -107,7 +107,11 @@ bool Monster::GetIsAttacking() const {
 	return m_isAttacking;
 }
 
-void Monster::UpdateMonsterFace(float elapsedTime) {
+bool Monster::GetIsCausingDamage() const {
+	return m_isCausingDamage;
+}
+
+void Monster::TriggerMonsterAttackCycle(float elapsedTime) {
 	static float accumulatedTime = 0.0f;
 
 	if (m_isFirstAppearance) {
@@ -155,12 +159,10 @@ void Monster::UpdateMonsterFace(float elapsedTime) {
 			if (m_isAttacking) {
 				m_targetPosition = m_player.GetPositionAtIndex(m_attackCount);
 				m_targetPosition.y -= 1.7f;
-				//std::cout << "Attacked position was: " << m_targetPosition.x << ", " << m_targetPosition.y << ", " << m_targetPosition.z << std::endl;
 				UpdateLaserBeams();
 
 				if (m_isRecordingPlayerPositions && m_monsterEyesVisibleTime >= 2.5f) {
 					m_player.RecordPositionHistory(m_player.GetPosition());
-					//std::cout << "Recorded position: " << m_player.GetPosition().x << ", " << m_player.GetPosition().y << ", " << m_player.GetPosition().z << " during ATTACK" << std::endl;
 				}
 				else {
 					m_isRecordingPlayerPositions = false;
@@ -170,7 +172,12 @@ void Monster::UpdateMonsterFace(float elapsedTime) {
 
 				if (CheckLaserHit(m_player, m_targetPosition)) {
 					std::cout << "Player got zapped!" << std::endl;
+					m_isCausingDamage = true;
 				}
+				else {
+					m_isCausingDamage = false;
+				}
+
 				SetEyeOrigins(m_player);
 
 				if (accumulatedTime > 10.0f) {
@@ -181,7 +188,7 @@ void Monster::UpdateMonsterFace(float elapsedTime) {
 			if (m_monsterEyesVisibleTime <= 0.0f) {
 				m_monsterEyesFadeOut = true;
 				m_isAttacking = false;
-				//std::cout << "Monster stopped attacking!" << std::endl;
+				m_isCausingDamage = false;
 			}
 		}
 		else if (m_monsterEyesFadeOut) {

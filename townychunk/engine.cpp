@@ -212,7 +212,11 @@ void Engine::Render(float elapsedTime) {
 	t.Use();
 
 	AddBlendFunction(false);
-	m_monster.UpdateMonsterFace(elapsedTime);
+	m_monster.TriggerMonsterAttackCycle(elapsedTime);
+	if (m_monster.GetIsCausingDamage()) {
+		m_player.UpdateHealth(0.1f);
+	}
+
 	DrawSkybox();
 	RemoveBlendFunction(false);
 
@@ -227,7 +231,7 @@ void Engine::Render(float elapsedTime) {
 
 	// HUD
 	AddBlendFunction(true);
-	if (m_keyH) { DrawHealthBar(); }
+	if (m_keyH) { DrawHealthBar(m_player.GetPlayerHealth()); }
 	if (m_keyR) { DrawArm(); }
 	if (m_keyI) { DrawHud(elapsedTime); }
 	if (m_keyC) { DrawCrosshair(); }
@@ -367,6 +371,8 @@ void Engine::DrawStartScreen(float elapsedTime) {
 }
 
 void Engine::RenderLaserBeams(float elapsedTime) {
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	GLuint shaderProgramID = m_laserShader.GetProgramID();
 	glUseProgram(shaderProgramID);
 
@@ -382,6 +388,7 @@ void Engine::RenderLaserBeams(float elapsedTime) {
 	if (rightEyeLaserVbo.IsValid()) {
 		rightEyeLaserVbo.Render();
 	}
+	glDisable(GL_BLEND);
 }
 
 void Engine::DrawFaceWithMonster(int face) {
@@ -526,7 +533,7 @@ void Engine::DrawBlock(float elapsedTime) {
 	glBindTexture(GL_TEXTURE_2D, 0); // DON'T REMOVE THIS FUCKER!!!
 }
 
-void Engine::DrawHealthBar() {
+void Engine::DrawHealthBar(float currentHealth) {
 	glLoadIdentity();
 
 	GLint originalBlendSrc, originalBlendDst;
@@ -550,18 +557,32 @@ void Engine::DrawHealthBar() {
 	glTexCoord2f(0, 1); glVertex2i(healthBarLeft, healthBarTop);
 	glEnd();
 
+
+
 	float dynamicHealthBarLeft = Width() * 0.08f;
 	float dynamicHealthBarRight = Width() * 0.295f;
+
+	float totalHealthBarWidth = dynamicHealthBarRight - dynamicHealthBarLeft;
+	float dynamicHealthBarWidth = (currentHealth / 100.0f) * totalHealthBarWidth;
 
 	float dynamicHealthBarTop = Height() * 0.89f;
 	float dynamicHealthBarBottom = Height() * 0.875f;
 
+	if (dynamicHealthBarWidth > totalHealthBarWidth / 2) {
+		glColor4f(0.0f, 1.0f, 0.0f, 0.5f);
+	}
+	else if (dynamicHealthBarWidth > totalHealthBarWidth / 4) {
+		glColor4f(1.0f, 1.0f, 0.0f, 0.5f);
+	}
+	else {
+		glColor4f(1.0f, 0.0f, 0.0f, 0.5f);
+	}
+
 	glBindTexture(GL_TEXTURE_2D, 0);
-	glColor4f(0.0f, 1.0f, 0.0f, 0.5f);
 	glBegin(GL_QUADS);
 	glTexCoord2f(0, 0); glVertex2i(dynamicHealthBarLeft, dynamicHealthBarBottom);
-	glTexCoord2f(1, 0); glVertex2i(dynamicHealthBarRight, dynamicHealthBarBottom);
-	glTexCoord2f(1, 1); glVertex2i(dynamicHealthBarRight, dynamicHealthBarTop);
+	glTexCoord2f(1, 0); glVertex2i(dynamicHealthBarLeft + dynamicHealthBarWidth, dynamicHealthBarBottom);
+	glTexCoord2f(1, 1); glVertex2i(dynamicHealthBarLeft + dynamicHealthBarWidth, dynamicHealthBarTop);
 	glTexCoord2f(0, 1); glVertex2i(dynamicHealthBarLeft, dynamicHealthBarTop);
 	glEnd();
 

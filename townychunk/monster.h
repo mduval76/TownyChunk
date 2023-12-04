@@ -21,6 +21,7 @@ public:
     Vector3f GetTargetPosition() const;
 
     bool GetIsAttacking() const;
+    bool GetIsCausingDamage() const;
 
     int GetMonsterFace() const;
 
@@ -29,7 +30,7 @@ public:
 
     void SetEyeOrigins(const Player& player);
 
-    void UpdateMonsterFace(float elapsedTime);
+    void TriggerMonsterAttackCycle(float elapsedTime);
     int SetRandomMonsterFace();
 
     void PlayAttackSound();
@@ -57,6 +58,7 @@ private:
     bool m_monsterEyesFadeIn = false;
     bool m_monsterEyesFadeOut = false;
     bool m_isAttacking = false;
+    bool m_isCausingDamage = false;
     bool m_isFirstAppearance = true;
     bool m_isRecordingPlayerPositions = false;
 

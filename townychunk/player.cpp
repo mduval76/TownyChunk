@@ -68,6 +68,10 @@ bool Player::GetIsOnGround() const {
 	return m_isOnGround;
 }
 
+float Player::GetPlayerHealth() const {
+	return m_hp;
+}
+
 Vector3f Player::Move(bool front, bool back, bool left, bool right, bool up, float elapsedTime) {
 	float yrotrad = (m_rotY / 180 * 3.141592654f);
 	float speed = 0.175f;
@@ -151,6 +155,10 @@ void Player::TurnTopBottom(float value) {
 
 	m_rotation[0] = m_rotX;
 	m_rotation[1] = m_rotY;
+}
+
+void Player::UpdateHealth(float damage) {
+	m_hp -= damage;
 }
 
 void Player::ApplyTransformation(Transformation& transformation, bool includeRotation) {

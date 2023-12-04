@@ -20,6 +20,8 @@ public:
 	Vector3f GetVelocity() const;
 	BlockType GetEquippedItem() const;
 	bool GetIsOnGround() const;
+	float GetPlayerHealth() const;
+
 	void SetPosition(const Vector3f& position);
 	void SetVelocity(const Vector3f& velocity);
 	void SetOnGround(bool grounded);
@@ -32,6 +34,8 @@ public:
 
 	void TurnLeftRight(float value);
 	void TurnTopBottom(float value);
+
+	void UpdateHealth(float damage);
 
 	void ApplyTransformation(Transformation& transformation, bool includeRotation = true);
 

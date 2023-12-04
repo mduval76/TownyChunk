@@ -50,7 +50,7 @@ private:
     void DrawArm();
     void DrawCrosshair();
     void DrawBlock(float elapsedTime);
-    void DrawHealthBar();
+    void DrawHealthBar(float currentHealth);
     void DrawHud(float elapsedTime);
     void DrawFaceWithMonster(int face);
     void DrawSkybox();
