@@ -227,10 +227,10 @@ void Engine::Render(float elapsedTime) {
 
 	// HUD
 	AddBlendFunction(true);
-	if (m_keyC) { DrawCrosshair(); }
 	if (m_keyR) { DrawArm(); }
 	if (m_keyH) { DrawHealthBar(); }
 	if (m_keyI) { DrawHud(elapsedTime); }
+	if (m_keyC) { DrawCrosshair(); }
 	RemoveBlendFunction(true);
 
 	// Equipped block
@@ -422,7 +422,6 @@ void Engine::DrawFaceWithMonster(int face) {
 }
 
 void Engine::DrawArm() {
-
 	glLoadIdentity();
 
 	GLint originalBlendSrc, originalBlendDst;
@@ -550,37 +549,38 @@ void Engine::DrawHud(float elapsedTime) {
 	m_textureFont.Bind();
 	std::ostringstream ss;
 
+	float w = Width();
 	float h = Height();
 
 	ss << " CURSOR : ( X " << m_currentBlock.x << " | Y " << m_currentBlock.y << " | Z " << m_currentBlock.z << " )";
-	PrintText(10, h * 0.7f, ss.str());
+	PrintText(w * 0.01f, h * 0.75f, ss.str());
 	ss.str("");
 	Vector3f currentDirection = m_player.GetDirection();
 	ss << " DIRECTION : " << DirectionToString(currentDirection);
-	PrintText(10, h * 0.65f, ss.str());
+	PrintText(w * 0.01f, h * 0.7f, ss.str());
 	ss.str("");
 	ss << " FPS : " << GetFps(elapsedTime);
-	PrintText(10, h * 0.6f, ss.str());
+	PrintText(w * 0.01f, h * 0.65f, ss.str());
 	ss.str("");
 
 	Vector3f pos = m_player.GetPosition();
 	ss << (pos.x > 0 ? " CHUNK: ( X " : " CHUNK: ( X-") << (int)(pos.x / CHUNK_SIZE_X) <<
 		(pos.z > 0 ? " | Z " : " | Z-") << (int)(pos.z / CHUNK_SIZE_Z) << " )";
-	PrintText(10, h * 0.15f, ss.str());
+	PrintText(w * 0.01f, h * 0.15f, ss.str());
 	ss.str("");
 
 	ss << (pos.x > 0 ? " BLOCK: ( X " : " BLOCK: ( X-") <<
 		abs((int)(pos.x) % CHUNK_SIZE_X) << (pos.y > 0 ? " | Y " : " | Y-") <<
 		abs((int)(pos.y) % CHUNK_SIZE_Y) << (pos.z > 0 ? " | Z " : " | Z-") <<
 		abs((int)(pos.z) % CHUNK_SIZE_Z) << " )";
-	PrintText(10, h * 0.1f, ss.str());
+	PrintText(w * 0.01f, h * 0.1f, ss.str());
 	ss.str("");
 
 	ss << (pos.x > 0 ? " GLOBAL: ( X " : " GLOBAL: ( X-") << std::fixed << std::setprecision(2) <<
 		abs(pos.x) << (pos.y > 0 ? " | Y " : " | Y-") <<
 		abs(pos.y) << (pos.z > 0 ? " | Z " : " | Z-") <<
 		abs(pos.z) << " )";
-	PrintText(10, h * 0.05f, ss.str());
+	PrintText(w * 0.01f, h * 0.05f, ss.str());
 	ss.str("");
 }
 
@@ -629,7 +629,7 @@ void Engine::PrintText(unsigned int x, unsigned int y, const std::string& t) {
 		glTexCoord2f(left, top);	 glVertex2f(0, charHeight - 5);
 		glEnd();
 
-		glTranslated(charWidth * RESIZE_RATIO, 0, 0);
+		glTranslated(charWidth, 0, 0);
 	}
 }
 
