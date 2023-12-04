@@ -2,7 +2,7 @@
 
 Engine::Engine() :
 	m_world(nullptr),
-	m_gameState(START_MENU),
+	m_gameState(START_SCREEN),
 	m_player(Vector3f(SPAWN_X, CHUNK_SIZE_Y, SPAWN_Z)),
 	m_currentBlock(Vector3f(0.0f, 0.0f, 0.0f)),
 	m_monster(m_player),
@@ -69,6 +69,7 @@ void Engine::LoadResource() {
 	LoadTexture(m_textureFont, TEXTURE_PATH "font.bmp");
 	LoadTexture(m_textureHealthBar, TEXTURE_PATH "health_bar.png");
 	LoadTexture(m_textureCrosshair, TEXTURE_PATH "cross.bmp");
+	LoadTexture(m_textureEndScreen, TEXTURE_PATH "end_screen.png");
 	LoadTexture(m_textureStartScreen, TEXTURE_PATH "start_screen.png");
 
 	TextureAtlas::TextureIndex texIdxEmbossedBrown = m_textureAtlas.AddTexture(TEXTURE_PATH "embossed_brown.png");
@@ -172,12 +173,21 @@ void Engine::Render(float elapsedTime) {
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
-	if (m_gameState == START_MENU) {
+	if (m_gameState == START_SCREEN) {
 		AddBlendFunction(true);
 		DrawStartScreen(elapsedTime);
 		RemoveBlendFunction(true);
 		return;
 	}
+	
+	if (m_gameState == END_SCREEN) {
+		AddBlendFunction(true);
+		DrawEndScreen(elapsedTime);
+		RemoveBlendFunction(true);
+		return;
+	}
+
+	HideCursor();
 
 	// Camera (Player)
 	Vector3f pos = m_player.GetPosition();
@@ -188,7 +198,7 @@ void Engine::Render(float elapsedTime) {
 	Transformation t;
 
 	m_player.ApplyTransformation(t);
-	t.ApplyTranslation(0.0f, 0.0f, 0.0f);
+	t.ApplyTranslation(0.5f, 0.5f, 0.5f);
 	t.Use();
 
 	// Chunk
@@ -215,6 +225,10 @@ void Engine::Render(float elapsedTime) {
 	m_monster.TriggerMonsterAttackCycle(elapsedTime);
 	if (m_monster.GetIsCausingDamage()) {
 		m_player.UpdateHealth(0.1f);
+
+		if (m_player.GetPlayerHealth() <= 0.0f) {
+			m_gameState = END_SCREEN;
+		}
 	}
 
 	DrawSkybox();
@@ -331,6 +345,16 @@ void Engine::DrawSkybox() {
 	glEnd();
 
 	glDisable(GL_BLEND);
+}
+
+void Engine::DrawEndScreen(float elapsedTime) {
+	m_textureEndScreen.Bind();
+	glBegin(GL_QUADS);
+	glTexCoord2f(0, 0); glVertex2i(0, 0);
+	glTexCoord2f(1, 0); glVertex2i(Width(), 0);
+	glTexCoord2f(1, 1); glVertex2i(Width(), Height());
+	glTexCoord2f(0, 1); glVertex2i(0, Height());
+	glEnd();
 }
 
 void Engine::DrawStartScreen(float elapsedTime) {
@@ -559,8 +583,6 @@ void Engine::DrawHealthBar(float currentHealth) {
 	glTexCoord2f(0, 1); glVertex2i(healthBarLeft, healthBarTop);
 	glEnd();
 
-
-
 	float dynamicHealthBarLeft = Width() * 0.08f;
 	float dynamicHealthBarRight = Width() * 0.295f;
 
@@ -755,7 +777,7 @@ void Engine::MouseMoveEvent(int x, int y) {
 	m_player.TurnLeftRight((float)x);
 	m_player.TurnTopBottom((float)y);
 
-	if (m_gameState == START_MENU) {
+	if (m_gameState == START_SCREEN) {
 		return;
 	}
 
@@ -811,7 +833,8 @@ void Engine::MousePressEvent(const MOUSE_BUTTON& button, int x, int y) {
 
 	switch (button) {
 	case MOUSE_BUTTON_LEFT:
-		if (m_gameState == START_MENU && (x > buttonLeft && x < buttonRight && invertedY < buttonTop && invertedY > buttonBottom)) {
+		// FIX CLICKABLE PLAY BUTTON SURFACE
+		if (m_gameState == START_SCREEN && (x > buttonLeft && x < buttonRight && invertedY < buttonTop && invertedY > buttonBottom)) {
 			m_gameState = PLAY;
 			HideCursor();
 			CenterMouse();

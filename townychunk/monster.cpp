@@ -155,7 +155,9 @@ void Monster::TriggerMonsterAttackCycle(float elapsedTime) {
 
 			if (m_isAttacking) {
 				m_targetPosition = m_player.GetPositionAtIndex(m_attackCount);
-				m_targetPosition.y -= 1.7f;
+				m_targetPosition.x -= 0.5f;
+				m_targetPosition.y -= 2.2f;
+				m_targetPosition.z -= 0.5f;
 				UpdateLaserBeams();
 
 				if (m_isRecordingPlayerPositions && m_monsterEyesVisibleTime >= 2.5f) {
@@ -284,9 +286,9 @@ bool Monster::CheckLaserHit(const Player& player, const Vector3f& target) {
 	int playerY = static_cast<int>(std::floor(player.GetPosition().y));
 	int playerZ = static_cast<int>(std::floor(player.GetPosition().z));
 
-	int targetX = static_cast<int>(std::floor(m_targetPosition.x));
-	int targetY = static_cast<int>(std::floor(m_targetPosition.y));
-	int targetZ = static_cast<int>(std::floor(m_targetPosition.z));
+	int targetX = static_cast<int>(std::floor(m_targetPosition.x + 0.5));
+	int targetY = static_cast<int>(std::floor(m_targetPosition.y + 0.5));
+	int targetZ = static_cast<int>(std::floor(m_targetPosition.z + 0.5));
 
 	if (playerX == targetX && playerZ == targetZ) {
 		return true;

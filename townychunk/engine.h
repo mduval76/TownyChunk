@@ -54,6 +54,7 @@ private:
     void DrawHud(float elapsedTime);
     void DrawFaceWithMonster(int face);
     void DrawSkybox();
+    void DrawEndScreen(float elapsedTime);
     void DrawStartScreen(float elapsedTime);
 
     void RenderLaserBeams(float elapsedTime);
@@ -83,6 +84,7 @@ private:
     Texture m_textureMonster;
     Texture m_textureMonsterEyes;
     Texture m_texturePlayButton;
+    Texture m_textureEndScreen;
     Texture m_textureStartScreen;
 
     TextureAtlas m_textureAtlas = TextureAtlas(BTYPE_LAST);
