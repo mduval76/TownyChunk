@@ -224,7 +224,7 @@ void Engine::Render(float elapsedTime) {
 	AddBlendFunction(false);
 	m_monster.TriggerMonsterAttackCycle(elapsedTime);
 	if (m_monster.GetIsCausingDamage()) {
-		m_player.UpdateHealth(5.0f);
+		m_player.UpdateHealth(0.1f);
 
 		if (m_player.GetPlayerHealth() <= 0.0f) {
 			m_gameState = END_SCREEN;
