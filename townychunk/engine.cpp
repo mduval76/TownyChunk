@@ -224,10 +224,11 @@ void Engine::Render(float elapsedTime) {
 	AddBlendFunction(false);
 	m_monster.TriggerMonsterAttackCycle(elapsedTime);
 	if (m_monster.GetIsCausingDamage()) {
-		m_player.UpdateHealth(0.1f);
+		m_player.UpdateHealth(5.0f);
 
 		if (m_player.GetPlayerHealth() <= 0.0f) {
 			m_gameState = END_SCREEN;
+			m_monster.StopAttackSound();
 		}
 	}
 
@@ -348,6 +349,7 @@ void Engine::DrawSkybox() {
 }
 
 void Engine::DrawEndScreen(float elapsedTime) {
+	ShowCursor();
 	m_textureEndScreen.Bind();
 	glBegin(GL_QUADS);
 	glTexCoord2f(0, 0); glVertex2i(0, 0);
@@ -770,14 +772,15 @@ void Engine::KeyReleaseEvent(unsigned char key) {
 }
 
 void Engine::MouseMoveEvent(int x, int y) {
-	if (x == (Width() / 2) && y == (Height() / 2))
-		return;
-
 	MakeRelativeToCenter(x, y);
 	m_player.TurnLeftRight((float)x);
 	m_player.TurnTopBottom((float)y);
 
 	if (m_gameState == START_SCREEN) {
+		return;
+	}
+	
+	if (m_gameState == END_SCREEN) {
 		return;
 	}
 

@@ -281,16 +281,24 @@ void Monster::PlayAttackSound() {
 	}
 }
 
+void Monster::StopAttackSound() {
+	m_laser1.stop();
+	m_laser2.stop();
+	m_laser3.stop();
+	m_laser4.stop();
+	m_laser5.stop();
+}
+
 bool Monster::CheckLaserHit(const Player& player, const Vector3f& target) {
 	int playerX = static_cast<int>(std::floor(player.GetPosition().x));
-	int playerY = static_cast<int>(std::floor(player.GetPosition().y));
+	int playerY = static_cast<int>(std::floor(player.GetPosition().y - 1));
 	int playerZ = static_cast<int>(std::floor(player.GetPosition().z));
 
 	int targetX = static_cast<int>(std::floor(m_targetPosition.x + 0.5));
 	int targetY = static_cast<int>(std::floor(m_targetPosition.y + 0.5));
 	int targetZ = static_cast<int>(std::floor(m_targetPosition.z + 0.5));
 
-	if (playerX == targetX && playerZ == targetZ) {
+	if (targetX == playerX && targetZ == playerZ && targetY >= playerY && targetY < playerY + 1.7f) {
 		return true;
 	}
 

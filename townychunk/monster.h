@@ -34,6 +34,7 @@ public:
     int SetRandomMonsterFace();
 
     void PlayAttackSound();
+    void StopAttackSound();
     bool CheckLaserHit(const Player& player, const Vector3f& target);
 
 private:

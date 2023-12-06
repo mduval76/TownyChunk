@@ -121,7 +121,8 @@ Vector3f Player::Move(bool front, bool back, bool left, bool right, bool up, flo
 }
 
 Vector3f Player::GetPositionAtIndex(int index) const {
-	if (index >= 0 && index < m_positionHistory.size()) {
+	int historySize = (int)m_positionHistory.size();
+	if (index >= 0 && index < historySize) {
 		return m_positionHistory[index];
 	}
 	else {
@@ -130,7 +131,9 @@ Vector3f Player::GetPositionAtIndex(int index) const {
 }
 
 void Player::RecordPositionHistory(const Vector3f& position) {
-	m_positionHistory.push_back(position);
+	Vector3f adjustedPosition = position;
+	adjustedPosition.y += PLAYER_MIDDLE;
+	m_positionHistory.push_back(adjustedPosition);
 }
 
 void Player::ResetPositionHistory() {
