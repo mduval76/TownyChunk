@@ -410,7 +410,7 @@ void Engine::RenderLaserBeams(float elapsedTime) {
 	m_laserShader.UpdateVec2Uniform(screenSizeLocation, Width(), Height());
 
 	GLint colorLocation = m_laserShader.GetUniformLocation("color");
-	float alphaValue = (sin(laserTime * 60.0f) / 4.0f) + 0.5f;
+	float alphaValue = (sin(laserTime) / 4.0f) + 0.5f;
 	float redValue = (sin(laserTime) / 2.0f) + 0.5f;
 	float greenValue = (sin(laserTime + PI) / 2.0f) + 0.5f;
 	float blueValue = (sin(laserTime + (PI / 2.0f)) / 2.0f) + 0.5f;

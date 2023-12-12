@@ -10,7 +10,7 @@ float pseudoNoise(vec2 coord) {
 }
 
 void main() {
-    vec2 texCoord = gl_FragCoord.xy / screenSize;
+    vec2 texCoord = (gl_FragCoord.xy / screenSize) * 0.05;
     float noiseValue = pseudoNoise(texCoord + time);
 
     // Modulate the alpha value with the noise
