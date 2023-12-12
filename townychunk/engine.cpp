@@ -403,9 +403,18 @@ void Engine::RenderLaserBeams(float elapsedTime) {
 	static float laserTime = 0.0f;
 	laserTime += elapsedTime;
 
+	GLint timeLocation = m_laserShader.GetUniformLocation("time");
+	m_laserShader.UpdateFloatUniform(timeLocation, laserTime);
+
+	GLint screenSizeLocation = m_laserShader.GetUniformLocation("screenSize");
+	m_laserShader.UpdateVec2Uniform(screenSizeLocation, Width(), Height());
+
 	GLint colorLocation = m_laserShader.GetUniformLocation("color");
-	float alphaValue = (sin(laserTime * 50.0f) / 4.0f) + 0.5f;;
-	m_laserShader.UpdateVec4Uniform(colorLocation, 1.0f, 0.0f, 0.0f, alphaValue);
+	float alphaValue = (sin(laserTime * 60.0f) / 4.0f) + 0.5f;
+	float redValue = (sin(laserTime) / 2.0f) + 0.5f;
+	float greenValue = (sin(laserTime + PI) / 2.0f) + 0.5f;
+	float blueValue = (sin(laserTime + (PI / 2.0f)) / 2.0f) + 0.5f;
+	m_laserShader.UpdateVec4Uniform(colorLocation, redValue, greenValue, blueValue, alphaValue);
 
 	const VertexBuffer& leftEyeLaserVbo = m_monster.GetLeftEyeLaserVBO();
 	if (leftEyeLaserVbo.IsValid()) {
