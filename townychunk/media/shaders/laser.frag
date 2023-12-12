@@ -1,7 +1,8 @@
-uniform float time;
+out vec4 FragColor;
+
 varying vec4 light;
+uniform vec4 color;
 
 void main() {
-    float alpha = 0.5 + 0.5 * sin(time * 5.0);
-    gl_FragColor = vec4(1.0, 0.0, 0.0, alpha);
+    FragColor = color;
 }

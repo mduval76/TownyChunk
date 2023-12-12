@@ -49,6 +49,10 @@
     <ClCompile Include="vertexbuffer.cpp" />
     <ClCompile Include="world.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="media\shaders\laser.frag" />
+    <None Include="media\shaders\laser.vert" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{A21FD938-1FEA-4687-AB86-0EABAC30877B}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>

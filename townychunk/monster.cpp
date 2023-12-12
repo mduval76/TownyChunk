@@ -11,7 +11,7 @@ Monster::Monster(Player& player) :
 	m_monsterAlpha(0.0f),
 	m_monsterFadeTime(2.5f),
 	m_monsterVisibleTime(0.0f),
-	m_monsterInvisibleTime(1.0f), // TODO: Make initial value longer after testing
+	m_monsterInvisibleTime(1.0f),
 	m_monsterEyesAlpha(0.0f),
 	m_monsterEyesFadeTime(2.5f),
 	m_monsterEyesVisibleTime(0.0f) {
@@ -19,12 +19,12 @@ Monster::Monster(Player& player) :
 	// InitializeLaser();
 }
 
-Monster::~Monster() {
-	//delete m_laserVbo;
-}
+Monster::~Monster() {}
 
 void Monster::UpdateLaserBeams() {
-	float width = 0.25f;
+	int numSides = 16;
+	float angleStep = 360.0f / numSides;
+	float width = 0.15f;
 
 	Vector3f leftDirection = m_targetPosition - m_leftEyePosition;
 	Vector3f rightDirection = m_targetPosition - m_rightEyePosition;
@@ -51,8 +51,17 @@ void Monster::UpdateLaserBeams() {
 	rightPerp1 *= width;
 	rightPerp2 *= width;
 
+
 	//Left eye
-	VertexBuffer::VertexData leftLaserVd[8];
+	VertexBuffer::VertexData leftLaserVd[64];
+
+
+
+	for (int i = 0; i < numSides; ++i) {
+		float angle = angleStep * i;
+		float rad = angle * PI / 180.0f;;
+
+	}
 
 	leftLaserVd[0] = VertexBuffer::VertexData(m_leftEyePosition.x + leftPerp1.x, m_leftEyePosition.y + leftPerp1.y, m_leftEyePosition.z + leftPerp1.z, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
 	leftLaserVd[1] = VertexBuffer::VertexData(m_targetPosition.x + leftPerp1.x, m_targetPosition.y + leftPerp1.y, m_targetPosition.z + leftPerp1.z, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
@@ -65,7 +74,7 @@ void Monster::UpdateLaserBeams() {
 	leftLaserVd[7] = VertexBuffer::VertexData(m_leftEyePosition.x - leftPerp2.x, m_leftEyePosition.y - leftPerp2.y, m_leftEyePosition.z - leftPerp2.z, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
 
 	// Right Eye
-	VertexBuffer::VertexData rightLaserVd[8];
+	VertexBuffer::VertexData rightLaserVd[64];
 
 	rightLaserVd[0] = VertexBuffer::VertexData(m_rightEyePosition.x + rightPerp1.x, m_rightEyePosition.y + rightPerp1.y, m_rightEyePosition.z + rightPerp1.z, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
 	rightLaserVd[1] = VertexBuffer::VertexData(m_targetPosition.x + rightPerp1.x, m_targetPosition.y + rightPerp1.y, m_targetPosition.z + rightPerp1.z, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);

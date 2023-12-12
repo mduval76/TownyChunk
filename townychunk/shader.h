@@ -3,6 +3,7 @@
 
 #include <string>
 #include "define.h"
+#include "vector3.h"
 
 class Shader
 {
@@ -10,10 +11,16 @@ class Shader
         bool Load(const std::string& vertFile, const std::string& fragFile, bool verbose = false);
         void Use() const;
 
-        GLint BindIntUniform(const std::string& name) const;
         GLuint GetProgramID() const;
-        void UpdateIntUniform(GLint name, GLint value) const;
-        void UpdateFloatUniform(GLint name, GLfloat value) const;
+        GLint GetUniformLocation(const std::string& name) const;
+        GLint GetAttribLocation(const std::string& name) const;
+
+        void UpdateIntUniform(GLint name, GLint value);
+        void UpdateFloatUniform(GLint name, GLfloat value);
+        void UpdateVec2Uniform(GLint name, GLfloat x, GLfloat y);
+		void UpdateVec3Uniform(GLint name, GLfloat x, GLfloat y, GLfloat z);
+        void UpdateVec3Uniform(GLint name, const Vector3f& vector);
+        void UpdateVec4Uniform(GLint name, GLfloat x, GLfloat y, GLfloat z, GLfloat w);
 
         static void Disable();
 

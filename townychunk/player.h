@@ -12,32 +12,40 @@
 
 class Player {
 public:
+	struct BoundingBox {
+		Vector3f min;
+		Vector3f max;
+	
+		BoundingBox(const Vector3f& min, const Vector3f& max) 
+			: min(Vector3f(FLT_MAX, FLT_MAX, FLT_MAX)), max(Vector3f(-FLT_MAX, -FLT_MAX, -FLT_MAX)) {}
+	};
+
 	Player(const Vector3f& position, float rotX = 0, float rotY = 0);
 
 	std::array<float, 2> GetRotation() const;
-	Vector3f GetDirection();
 	Vector3f GetPosition() const;
+	Vector3f GetDirection();
 	Vector3f GetVelocity() const;
-	BlockType GetEquippedItem() const;
-	bool GetIsOnGround() const;
-	float GetPlayerHealth() const;
 
+	bool GetIsOnGround() const;
 	void SetPosition(const Vector3f& position);
 	void SetVelocity(const Vector3f& velocity);
 	void SetOnGround(bool grounded);
-	void SetEquippedItem(BlockType targetType);
 
 	Vector3f Move(bool front, bool back, bool left, bool right, bool up, float elapsedTime);
+	void ApplyTransformation(Transformation& transformation, bool includeRotation = true);
+	void TurnLeftRight(float value);
+	void TurnTopBottom(float value);
+
 	Vector3f GetPositionAtIndex(int index) const;
 	void RecordPositionHistory(const Vector3f& position);
 	void ResetPositionHistory();
 
-	void TurnLeftRight(float value);
-	void TurnTopBottom(float value);
-
+	BlockType GetEquippedItem() const;
+	void SetEquippedItem(BlockType targetType);
+	float GetPlayerHealth() const;
 	void UpdateHealth(float damage);
 
-	void ApplyTransformation(Transformation& transformation, bool includeRotation = true);
 
 private:
 	BlockType m_equippedItem;

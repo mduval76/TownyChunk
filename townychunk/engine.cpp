@@ -400,11 +400,12 @@ void Engine::RenderLaserBeams(float elapsedTime) {
 	glEnable(GL_BLEND);
 	glDisable(GL_CULL_FACE);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	GLuint shaderProgramID = m_laserShader.GetProgramID();
-	glUseProgram(shaderProgramID);
+	static float laserTime = 0.0f;
+	laserTime += elapsedTime;
 
-	GLint timeLocation = glGetUniformLocation(shaderProgramID, "time");
-	glUniform1f(timeLocation, elapsedTime);
+	GLint colorLocation = m_laserShader.GetUniformLocation("color");
+	float alphaValue = (sin(laserTime * 50.0f) / 4.0f) + 0.5f;;
+	m_laserShader.UpdateVec4Uniform(colorLocation, 1.0f, 0.0f, 0.0f, alphaValue);
 
 	const VertexBuffer& leftEyeLaserVbo = m_monster.GetLeftEyeLaserVBO();
 	if (leftEyeLaserVbo.IsValid()) {

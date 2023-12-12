@@ -19,6 +19,8 @@ public:
 	T Dot(const Vector3<T>& v) const;
 	Vector3<T> Cross(const Vector3<T>& v) const;
 
+	Vector3<T> RotateAroundZ(const Vector3<T>& v, float angle) const;
+
 	Vector3<T> operator+(const Vector3<T>& v) const;
 	Vector3<T> operator-(const Vector3<T>& v) const;
 	Vector3<T> operator-() const;
@@ -95,6 +97,14 @@ Vector3<T> Vector3<T>::Cross(const Vector3<T>& v) const {
 		y * v.z - v.y * z,
 		z * v.x - v.z * x,
 		x * v.y - v.x * y);
+}
+
+template<class T>
+Vector3<T> Vector3<T>::RotateAroundZ(const Vector3<T>& v, float angle) const {
+	float rad = angle * PI / 180.0;
+	T newX = vec.x * cos(rad) - vec.y * sin(rad);
+	T newY = vec.x * sin(rad) + vec.y * cos(rad);
+	return Vector3<T>(newX, newY, vec.z);
 }
 
 template <class T>
