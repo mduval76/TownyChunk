@@ -24,7 +24,7 @@ Monster::~Monster() {}
 void Monster::UpdateLaserBeams() {
 	int numSides = 16;
 	float angleStep = 360.0f / numSides;
-	float width = 0.1f;
+	float width = 0.15f;
 
 	Vector3f leftDirection = m_targetPosition - m_leftEyePosition;
 	Vector3f rightDirection = m_targetPosition - m_rightEyePosition;

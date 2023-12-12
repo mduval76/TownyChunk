@@ -141,7 +141,8 @@ void Player::ResetPositionHistory() {
 }
 
 void Player::TurnLeftRight(float value) {
-	m_rotY += value;
+	float sensitivity = 0.1f;
+	m_rotY += value * sensitivity;
 	if (m_rotY > 360 || m_rotY < -360)
 		m_rotY = 0;
 
@@ -150,7 +151,8 @@ void Player::TurnLeftRight(float value) {
 }
 
 void Player::TurnTopBottom(float value) {
-	m_rotX += value;
+	float sensitivity = 0.1f;
+	m_rotX += value * sensitivity;
 	if (m_rotX > 90)
 		m_rotX = 90;
 	if (m_rotX < -90)
