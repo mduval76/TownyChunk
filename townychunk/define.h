@@ -14,9 +14,9 @@
 #include <GL/glew.h>
 #endif
 
-#define CHUNK_SIZE_X 16
+#define CHUNK_SIZE_X 3
 #define CHUNK_SIZE_Y 128
-#define CHUNK_SIZE_Z 16
+#define CHUNK_SIZE_Z 3
 
 #define WORLD_SIZE_X   VIEW_DISTANCE / CHUNK_SIZE_X
 #define WORLD_SIZE_Z   VIEW_DISTANCE / CHUNK_SIZE_Z

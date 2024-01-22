@@ -52,7 +52,7 @@ void Monster::UpdateLaserBeams() {
 	rightPerp2 *= width;
 
 	//Left eye
-	VertexBuffer::VertexData leftLaserVd[64];
+	VertexBuffer::VertexData leftLaserVd[8];
 
 	for (int i = 0; i < numSides; ++i) {
 		float angle = angleStep * i;
@@ -70,7 +70,7 @@ void Monster::UpdateLaserBeams() {
 	leftLaserVd[7] = VertexBuffer::VertexData(m_leftEyePosition.x - leftPerp2.x, m_leftEyePosition.y - leftPerp2.y, m_leftEyePosition.z - leftPerp2.z, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
 
 	// Right Eye
-	VertexBuffer::VertexData rightLaserVd[64];
+	VertexBuffer::VertexData rightLaserVd[8];
 
 	rightLaserVd[0] = VertexBuffer::VertexData(m_rightEyePosition.x + rightPerp1.x, m_rightEyePosition.y + rightPerp1.y, m_rightEyePosition.z + rightPerp1.z, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
 	rightLaserVd[1] = VertexBuffer::VertexData(m_targetPosition.x + rightPerp1.x, m_targetPosition.y + rightPerp1.y, m_targetPosition.z + rightPerp1.z, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
